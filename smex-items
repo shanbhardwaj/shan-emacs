@@ -1,0 +1,18 @@
+
+;; ----- smex-history -----
+(
+ restart-emacs
+ describe-key
+ org-babel-load-file
+ ag
+ cd
+ 5x5
+ arp
+)
+
+;; ----- smex-data -----
+(
+ (org-babel-load-file . 2)
+ (describe-key . 1)
+ (restart-emacs . 1)
+)

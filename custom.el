@@ -1,0 +1,48 @@
+(require 'spaceline-config)
+(spaceline-spacemacs-theme)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(column-number-mode t)
+ '(custom-safe-themes
+   (quote
+    ("6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "f0a99f53cbf7b004ba0c1760aa14fd70f2eabafe4e62a2b3cf5cabae8203113b" default)))
+ '(fci-rule-color "#5B6268")
+ '(jdee-db-active-breakpoint-face-colors (cons "#1B2229" "#51afef"))
+ '(jdee-db-requested-breakpoint-face-colors (cons "#1B2229" "#98be65"))
+ '(jdee-db-spec-breakpoint-face-colors (cons "#1B2229" "#3f444a"))
+ '(line-number-mode nil)
+ '(package-selected-packages
+   (quote
+    (yaml-mode rspec-mode seeing-is-believing robe inf-ruby rubocop rbenv restart-emacs use-package-chords fzf evil-nerd-commenter js-doc prettier-js rjsx-mode js2-refactor js2-mode counsel-projectile ivy-hydra swiper ivy git-gutter company-anaconda company-go company doom-modeline crux undo-tree quickrun slime shell-pop scratch emmet-mode smooth-scrolling smex smartscan restclient geiser racket-mode python-mode multiple-cursors markdown-mode macrostep flycheck expand-region edit-server magit helm-swoop helm-ag helm-projectile helm dash-at-point clojure-mode c-eldoc ace-window ace-jump-mode ag ido-vertical-mode transpose-frame ox-pandoc org-plus-contrib exec-path-from-shell page-break-lines spacemacs-theme doom-themes diminish use-package)))
+ '(vc-annotate-background "#2B2B2B")
+ '(vc-annotate-color-map
+   (quote
+    ((20 . "#BC8383")
+     (40 . "#CC9393")
+     (60 . "#DFAF8F")
+     (80 . "#D0BF8F")
+     (100 . "#E0CF9F")
+     (120 . "#F0DFAF")
+     (140 . "#5F7F5F")
+     (160 . "#7F9F7F")
+     (180 . "#8FB28F")
+     (200 . "#9FC59F")
+     (220 . "#AFD8AF")
+     (240 . "#BFEBBF")
+     (260 . "#93E0E3")
+     (280 . "#6CA0A3")
+     (300 . "#7CB8BB")
+     (320 . "#8CD0D3")
+     (340 . "#94BFF3")
+     (360 . "#DC8CC3"))))
+ '(vc-annotate-very-old-color "#DC8CC3"))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
