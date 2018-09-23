@@ -1,0 +1,6 @@
+[submodule "github/sky-color-clock"]
+	path = github/sky-color-clock
+	url = git@github.com:zk-phi/sky-color-clock.git
+[submodule "github/hideshowvis"]
+	path = github/hideshowvis
+	url = git@github.com:sheijk/hideshowvis.git

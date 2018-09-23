@@ -2,17 +2,71 @@
 ;; ----- smex-history -----
 (
  restart-emacs
- describe-key
  org-babel-load-file
- ag
- cd
- 5x5
- arp
+ neotree-toggle
+ describe-mode
+ text-scale-decrease
+ describe-face
+ customize-face
 )
 
 ;; ----- smex-data -----
 (
- (org-babel-load-file . 2)
- (describe-key . 1)
- (restart-emacs . 1)
+ (org-babel-load-file . 42)
+ (describe-key . 3)
+ (restart-emacs . 26)
+ (magit-status . 1)
+ (package-install . 14)
+ (dired-sidebar-show-sidebar . 1)
+ (dired-sidebar-toggle-sidebar . 3)
+ (neotree . 5)
+ (project-find-file . 1)
+ (recentf-open-files . 3)
+ (counsel-projectile-find-file . 2)
+ (robe-start . 1)
+ (visual-line-mode . 4)
+ (projectile-global-mode . 1)
+ (projectile-mode . 1)
+ (undo-tree-mode . 2)
+ (undo-tree-undo . 2)
+ (org-mode . 1)
+ (neotree-toggle . 6)
+ (make-directory . 2)
+ (org-indent-item . 1)
+ (undo-tree-visualize . 1)
+ (package-list-packages . 4)
+ (package-autoremove . 1)
+ (projectile-switch-project . 1)
+ (line-number-mode . 4)
+ (replace-string . 5)
+ (highlight-indent-guides-mode . 8)
+ (windmove-right . 1)
+ (aggressive-indent-mode . 1)
+ (paradox-list-packages . 1)
+ (magit-commit . 1)
+ (vc-annotate . 1)
+ (neotree-projectile-action . 7)
+ (erase-buffer . 1)
+ (ansi-term . 1)
+ (save-buffer . 1)
+ (describe-font . 2)
+ (replace-regexp . 1)
+ (query-replace . 1)
+ (package-delete . 2)
+ (rjsx-mode . 6)
+ (flycheck-mode . 3)
+ (global-flycheck-mode . 3)
+ (describe-variable . 2)
+ (flycheck-list-errors . 1)
+ (projectile-ag . 1)
+ (global-hl-line-mode . 1)
+ (describe-minor-mode . 1)
+ (describe-mode . 6)
+ (shell-pop . 1)
+ (describe-face . 2)
+ (treemacs . 5)
+ (treemacs-toggle-fixed-width . 2)
+ (treemacs-projectile . 3)
+ (customize-face . 1)
+ (text-scale-decrease . 1)
 )
