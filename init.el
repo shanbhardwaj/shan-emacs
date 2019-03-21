@@ -12,11 +12,15 @@
 (setq inhibit-startup-message t)
 (setq initial-scratch-message "")
 
+(add-to-list 'default-frame-alist 
+             '(fullscreen . maximized))
+
+
 ;;; Set up package
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
+;; (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 (when (boundp 'package-pinned-packages)
   (setq package-pinned-packages
         '((org-plus-contrib . "org"))))

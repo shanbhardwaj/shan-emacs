@@ -1,3 +1,4 @@
+
 #+TITLE: Emacs Configuration
 #+AUTHOR: Shantanu Bhardwaj
 
@@ -5,132 +6,96 @@ I have been using Emacs since 2000 and i have declared Emacs Bankruptcy
 many times. It  has always been a learning experience. Mostly it works best
 when I stick with it.
 
-This configuration uses the [[https://github.com/jwiegley/use-package][use-package]] package from John Wiegley, which is
-a fantastic way to manage package configurations.
-
 * Installing Emacs
 
-  On macOS, [[http://brew.sh/][homebrew]] is an easy way to install emacs.
+On macOS, [[http://brew.sh/][homebrew]] is an easy way to install emacs.
 
-  Here's what the parameters means.
-  - ~--with-cocoa~ :: installs emacs with the macOS GUI version
-  - ~--with-imagemagick~ :: installs emacs with imagemagick support for image processing
-  - ~--with-gnutls~ :: installs emacs with GnuTLS for encrypted SSL and TLS connections
+Here's what the parameters means.
+- ~--with-cocoa~ :: installs emacs with the macOS GUI version
+- ~--with-imagemagick~ :: installs emacs with imagemagick support for image processing
+- ~--with-gnutls~ :: installs emacs with GnuTLS for encrypted SSL and TLS connections
 
-  #+begin_src sh
+     #+begin_src sh
 brew install emacs --with-cocoa --with-imagemagick --with-gnutls
-  #+end_src
+     #+end_src
 
 * Personal Information
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (setq user-full-name "Shantanu Bhardwaj"
       user-mail-address "shan@addvalsolutions.com")
-  #+end_src
+#+end_src
 
 * Customize settings
 
-  Set up the customize file to its own separate file, instead of saving
-  customize settings in [[file:init.el][init.el]].
+Set up the customize file to its own separate file, instead of saving
+customize settings in [[file:init.el][init.el]].
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
-  #+end_src
+#+end_src
 
 * Theme
 
 ** Doom theme
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package doom-themes
   :ensure t
   :config
   (doom-themes-visual-bell-config)
   (doom-themes-org-config)
-  (load-theme 'doom-one))
-
-(setq calendar-latitude 30.7391)
-(setq calendar-longitude 76.7677)
-(setq calendar-location-name "CHD, IN")
-
-(use-package sky-color-clock
-  :load-path "~/.emacs.d/github/sky-color-clock"
-  :config
-  (sky-color-clock-initialize (round calendar-latitude))
-  (push '(:eval (sky-color-clock)) (default-value 'mode-line-format))
+  (load-theme 'doom-one-light)
   )
+
+;; (Setq calendar-latitude 30.7391)
+;; (setq calendar-longitude 76.7677)
+;; (setq calendar-location-name "CHD, IN")
+
+;; (use-package sky-color-clock
+;;   :load-path "~/.emacs.d/github/sky-color-clock"
+;;   :config
+;;   (sky-color-clock-initialize (round calendar-latitude))
+;;   (push '(:eval (sky-color-clock)) (default-value 'mode-line-format))
+;;   )
+
+;; **** Default Theme
+;; (load-theme 'wombat t)
 
 (use-package doom-modeline
   :ensure t
   :hook (after-init . doom-modeline-init)
   :config
-  (set-face-attribute 'mode-line nil :font "Monaco-12")
-  (set-face-attribute 'mode-line-inactive nil :font "Monaco-12")
+  (set-face-attribute 'mode-line nil :font "Operator Mono-12")
+  (set-face-attribute 'mode-line-inactive nil :font "Operator Mono-12")
 
-  (defvar skycolor-clock)
-  (doom-modeline-def-segment skycolor-clock
-                             (concat " " (sky-color-clock) " "))
-  (doom-modeline-def-modeline
-   ;; Left mode line segments
-   '(bar
-     workspace-number
-     window-number
-     "   "
-     matches
-     "   "
-     buffer-info
-     "   "
-     selection-info)
-   ;; Right mode line segments
-   '(major-mode
-     vcs
-     flycheck
-     skycolor-clock))
+  ;; (defvar skycolor-clock)
+  ;; (doom-modeline-def-segment skycolor-clock
+  ;;                            (concat " " (sky-color-clock) " "))
+  ;; (doom-modeline-def-modeline
+  ;;  ;; Left mode line segments
+  ;;  '(bar
+  ;;    workspace-number
+  ;;    window-number
+  ;;    "   "
+  ;;    matches
+  ;;    "   "
+  ;;    buffer-info
+  ;;    "   "
+  ;;    selection-info)
+  ;;  ;; Right mode line segments
+  ;;  '(major-mode
+  ;;    vcs
+  ;;    flycheck
+  ;;    skycolor-clock))
 
   )
 
-   #+END_SRC
-** Cyberpunk theme
-
-   The [[https://github.com/n3mo/cyberpunk-theme.el][cyberpunk theme]] is dark and colorful. However, I don't like the
-   boxes around the mode line.
-
-   #+begin_src emacs-lisp :tangle no
-(use-package cyberpunk-theme
-  :if (window-system)
-  :ensure t
-  :init
-  (progn
-    (load-theme 'cyberpunk t)
-    (set-face-attribute `mode-line nil
-                        :box nil)
-    (set-face-attribute `mode-line-inactive nil
-                        :box nil)))
-   #+end_src
-
-   I tend to switch themes more often than normal. For example, switching
-   to a lighter theme (such as the default) or to a different theme
-   depending on the time of day or my mood. Normally, switching themes is
-   a multi-step process with ~disable-theme~ and ~load-theme~. The
-   ~switch-theme~ function will do that in one swoop. I just choose which
-   theme I want to go to.
-
-** Solarized theme
-
-   Here's some configuration for [[https://github.com/bbatsov/solarized-emacs/][bbatsov's solarized themes]].
-
-   #+begin_src emacs-lisp :tangle no
-(use-package solarized-theme
-  :defer 10
-  :init
-  (setq solarized-use-variable-pitch nil)
-  :ensure t)
-   #+end_src
-
+#+END_SRC
 ** Convenient theme functions
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (defun switch-theme (theme)
   "Disables any currently active themes and loads THEME."
   ;; This interactive call is taken from `load-theme'
@@ -150,54 +115,54 @@ brew install emacs --with-cocoa --with-imagemagick --with-gnutls
 
 (bind-key "s-<f12>" 'switch-theme)
 (bind-key "s-<f11>" 'disable-active-themes)
-   #+end_src
+#+end_src
 
 * Font
 
-  [[http://adobe-fonts.github.io/source-code-pro/][Source Code Pro]] is a nice monospaced font.
+[[http://adobe-fonts.github.io/source-code-pro/][Source Code Pro]] is a nice monospaced font.
 
-  To install it on macOS, you can use Homebrew with [[http://caskroom.io/][Homebrew Cask]].
+To install it on macOS, you can use Homebrew with [[http://caskroom.io/][Homebrew Cask]].
 
-  #+begin_src sh :tangle no
+#+begin_src sh :tangle no
 # You may need to run these two lines if you haven't set up Homebrew
 # Cask and its fonts formula.
 brew install caskroom/cask/brew-cask
 brew tap caskroom/fonts
 
 brew cask install font-source-code-pro
-  #+end_src
+#+end_src
 
-  And here's how we tell Emacs to use the font we want to use.
+And here's how we tell Emacs to use the font we want to use.
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (add-to-list 'default-frame-alist
-             '(font . "Monaco-14"))
-  #+end_src
+             '(font . "Operator Mono-14"))
+#+end_src
 
-  Note: To view all fonts that are available to use, run the following:
+Note: To view all fonts that are available to use, run the following:
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no
 (font-family-list)
-  #+END_SRC
+#+END_SRC
 
-  Display emojis. Source of system-specific fonts is in [[https://github.com/syohex/emacs-ac-emoji][the README for
-  the emacs-ac-emoji package.]]
+Display emojis. Source of system-specific fonts is in [[https://github.com/syohex/emacs-ac-emoji][the README for
+the emacs-ac-emoji package.]]
 
-  #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (let ((font (if (= emacs-major-version 25)
                 "Symbola"
               (cond ((string-equal system-type "darwin")    "Apple Color Emoji")
                     ((string-equal system-type "gnu/linux") "Symbola")))))
   (set-fontset-font t 'unicode font nil 'prepend))
-  #+END_SRC
+#+END_SRC
 
 * Sane defaults
 
-  Let's start with some sane defaults, shall we?
+Let's start with some sane defaults, shall we?
 
-  Sources for this section include [[https://github.com/magnars/.emacs.d/blob/master/settings/sane-defaults.el][Magnars Sveen]] and [[http://pages.sachachua.com/.emacs.d/Sacha.html][Sacha Chua]].
+Sources for this section include [[https://github.com/magnars/.emacs.d/blob/master/settings/sane-defaults.el][Magnars Sveen]] and [[http://pages.sachachua.com/.emacs.d/Sacha.html][Sacha Chua]].
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 ;; These functions are useful. Activate them.
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
@@ -237,6 +202,8 @@ brew cask install font-source-code-pro
 (column-number-mode t)
 
 ;; (global-visual-line-mode -1)
+(remove-hook 'text-mode-hook #'turn-on-auto-fill)
+(add-hook 'text-mode-hook 'turn-on-visual-line-mode)
 (diminish 'visual-line-mode)
 
 (setq uniquify-buffer-name-style 'forward)
@@ -245,33 +212,47 @@ brew cask install font-source-code-pro
 (setq shell-command-switch "-ic")
 
 ;; Don't beep at me
-(setq visible-bell t)
+(setq visible-bell nil)
 
 ;; highlight current line everywhere
 (global-hl-line-mode 1)
 
-(global-unset-key (kbd "M-m"))
-  #+end_src
+(global-unset-key (kbd "M-m")
+                  ;; (global-set-key (kbd "C-+") 'text-scale-increase)
+                  ;; (global-set-key (kbd "C--") 'text-scale-decrease)
+                  ;; (global-set-key (kbd "C-+") 'text-scale-increase)
+                  ;; (global-set-key (kbd "C--") 'text-scale-decrease) 
+                  )
+#+end_src
 
-  Here we make page-break characters look pretty, instead of appearing
-  as =^L= in Emacs. [[http://ericjmritz.name/2015/08/29/using-page-breaks-in-gnu-emacs/][Here's an informative article called "Using
-  Page-Breaks in GNU Emacs" by Eric J. M. Ritz.]]
+Here we make page-break characters look pretty, instead of appearing
+as =^L= in Emacs. [[http://ericjmritz.name/2015/08/29/using-page-breaks-in-gnu-emacs/][Here's an informative article called "Using
+Page-Breaks in GNU Emacs" by Eric J. M. Ritz.]]
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package page-break-lines
   :ensure t)
-  #+end_src
+#+end_src
 
-  # TODO: Change this to auto for prog-mode only
-  # (when (version<= "26.0.50" emacs-version )
-  (add-hook 'prog-mode-hook  (display-line-numbers-mode))
+# TODO: Change this to auto for prog-mode only
+# (when (version<= "26.0.50" emacs-version )
+# (add-hook 'prog-mode-hook  (display-line-numbers-mode))
+# (global-display-line-numbers-mode t)
+
+# Customize the minibuffer
+#+BEGIN_SRC emacs-lisp
+(add-hook 'minibuffer-setup-hook 'my-minibuffer-setup)
+(defun my-minibuffer-setup ()
+  (set (make-local-variable 'face-remapping-alist)
+       '((default :height 0.9))))
+#+END_SRC
 
 * Mac customizations
 
-  There are configurations to make when running Emacs on macOS (hence the
-  "darwin" system-type check).
+There are configurations to make when running Emacs on macOS (hence the
+"darwin" system-type check).
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (when (string-equal system-type "darwin")
 
   (add-to-list 'default-frame-alist
@@ -326,22 +307,22 @@ brew cask install font-source-code-pro
   ;; Not going to use these commands
   (put 'ns-print-buffer 'disabled t)
   (put 'suspend-frame 'disabled t))
-  #+end_src
+#+end_src
 
-  ~exec-path-from-shell~ makes the command-line path with Emacs's shell
-  match the same one on macOS.
+~exec-path-from-shell~ makes the command-line path with Emacs's shell
+match the same one on macOS.
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
   :ensure t
   :init
   (exec-path-from-shell-initialize))
-  #+end_src
+#+end_src
 
 ** Open other apps from Emacs
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (defun open-dir-in-finder ()
   "Open a new Finder window to the path of the current buffer"
   (interactive)
@@ -365,13 +346,13 @@ brew cask install font-source-code-pro
 (bind-key "C-c o f" 'open-dir-in-finder)
 (bind-key "C-c o t" 'open-dir-in-iterm)
 (bind-key "C-c o a" 'open-dir-in-studio)
-   #+END_SRC
+#+END_SRC
 
 ** El Capitan fixes
 
-   http://stuff-things.net/2015/10/05/emacs-visible-bell-work-around-on-os-x-el-capitan/
+http://stuff-things.net/2015/10/05/emacs-visible-bell-work-around-on-os-x-el-capitan/
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 ;; (let* ((cmd "sw_vers -productVersion")
 ;;        (macos-version (string-to-int
 ;;                      (cadr (split-string
@@ -384,124 +365,133 @@ brew cask install font-source-code-pro
 
 ;;     ;; El Capitan full screen animation is quick and delightful (enough to start using it).
 ;;     (setq ns-use-native-fullscreen t)))
-   #+END_SRC
+#+END_SRC
 
 * List buffers
 
-  ibuffer is the improved version of list-buffers.
+ibuffer is the improved version of list-buffers.
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 ;; make ibuffer the default buffer lister.
 (defalias 'list-buffers 'ibuffer)
-  #+end_src
+#+end_src
 
 
-  source: http://ergoemacs.org/emacs/emacs_buffer_management.html
+source: http://ergoemacs.org/emacs/emacs_buffer_management.html
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (add-hook 'dired-mode-hook 'auto-revert-mode)
 
 ;; Also auto refresh dired, but be quiet about it
 (setq global-auto-revert-non-file-buffers t)
 (setq auto-revert-verbose nil)
-  #+end_src
+#+end_src
 
-  source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
-
-* Recentf
-
-  #+begin_src emacs-lisp
-(use-package recentf
-  :config
-  (recentf-mode t)
-  (global-set-key (kbd "C-x C-r") 'recentf-open-files)
-  (setq recentf-max-saved-items 100))
-  #+end_src
+source: [[http://whattheemacsd.com/sane-defaults.el-01.html][Magnars Sveen]]
 
 * Org mode
 
-  Truly the way to [[http://orgmode.org/][live life in plain text]]. I mainly use it to take
-  notes and save executable source blocks. I'm also starting to make use
-  of its agenda, timestamping, and capturing features.
+Truly the way to [[http://orgmode.org/][live life in plain text]]. I mainly use it to take
+notes and save executable source blocks. I'm also starting to make use
+of its agenda, timestamping, and capturing features.
 
-  It goes without saying that I also use it to manage my Emacs config.
+It goes without saying that I also use it to manage my Emacs config.
 
 ** Installation
 
-   Although Org mode ships with Emacs, the latest version can be installed externally. The configuration here follows the [[http://orgmode.org/elpa.html][Org mode ELPA installation instructions]].
+Although Org mode ships with Emacs, the latest version can be installed externally. The configuration here follows the [[http://orgmode.org/elpa.html][Org mode ELPA installation instructions]].
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package org
-  :ensure org-plus-contrib)
-   #+END_SRC
+  :ensure org-plus-contrib
+  :config 
+  (require 'org-tempo)
+  )
+#+END_SRC
 
-   On Org mode version 9 I wasn't able to execute source blocks out of the box. [[https://emacs.stackexchange.com/a/28604][Others have ran into the same issue too]]. The solution is to remove the .elc files from the package directory:
+On Org mode version 9 I wasn't able to execute source blocks out of the box. [[https://emacs.stackexchange.com/a/28604][Others have ran into the same issue too]]. The solution is to remove the .elc files from the package directory:
 
-   #+BEGIN_SRC sh :var ORG_DIR=(let* ((org-v (cadr (split-string (org-version nil t) "@"))) (len (length org-v))) (substring org-v 1 (- len 2)))
+#+BEGIN_SRC sh :var ORG_DIR=(let* ((org-v (cadr (split-string (org-version nil t) "@"))) (len (length org-v))) (substring org-v 1 (- len 2)))
 rm ${ORG_DIR}/*.elc
-   #+END_SRC
+#+END_SRC
 
 ** Org activation bindings
 
-   Set up some global key bindings that integrate with Org Mode features.
+Set up some global key bindings that integrate with Org Mode features.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (bind-key "C-c l" 'org-store-link)
 (bind-key "C-c c" 'org-capture)
 (bind-key "C-c a" 'org-agenda)
-   #+end_src
+#+end_src
 
 *** Org agenda
 
-    Learned about [[https://github.com/sachac/.emacs.d/blob/83d21e473368adb1f63e582a6595450fcd0e787c/Sacha.org#org-agenda][this =delq= and =mapcar= trick from Sacha Chua's config]].
+Learned about [[https://github.com/sachac/.emacs.d/blob/83d21e473368adb1f63e582a6595450fcd0e787c/Sacha.org#org-agenda][this =delq= and =mapcar= trick from Sacha Chua's config]].
 
-    #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (setq org-agenda-files
       (delq nil
             (mapcar (lambda (x) (and (file-exists-p x) x))
                     '("~/Dropbox/Agenda"))))
-    #+end_src
+#+end_src
 
 *** Org capture
 
-    #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (bind-key "C-c c" 'org-capture)
 (setq org-default-notes-file "~/Dropbox/Notes/notes.org")
-    #+end_src
+#+end_src
 
 ** Org setup
 
-   Speed commands are a nice and quick way to perform certain actions
-   while at the beginning of a heading. It's not activated by default.
+Speed commands are a nice and quick way to perform certain actions
+while at the beginning of a heading. It's not activated by default.
 
-   See the doc for speed keys by checking out [[elisp:(info%20"(org)%20speed%20keys")][the documentation for
-   speed keys in Org mode]].
+See the doc for speed keys by checking out [[elisp:(info%20"(org)%20speed%20keys")][the documentation for
+speed keys in Org mode]].
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (setq org-use-speed-commands t)
-   #+end_src
+#+end_src
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (setq org-image-actual-width 550)
-   #+end_src
+#+end_src
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (setq org-highlight-latex-and-related '(latex script entities))
-   #+END_SRC
+#+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+(setq org-startup-indented 'f)
+(setq org-directory "~/Dropbox/Apps/Org")
+(setq org-special-ctrl-a/e 't)
+(setq org-default-notes-file (concat org-directory "/Notes.org"))
+(define-key global-map "\C-cc" 'org-capture)
+(setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+(setq org-src-fontify-natively 't)
+(setq org-src-tab-acts-natively t)
+(setq org-src-window-setup 'current-window)
+
+(setq org-agenda-files (quote ("~/Dropbox/Apps/Org/Inbox.org"
+                               "~/Dropbox/Apps/Org/Addval.org"
+                               "~/Dropbox/Apps/Org/Brandbin.org"
+                               "~/Dropbox/Apps/Org/Kulcare.org")))
+#+END_SRC
 ** Org tags
 
-   The default value is -77, which is weird for smaller width windows.
-   I'd rather have the tags align horizontally with the header. 45 is a
-   good column number to do that.
+The default value is -77, which is weird for smaller width windows.
+I'd rather have the tags align horizontally with the header. 45 is a
+good column number to do that.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (setq org-tags-column 45)
-   #+end_src
+#+end_src
 
 ** Org babel languages
 
-   #+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((python . t)
@@ -524,83 +514,93 @@ rm ${ORG_DIR}/*.elc
            (string= lang "emacs-lisp")
            (string= lang "sqlite"))))
 (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
-   #+end_src
+#+end_src
 
 ** Org babel/source blocks
 
-   I like to have source blocks properly syntax highlighted and with the
-   editing popup window staying within the same window so all the windows
-   don't jump around. Also, having the top and bottom trailing lines in
-   the block is a waste of space, so we can remove them.
+I like to have source blocks properly syntax highlighted and with the
+editing popup window staying within the same window so all the windows
+don't jump around. Also, having the top and bottom trailing lines in
+the block is a waste of space, so we can remove them.
 
-   I noticed that fontification doesn't work with markdown mode when the
-   block is indented after editing it in the org src buffer---the leading
-   #s for headers don't get fontified properly because they appear as Org
-   comments. Setting ~org-src-preserve-indentation~ makes things
-   consistent as it doesn't pad source blocks with leading spaces.
+I noticed that fontification doesn't work with markdown mode when the
+block is indented after editing it in the org src buffer---the leading
+#s for headers don't get fontified properly because they appear as Org
+comments. Setting ~org-src-preserve-indentation~ makes things
+consistent as it doesn't pad source blocks with leading spaces.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (setq org-src-fontify-natively t
       org-src-window-setup 'current-window
       org-src-strip-leading-and-trailing-blank-lines t
       org-src-preserve-indentation t
       org-src-tab-acts-natively t)
-   #+end_src
+#+end_src
+   
+** Org templates
+
+Source block templates
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp" ))
+(add-to-list 'org-structure-template-alist '("rb" . "src ruby" ))
+(add-to-list 'org-structure-template-alist '("sh" . "src sh" ))
+( add-to-list 'org-structure-template-alist '("md" . "src markdown"))
+#+END_SRC
 
 ** Org exporting
 
 *** Pandoc exporter
 
-    Pandoc converts between a huge number of different file formats.
+Pandoc converts between a huge number of different file formats.
 
-    #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 ;; (use-package ox-pandoc
 ;;   :no-require t
 ;;   :defer 10
 ;;   :ensure t)
-    #+end_src
+#+end_src
 *** LaTeX exporting
 
-    I've had issues with getting BiBTeX to work correctly with the LaTeX exporter for PDF exporting. By changing the command to `latexmk` references appear in the PDF output like they should. Source: http://tex.stackexchange.com/a/161619.
+I've had issues with getting BiBTeX to work correctly with the LaTeX exporter for PDF exporting. By changing the command to `latexmk` references appear in the PDF output like they should. Source: http://tex.stackexchange.com/a/161619.
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (setq org-latex-pdf-process (list "latexmk -pdf %f"))
-    #+END_SRC
+#+END_SRC
 
 * Tramp
 
-  #+begin_src emacs-lisp :tangle no
-(use-package tramp)
-  #+end_src
+#+begin_src emacs-lisp :tangle no
+(use-package tramp
+  :defer t
+  )
+#+end_src
 
 * Locate
 
-  Using macOS Spotlight within Emacs by modifying the ~locate~ function.
+Using macOS Spotlight within Emacs by modifying the ~locate~ function.
 
-  I usually use [[*Helm][~helm-locate~]], which does live updates the spotlight
-  search list as you type a query.
-
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 ;; mdfind is the command line interface to Spotlight
 (setq locate-command "mdfind")
-  #+end_src
+#+end_src
 
 * Window
 
-  Convenient keybindings to resize windows.
+Convenient keybindings to resize windows.
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 ;; (bind-key "s-C-<left>"  'shrink-window-horizontally)
 ;; (bind-key "s-C-<right>" 'enlarge-window-horizontally)
 ;; (bind-key "s-C-<down>"  'shrink-window)
 ;; (bind-key "s-C-<up>"    'enlarge-window)
-  #+end_src
+#+end_src
 
-  Whenever I split windows, I usually do so and also switch to the other
-  window as well, so might as well rebind the splitting key bindings to
-  do just that to reduce the repetition.
+Whenever I split windows, I usually do so and also switch to the other
+window as well, so might as well rebind the splitting key bindings to
+do just that to reduce the repetition.
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (defun vsplit-other-window ()
   "Splits the window vertically and switches to that window."
   (interactive)
@@ -614,108 +614,151 @@ rm ${ORG_DIR}/*.elc
 
 (bind-key "C-x 2" 'vsplit-other-window)
 (bind-key "C-x 3" 'hsplit-other-window)
-  #+end_src
+#+end_src
 
+** Golden Ratio
+#+BEGIN_SRC emacs-lisp
+;; (use-package golden-ratio
+;;   :ensure t
+;;   :config
+;;   (golden-ratio-mode 1))
+#+END_SRC
 ** Winner mode
 
-   Winner mode allows you to undo/redo changes to window changes in Emacs
-   and allows you.
+Winner mode allows you to undo/redo changes to window changes in Emacs
+and allows you.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package winner
   :config
   (winner-mode t)
   :bind (("M-s-<left>" . winner-undo)
          ("M-s-<right>" . winner-redo)))
-   #+end_src
+#+end_src
 
+** Winum mode
+#+BEGIN_SRC emacs-lisp
+(use-package winum
+  :ensure t
+  :config
+  (setq winum-keymap
+        (let ((map (make-sparse-keymap)))
+          (define-key map (kbd "C-`") 'winum-select-window-by-number)
+          (define-key map (kbd "C-²") 'winum-select-window-by-number)
+          (define-key map (kbd "M-0") 'winum-select-window-0-or-10)
+          (define-key map (kbd "M-1") 'winum-select-window-1)
+          (define-key map (kbd "M-2") 'winum-select-window-2)
+          (define-key map (kbd "M-3") 'winum-select-window-3)
+          (define-key map (kbd "M-4") 'winum-select-window-4)
+          (define-key map (kbd "M-5") 'winum-select-window-5)
+          (define-key map (kbd "M-6") 'winum-select-window-6)
+          (define-key map (kbd "M-7") 'winum-select-window-7)
+          (define-key map (kbd "M-8") 'winum-select-window-8)
+          map))
+
+  (require 'winum)
+
+  (defun winum-assign-9-to-calculator-8-to-flycheck-errors ()
+    (cond
+     ((equal (buffer-name) "*Calculator*") 9)
+     ((equal (buffer-name) "*Flycheck errors*") 8)))
+
+  (defun winum-assign-0-to-neotree-and ()
+    (when (string-match-p (buffer-name) ".*\\*NeoTree\\*.*") 10))
+
+  (add-to-list 'winum-assign-functions #'winum-assign-9-to-calculator-8-to-flycheck-errors)
+  ;; (add-to-list 'winum-assign-functions #'winum-assign-0-to-neotree)
+
+  (set-face-attribute 'winum-face nil :weight 'bold)
+
+  (setq window-numbering-scope            'global
+        winum-reverse-frame-list          nil
+        winum-auto-assign-0-to-minibuffer t
+        winum-assign-func                 'my-winum-assign-func
+        ;; winum-auto-setup-mode-line        t
+        ;; winum-mode-line-position          1
+        winum-ignored-buffers             '(" *which-key*"))
+
+  (winum-mode)
+  )
+#+END_SRC
 ** Transpose frame
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package transpose-frame
   :ensure t
   :bind ("H-t" . transpose-frame))
-   #+end_src
+#+end_src
 
 * Whitespace mode
-
-  #+begin_src emacs-lisp
+# TODO: Add whitespace cleanup config
+#+begin_src emacs-lisp
 (use-package whitespace
   :bind ("s-<f10>" . whitespace-mode))
-  #+end_src
+
+#+end_src
 
 * ELPA packages
 
-  These are the packages that are not built into Emacs.
+These are the packages that are not built into Emacs.
 
 ** Ag
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package ag
   :commands ag
   :ensure t)
-   #+END_SRC
+#+END_SRC
 
 ** Ace Jump Mode
 
-   A quick way to jump around text in buffers.
+A quick way to jump around text in buffers.
 
-   [[http://emacsrocks.com/e10.html][See Emacs Rocks Episode 10 for a screencast.]]
+[[http://emacsrocks.com/e10.html][See Emacs Rocks Episode 10 for a screencast.]]
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package ace-jump-mode
   :ensure t
   :diminish ace-jump-mode
   :commands ace-jump-mode
   :bind ("C-S-s" . ace-jump-mode))
-   #+end_src
+#+end_src
 
 ** Ace Window
 
-   [[https://github.com/abo-abo/ace-window][ace-window]] is a package that uses the same idea from ace-jump-mode for
-   buffer navigation, but applies it to windows. The default keys are
-   1-9, but it's faster to access the keys on the home row, so that's
-   what I have them set to (with respect to Dvorak, of course).
+[[https://github.com/abo-abo/ace-window][ace-window]] is a package that uses the same idea from ace-jump-mode for
+buffer navigation, but applies it to windows. The default keys are
+1-9, but it's faster to access the keys on the home row, so that's
+what I have them set to (with respect to Dvorak, of course).
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package ace-window
   :ensure t
   :config
   (setq aw-keys '(?a ?o ?e ?u ?h ?t ?n ?s))
   (ace-window-display-mode)
   :bind ("s-o" . ace-window))
-   #+end_src
-   #+end_src
-
+#+end_src
+#+end_src
+   
 ** Aggressive Indent
 #+BEGIN_SRC emacs-lisp
-  (use-package aggressive-indent
-      :ensure t)
-#+END_SRC
-** C-Eldoc
-   :PROPERTIES:
-   :GitHub:   https://github.com/mooz/c-eldoc
-   :END:
-
-   This package displays function signatures in the mode line.
-
-   #+begin_src emacs-lisp
-(use-package c-eldoc
-  :commands c-turn-on-eldoc-mode
+(use-package aggressive-indent
   :ensure t
-  :init (add-hook 'c-mode-hook #'c-turn-on-eldoc-mode))
-   #+end_src
+  :config
+  (add-hook 'prog-mode-hook #'aggressive-indent-mode))
+#+END_SRC
 
 ** Clojure
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package clojure-mode
   :defer t
   :ensure t)
-   #+end_src
+#+end_src
 
 ** Company completion
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package company
   :ensure t
   :diminish
@@ -741,31 +784,43 @@ rm ${ORG_DIR}/*.elc
     (add-to-list 'company-backends 'company-anaconda)))
 
 (setq company-dabbrev-downcase nil)
-   #+END_SRC
+#+END_SRC
 
+** Crux
+
+Collection of Ridiculously Useful eXtensions
+
+#+BEGIN_SRC emacs-lisp
+(use-package crux
+  :ensure t
+  :bind (("C-c o o" . crux-open-with)
+         ("C-c o u" . crux-view-url)
+         ("C-a" . crux-move-beginning-of-line)
+         ("C-x r" . crux-recentf-find-file)))
+#+END_SRC
 ** Dash
 
-   Integration with [[http://kapeli.com/dash][Dash, the API documentation browser on macOS]]. The
-   binding ~s-D~ is the same as Cmd-Shift-D, the same binding that dash
-   uses in Android Studio (trying to keep things consistent with the
-   tools I use).
+Integration with [[http://kapeli.com/dash][Dash, the API documentation browser on macOS]]. The
+binding ~s-D~ is the same as Cmd-Shift-D, the same binding that dash
+uses in Android Studio (trying to keep things consistent with the
+tools I use).
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package dash-at-point
   :ensure t
   :bind (("s-D"     . dash-at-point)
          ("C-c e"   . dash-at-point-with-docset)))
-   #+end_src
+#+end_src
 
 ** Dashboard
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package dashboard
   :ensure t
   :config
   (dashboard-setup-startup-hook))
-   #+END_SRC
+#+END_SRC
 ** Evil NC Commenter
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package evil-nerd-commenter
   :ensure t)
 
@@ -780,28 +835,21 @@ rm ${ORG_DIR}/*.elc
   (let* ((imenu-create-index-function 'evilnc-imenu-create-index-function))
     (unless (featurep 'counsel) (require 'counsel))
     (counsel-imenu)))
-   #+END_SRC
-** Emacs Refactor
-   #+BEGIN_SRC emacs-lisp
-(use-package emr
-  :config
-  (add-hook 'prog-mode-hook 'emr-initialize)
-  ;; Just hit M-RET to access your refactoring tools in any supported mode.
-  (define-key prog-mode-map (kbd "M-RET") 'emr-show-refactor-menu))
-   #+END_SRC
+#+END_SRC
+
 ** Expand Region
 #+BEGIN_SRC emacs-lisp
- (use-package expand-region
-    :ensure t
-    :bind ("C-=" . er/expand-region))
+(use-package expand-region
+  :ensure t
+  :bind ("C-=" . er/expand-region))
 #+END_SRC
 ** Magit
 
-   A great interface for git projects. It's much more pleasant to use
-   than the git interface on the command line. Use an easy keybinding to
-   access magit.
+A great interface for git projects. It's much more pleasant to use
+than the git interface on the command line. Use an easy keybinding to
+access magit.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package magit
   :ensure t
   :defer t
@@ -815,21 +863,21 @@ rm ${ORG_DIR}/*.elc
   (global-git-gutter-mode 't)
   :diminish git-gutter-mode)
 
-  (use-package git-timemachine
-    :ensure t)
-   #+end_src
+(use-package git-timemachine
+  :ensure t)
+#+end_src
 
 *** Fullscreen magit
 
-    #+BEGIN_QUOTE
-    The following code makes magit-status run alone in the frame, and then
-    restores the old window configuration when you quit out of magit.
+#+BEGIN_QUOTE
+The following code makes magit-status run alone in the frame, and then
+restores the old window configuration when you quit out of magit.
 
-    No more juggling windows after commiting. It's magit bliss.
-    #+END_QUOTE
-    [[http://whattheemacsd.com/setup-magit.el-01.html][Source: Magnar Sveen]]
+No more juggling windows after commiting. It's magit bliss.
+#+END_QUOTE
+[[http://whattheemacsd.com/setup-magit.el-01.html][Source: Magnar Sveen]]
 
-    #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 ;; full screen magit-status
 (defadvice magit-status (around magit-fullscreen activate)
   (window-configuration-to-register :magit-fullscreen)
@@ -841,7 +889,7 @@ rm ${ORG_DIR}/*.elc
   (interactive)
   (kill-buffer)
   (jump-to-register :magit-fullscreen))
-    #+end_src
+#+end_src
 
 ** Neotree 
 #+BEGIN_SRC emacs-lisp
@@ -864,74 +912,19 @@ rm ${ORG_DIR}/*.elc
   ;; track ‘projectile-switch-project’ (C-c p p),
   (setq projectile-switch-project-action 'neotree-projectile-action))
 
- ;; Use monospaced font faces in current buffer
- (defun my-buffer-face-mode-fixed ()
-   "Sets a fixed width (monospace) font in current buffer"
-   (interactive)
-   (setq buffer-face-mode-face '(:family "Monaco" :height 120))
-   (buffer-face-mode))
+;; Use monospaced font faces in current buffer
+(defun my-buffer-face-mode-fixed ()
+  "Sets a fixed width (monospace) font in current buffer"
+  (interactive)
+  (setq buffer-face-mode-face '(:family "Operator Mono" :height 120))
+  (buffer-face-mode))
 
 (add-hook 'neotree-mode-hook 'my-buffer-face-mode-fixed)
 
 (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'my-buffer-face-mode-fixed)))
 #+END_SRC
-** Expand region
-
-   #+begin_src emacs-lisp
-(use-package expand-region
-  :ensure t
-  :bind ("C-@" . er/expand-region))
-   #+end_src
-
-** Flycheck
-
-   Still need to set up hooks so that flycheck automatically runs in
-   python mode, etc. js2-mode is already really good for the syntax
-   checks, so I probably don't need the jshint checks with flycheck for
-   it.
-
-   #+begin_src emacs-lisp
-(use-package flycheck
-  :ensure t
-  :defer 10
-  :config
-  (setq flycheck-html-tidy-executable "tidy5")
-  (add-hook 'after-init-hook 'global-flycheck-mode)
-  (add-hook 'flycheck-mode-hook 'shan/use-eslint-from-node-modules)
-  )
-   #+end_src
-
-*** Linter setups
-
-    Install the HTML5/CSS/JavaScript linters.
-
-    #+begin_src sh
-# brew tap homebrew/dupes
-# brew install tidy
-# npm install -g eslint
-# npm install -g csslint
-    #+end_src
-
-** Fzf
-   #+BEGIN_SRC emacs-lisp
-(use-package fzf
-  :ensure t)
-
-   #+END_SRC
-
-** Highlight Indent Guides
-   #+BEGIN_SRC emacs-lisp
-(use-package highlight-indent-guides
-  :ensure t
-  :defer t
-  :init
-  (setq highlight-indent-guides-method 'character)
-  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
-
-   #+END_SRC
-
 ** Keychords
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package use-package-chords
   :ensure t
   :config
@@ -944,9 +937,9 @@ rm ${ORG_DIR}/*.elc
   (switch-to-buffer (other-buffer (current-buffer) 1)))
 
 (key-chord-define-global "JJ" 'shan/switch-to-previous-buffer)
-   #+END_SRC
+#+END_SRC
 ** Ivy + Swiper + Counsel
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package ivy
   :ensure t
   :diminish ivy-mode
@@ -968,37 +961,27 @@ rm ${ORG_DIR}/*.elc
   :ensure t)
 
 ;; Avy jump to character
- (use-package avy
-    :ensure t
-    :chords (("jj" . avy-goto-char-2)
-             ("jl" . avy-goto-line)))
-
-   #+END_SRC
-** Macrostep
-
-   Macrostep allows you to see what Elisp macros expand to. Learned about
-   it from the [[https://www.youtube.com/watch?v%3D2TSKxxYEbII][package highlight talk for use-package]].
-
-   #+begin_src emacs-lisp
-(use-package macrostep
+(use-package avy
   :ensure t
-  :bind ("H-`" . macrostep-expand))
-   #+end_src
+  :chords (("jj" . avy-goto-char-2)
+           ("jl" . avy-goto-line)))
+
+#+END_SRC
 
 ** Markdown mode
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package markdown-mode
   :ensure t
   :mode (("\\.markdown\\'" . markdown-mode)
          ("\\.md\\'"       . markdown-mode)))
-   #+end_src
+#+end_src
 
 ** Multiple cursors
 
-   We'll also need to ~(require 'multiple-cusors)~ because of [[https://github.com/magnars/multiple-cursors.el/issues/105][an autoload issue]].
+We'll also need to ~(require 'multiple-cusors)~ because of [[https://github.com/magnars/multiple-cursors.el/issues/105][an autoload issue]].
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package multiple-cursors
   :ensure t
   :bind (("C-S-c C-S-c" . mc/edit-lines)
@@ -1007,22 +990,23 @@ rm ${ORG_DIR}/*.elc
          ("C-c C-<"     . mc/mark-all-like-this)
          ("C-!"         . mc/mark-next-symbol-like-this)
          ("s-d"         . mc/mark-all-dwim)))
-   #+end_src
+#+end_src
 
 ** Projectile
 
-   #+BEGIN_QUOTE
-   Project navigation and management library for Emacs.
-   #+END_QUOTE
-   http://projectile.mx
+#+BEGIN_QUOTE
+Project navigation and management library for Emacs.
+#+END_QUOTE
+http://projectile.mx
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package projectile
   :ensure t
   :diminish projectile-mode
   :commands (projectile-mode projectile-switch-project)
   :init
   (setq projectile-completion-system 'ivy)
+  (setq projectile-indexing-method 'alien)
   :config
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (projectile-mode +1))
@@ -1033,70 +1017,55 @@ rm ${ORG_DIR}/*.elc
   :config
   (add-hook 'after-init-hook 'counsel-projectile-mode))
 
-   #+end_src
+#+end_src
 
 ** Python
 
-   Integrates with IPython.
+Integrates with IPython.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package python-mode
   :defer t
   :ensure t)
-   #+end_src
+#+end_src
 
 ** Rainbow mode + delimiters
-  #+BEGIN_SRC emacs-lisp
-  (use-package rainbow-delimiters
-    :ensure t
-    :config
-    (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-delimiters
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
-  (use-package rainbow-mode
-    :ensure t
-    :config
-    (setq rainbow-x-colors nil)
-    (add-hook 'prog-mode-hook 'rainbow-mode))
+(use-package rainbow-mode
+  :ensure t
+  :config
+  (setq rainbow-x-colors nil)
+  (add-hook 'prog-mode-hook 'rainbow-mode))
 
-  #+END_SRC
+#+END_SRC
 
 ** Restart Emacs
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package restart-emacs
   :defer t
   :ensure t)
 
 
-   #+END_SRC
-** Smartscan
-
-   #+BEGIN_QUOTE
-   Quickly jumps between other symbols found at point in Emacs.
-   #+END_QUOTE
-   http://www.masteringemacs.org/article/smart-scan-jump-symbols-buffer
-
-
-   #+begin_src emacs-lisp
-(use-package smartscan
-  :ensure t
-  :config (global-smartscan-mode 1)
-  :bind (("s-n" . smartscan-symbol-go-forward)
-         ("s-p" . smartscan-symbol-go-backward)))
-   #+end_src
+#+END_SRC
 
 ** Smoothscrolling
 
-   This makes it so ~C-n~-ing and ~C-p~-ing won't make the buffer jump
-   around so much.
+This makes it so ~C-n~-ing and ~C-p~-ing won't make the buffer jump
+around so much.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package smooth-scrolling
   :ensure t)
-   #+end_src
+#+end_src
 
 ** Webmode
 
-   #+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 (use-package web-mode
   :ensure t
   :mode ("\\.html\\'")
@@ -1111,14 +1080,14 @@ rm ${ORG_DIR}/*.elc
                 web-mode-code-indent-offset 2
                 web-mode-attr-indent-offset 2
                 )
-   #+end_src
+#+end_src
 
 ** Yasnippet
 
-   Yeah, snippets! I start with snippets from [[https://github.com/AndreaCrotti/yasnippet-snippets][Andrea Crotti's collection]]
-   and have also modified them and added my own.
+Yeah, snippets! I start with snippets from [[https://github.com/AndreaCrotti/yasnippet-snippets][Andrea Crotti's collection]]
+and have also modified them and added my own.
 
-   #+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 (use-package yasnippet
   :ensure t
   :diminish yas-minor-mode
@@ -1128,215 +1097,115 @@ rm ${ORG_DIR}/*.elc
   (setq yas-indent-line 'fixed)
   (yas-global-mode)
   (global-set-key (kbd "M-/") 'company-yasnippet))
-   #+end_src
+#+end_src
 
 ** Emmet
 
-   According to [[http://emmet.io/][their website]], "Emmet — the essential toolkit for web-developers."
+According to [[http://emmet.io/][their website]], "Emmet — the essential toolkit for web-developers."
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package emmet-mode
   :ensure t
   :commands emmet-mode
   :config
   (add-hook 'html-mode-hook 'emmet-mode)
   (add-hook 'css-mode-hook 'emmet-mode))
-   #+end_src
-
-** Zoom-frm
-
-   =zoom-frm= is a nice package that allows you to resize the text of
-   entire Emacs frames (this includes text in the buffer, mode line, and
-   minibuffer). The =zoom-in/out= command acts similar to the
-   =text-scale-adjust= command---you can chain zooming in, out, or
-   resetting to the default size once the command has been initially
-   called.
-
-   Changing the =frame-zoom-font-difference= essentially enables a
-   "presentation mode" when calling =toggle-zoom-frame=.
-
-   #+begin_src emacs-lisp
-(use-package zoom-frm
-  :load-path "site-lisp/zoom-frm"
-  :bind (("C-M-=" . zoom-in/out)
-         ("H-z"   . toggle-zoom-frame)
-         ("s-<f1>" . toggle-zoom-frame))
-  :config
-  (setq frame-zoom-font-difference 10))
-   #+end_src
+#+end_src
 
 ** Scratch
 
-   Convenient package to create =*scratch*= buffers that are based on the
-   current buffer's major mode. This is more convienent than manually
-   creating a buffer to do some scratch work or reusing the initial
-   =*scratch*= buffer.
+Convenient package to create =*scratch*= buffers that are based on the
+current buffer's major mode. This is more convienent than manually
+creating a buffer to do some scratch work or reusing the initial
+=*scratch*= buffer.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package scratch
   :ensure t
   :commands scratch)
-   #+end_src
+#+end_src
 
+** Transparency
+#+begin_src emacs-lisp
+(use-package seethru
+:ensure t 
+:defert t
+:config 
+(seethru 90)
+(seethru-recommended-keybinds) 
+)
+#+end_src emacs-lisp
 ** Shell pop
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package shell-pop
   :ensure t
-  :bind ("M-<f12>" . shell-pop)
+  :bind ("<f12>" . shell-pop)
   :config
- (setq shell-pop-window-size 20)
- ;; (setq shell-pop-full-span t)
- (push (cons "\\*shell\\*" display-buffer--same-window-action) display-buffer-alist)
- (add-hook 'shell-mode-hook 'my-buffer-face-mode-fixed)
-)
+  (setq shell-pop-window-size 20)
+  ;; (setq shell-pop-full-span t)
+  (push (cons "\\*shell\\*" display-buffer--same-window-action) display-buffer-alist)
+  (add-hook 'shell-mode-hook 'my-buffer-face-mode-fixed)
+  )
 
 (when (and (executable-find "fish")
            (require 'fish-completion nil t))
   (global-fish-completion-mode))
-   #+END_SRC
+
+(add-hook 'shell-mode-hook
+          (lambda ()
+            (interactive)
+            (set-window-dedicated-p (selected-window) t)))
+#+END_SRC
 
 ** Smartparens
 #+BEGIN_SRC emacs-lisp
-  (use-package smartparens
-    :ensure t
-    :diminish smartparens-mode
-    :config
-    (add-hook 'prog-mode-hook 'smartparens-mode))
-#+END_SRC
-
-** Treemacs 
-#+BEGIN_SRC emacs-lisp
-(use-package treemacs
+(use-package smartparens
   :ensure t
-  :defer t
-  :init
-  (with-eval-after-load 'winum
-    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :diminish smartparens-mode
   :config
-  (progn
-    (setq treemacs-collapse-dirs              (if (executable-find "python") 3 0)
-          treemacs-deferred-git-apply-delay   0.5
-          treemacs-display-in-side-window     t
-          treemacs-file-event-delay           5000
-          treemacs-file-follow-delay          0.2
-          treemacs-follow-after-init          t
-          treemacs-follow-recenter-distance   0.1
-          treemacs-goto-tag-strategy          'refetch-index
-          treemacs-indentation                2
-          treemacs-indentation-string         " "
-          treemacs-is-never-other-window      nil
-          treemacs-no-png-images              t
-          treemacs-project-follow-cleanup     nil
-          treemacs-persist-file               (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-          treemacs-recenter-after-file-follow nil
-          treemacs-recenter-after-tag-follow  nil
-          treemacs-show-hidden-files          t
-          treemacs-silent-filewatch           nil
-          treemacs-silent-refresh             nil
-          treemacs-sorting                    'alphabetic-desc
-          treemacs-space-between-root-nodes   t
-          treemacs-tag-follow-cleanup         t
-          treemacs-tag-follow-delay           1.5
-          treemacs-width                      30)
-
-    ;; The default width and height of the icons is 22 pixels. If you are
-    ;; using a Hi-DPI display, uncomment this to double the icon size.
-    ;;(treemacs-resize-icons 44)
-
-    (treemacs-follow-mode t)
-    (treemacs-filewatch-mode t)
-    (treemacs-fringe-indicator-mode t)
-    (pcase (cons (not (null (executable-find "git")))
-                 (not (null (executable-find "python3"))))
-      (`(t . t)
-       (treemacs-git-mode 'extended))
-      (`(t . _)
-       (treemacs-git-mode 'simple))))
-
-  :bind
-  (:map global-map
-        ("M-0"       . treemacs-select-window)
-        ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-x t t"   . treemacs)
-        ("C-x t B"   . treemacs-bookmark)
-        ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag))) ;;treemacs config over
-
-    ;; (add-hook 'treemacs-after-create-hook (lambda (_)(call-interactively 'my-buffer-face-mode-fixed)))
-    ;; (add-hook 'treemacs-mode-hook (lambda (_)(call-interactively 'my-buffer-face-mode-fixed)))
-
-
-(use-package treemacs-projectile
-  :after treemacs projectile
-  :ensure t)
-
+  (add-hook 'prog-mode-hook 'smartparens-mode))
 #+END_SRC
-** Quickrun
 
-   #+BEGIN_SRC emacs-lisp
-(use-package quickrun
-  :defer 10
+** Super Save 
+#+BEGIN_SRC emacs-lisp
+(use-package super-save
   :ensure t
-  :bind ("H-q" . quickrun))
-   #+END_SRC
-
-** Visible mode
-
-   I found out about this mode by looking through simple.el. I use it to
-   see raw org-mode files without going to a different mode like
-   text-mode, which is what I had done in order to see invisible text
-   (with org hyperlinks). The entire buffer contents will be visible
-   while still being in org mode.
-
-   #+begin_src emacs-lisp
-;; (use-package visible-mode
-;;   :bind (("H-v" . visible-mode)
-;;          ("s-<f2>" . visible-mode)))
-    #+end_src
-
-** Crux
-
-   Collection of Ridiculously Useful eXtensions
-
-   #+BEGIN_SRC emacs-lisp
-(use-package crux
-  :ensure t
-  :bind (("C-c o o" . crux-open-with)
-         ("C-c o u" . crux-view-url)
-         ("C-a" . crux-move-beginning-of-line)))
-   #+END_SRC
+  :config
+  (super-save-mode +1))
+#+END_SRC
 ** Undo Tree
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package undo-tree
   :ensure t
   :diminish undo-tree
   :init
   (global-undo-tree-mode))
-   #+END_SRC
+#+END_SRC
 ** Which Key 
+# TODO: Needs configuration
 #+BEGIN_SRC emacs-lisp
-  (use-package which-key
-    :ensure t
-    :diminish which-key-mode
-    :config
-    (add-hook 'after-init-hook 'which-key-mode))
+(use-package which-key
+  :ensure t
+  :diminish which-key-mode
+  :config
+  (add-hook 'after-init-hook 'which-key-mode))
 
 #+END_SRC
 * Computer-specific settings
 
-  Load some computer-specific settings, such as the name and and email
-  address. The way the settings are loaded is based off of [[https://github.com/magnars/.emacs.d][Magnar
-  Sveen's]] config.
+Load some computer-specific settings, such as the name and and email
+address. The way the settings are loaded is based off of [[https://github.com/magnars/.emacs.d][Magnar
+Sveen's]] config.
 
-  In my case, the computers I use usually use the same username (my
-  name, go figure), so instead of basing the specific settings from the
-  username, I use the hostname. The shell command ~hostname -s~ gets the
-  hostname for the computer without any "domain information," such as
-  the ".local" suffix.
+In my case, the computers I use usually use the same username (my
+name, go figure), so instead of basing the specific settings from the
+username, I use the hostname. The shell command ~hostname -s~ gets the
+hostname for the computer without any "domain information," such as
+the ".local" suffix.
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 ;; (require 'subr-x) ;; #'string-trim
 ;; (defvar mai/user-settings-dir nil
 ;;   "The directory with user-specific Emacs settings for this
@@ -1352,41 +1221,48 @@ rm ${ORG_DIR}/*.elc
 ;; ;; Load settings specific for the current user
 ;; (when (file-exists-p mai/user-settings-dir)
 ;;   (mapc 'load (directory-files mai/user-settings-dir nil "^[^#].*el$")))
-  #+end_src
+#+end_src
 
 * Languages
+** Language Servers
+#+BEGIN_SRC emacs-lisp
+;; (use-package eglot
+;;   :hook (prog-mode . eglot-ensure)
+;;   :config (add-to-list 'eglot-server-programs '(ruby-mode . ("solargraph" "socket"))
+;;                        ))
+#+END_SRC
 ** C/Java
 
-   I don't like the default way that Emacs handles indentation. For instance,
+I don't like the default way that Emacs handles indentation. For instance,
 
-   #+begin_src C
+#+begin_src C
 int main(int argc, char *argv[])
 {
-    /* What's with the brace alignment? */
-    if (check)
-    {
-    }
-    return 0;
+  /* What's with the brace alignment? */
+  if (check)
+  {
+  }
+  return 0;
 }
-   #+end_src
+#+end_src
 
-   #+begin_src java
+#+begin_src java
 switch (number)
 {
-    case 1:
-        doStuff();
-        break;
-    case 2:
-        doStuff();
-        break;
-    default:
-        break;
+  case 1:
+    doStuff();
+    break;
+  case 2:
+    doStuff();
+    break;
+  default:
+    break;
 }
-   #+end_src
+#+end_src
 
-   Luckily, I can modify the way Emacs formats code with this configuration.
+Luckily, I can modify the way Emacs formats code with this configuration.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (defun my-c-mode-hook ()
   (setq c-basic-offset 2)
   (c-set-offset 'substatement-open 0)   ; Curly braces alignment
@@ -1395,78 +1271,120 @@ switch (number)
 (add-hook 'c-mode-hook 'my-c-mode-hook)
 (add-hook 'java-mode-hook 'my-c-mode-hook)
 
-   #+end_src
+#+end_src
 ** LSP Mode
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
+;; LSP
 (use-package lsp-mode
-  :ensure t)
+  :disabled
+  :ensure t
+  :diminish lsp-mode
+  :bind
+  ("<f7>" . lsp-format-buffer)
+  :init (lsp-mode)
+  :config
+  ;; make sure we have lsp-imenu everywhere we have LSP
+  (require 'lsp-imenu)
+  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
+  )
+
+;; (use-package lsp-imenu
+;;   :after lsp-mode
+;;   :hook
+;;   (lsp-after-open . lsp-enable-imenu))
 
 (use-package lsp-ui
-  :after (lsp-mode)
-  :ensure t)
+  :ensure t
+  :after lsp-mode
+  :diminish lsp-ui
+  :init (lsp-ui-mode)
+  :config
+  (setq lsp-ui-peek-enable nil)
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-enable-eldoc nil)
+  (setq lsp-ui-flycheck-enable t))
 
 (use-package company-lsp
-  :after (company lsp-mode)
+  :ensure t
+  :after company
   :config
-  (push 'company-lsp company-backends)
-  :ensure t)
+  (push 'company-lsp company-backends))
 
-
-   #+END_SRC
-** Elixir
-   #+BEGIN_SRC emacs-lisp
-;; Set up the basic Elixir mode.
-(use-package elixir-mode
-  :commands elixir-mode
-  :config
-  (add-hook 'elixir-mode-hook 'alchemist-mode))
-
-;; Alchemist offers integration with the Mix tool.
-(use-package alchemist
-  :commands alchemist-mode
-  :config
-  ;; Bind some Alchemist commands to more commonly used keys.
-  (bind-keys :map alchemist-mode-map
-             ("C-c C-l" . (lambda () (interactive)
-                            (save-buffer)
-                            (alchemist-iex-compile-this-buffer))))
-  (bind-keys :map alchemist-mode-map
-             ("C-x C-e" . alchemist-iex-send-current-line)))
-
-;; A Flycheck checker that uses Mix, so it finds project deps.
-;; From https://github.com/ananthakumaran/dotfiles/blob/master/.emacs.d/init-elixir.el#L25-L42
-(with-eval-after-load "flycheck"
-  (flycheck-define-checker elixir-mix
-    "An Elixir syntax checker using the Elixir interpreter.
-See URL `http://elixir-lang.org/'."
-    :command ("mix"
-              "compile"
-              source)
-    :error-patterns
-    ((error line-start "** (" (zero-or-more not-newline) ") "
-            (zero-or-more not-newline) ":" line ": " (message) line-end)
-     (warning line-start
-              (one-or-more (not (syntax whitespace))) ":"
-              line ": "
-              (message)
-              line-end))
-    :modes elixir-mode)
-  (add-to-list 'flycheck-checkers 'elixir-mix))
-
-
-
-
-;; (use-package alchemist
-;;   :after (elixir-mode)
-;;   :load-path "../.alchemist"
+#+END_SRC
+** Eglot
+#+begin_src emacs-lisp
+;; ;; LSP for C/C++/Objective-C, Python, and Javascript
+;; (use-package eglot
+;;   :preface
+;;   (defun eglot-ensure-flow ()
+;;     ;; Always prefer the LSP server's lookup function
+;;     (unbind-key "M-." js-mode-map)
+;;     (when (and (not (string= major-mode "json-mode"))
+;;                (executable-find "flow")
+;;                (locate-dominating-file
+;;                 (file-name-directory (buffer-file-name))
+;;                 ".flowconfig"))
+;;       (eglot-ensure)))
+;;   :hook ((c-mode-common . eglot-ensure)
+;;          (python-mode   . eglot-ensure)
+;;          (ruby-mode     . eglot-ensure)
+;;          (js-mode       . eglot-ensure-flow))
 ;;   :config
-;;   (require 'alchemist-elixir-ls)
-;;   (require 'alchemist-goto)
-;;   (require 'alchemist))
+;;   (setf (alist-get '(js-mode js2-mode rjsx-mode typescript-mode) eglot-server-programs t t 'equal) t)
+;;   (map-put eglot-server-programs 'typescript-mode '("javascript-typescript-stdio"))
+;;   (map-put eglot-server-programs '(js-mode js2-mode rjsx-mode) '("flow" "lsp" "--lazy" "--lazy-mode=ide"))
+;;   (map-put eglot-server-programs '(objc-mode c++-mode c-mode) '(eglot-cquery "cquery") 'equal)
+;;   (map-put eglot-server-programs 'ruby-mode '("solargraph" "stdio"))
+;;   (add-to-list 'eglot-server-programs (elixir-mode "/Users/shan/projects/elixir/elixir-ls/release/language_server.sh"))
+;;   (add-hook 'eglot--managed-mode-hook
+;;             (lambda ()
+;;               (bind-keys :map eglot-mode-map
+;;                          ("C-h o"   . eglot-help-at-point)
+;;                          ("C-c C-r" . eglot-rename)
+;;                          ("C-c f"   . eglot-format)
+;;                          ("M-1"     . eglot-code-actions))))
+;;   (with-eval-after-load 'company
+;;     (make-local-variable 'company-transformers)
+;;     (setq company-transformers (remq 'company-sort-by-statistics company-transformers))
+;;     (setq company-transformers (remq 'company-flx-transformer company-transformers))
+;;     (setq-local company-backends '(company-files
+;;                                    (company-capf :separate company-yasnippet)
+;;                                    company-keywords))))
+#+end_src
+** Elixir
+#+BEGIN_SRC emacs-lisp
 
-   #+END_SRC
+;; Elxir
+
+(use-package elixir-mode
+  :ensure t
+  :config
+  ;; Create a buffer-local hook to run elixir-format on save, only when we enable elixir-mode.
+  (add-hook 'elixir-mode-hook
+            (lambda () (add-hook 'before-save-hook 'elixir-format nil t))))
+
+(use-package lsp-elixir
+  :disabled
+  :load-path "~/.emacs.d/plugins/"
+  :after lsp-mode
+  :hook
+  (elixir-mode . lsp-elixir-enable)
+  :config
+  (setq lsp-elixir-ls-command "sh")
+  (setq lsp-elixir-ls-args '("/Users/shan/projects/elixir/elixir-ls/release/language_server.sh")))
+
+
+;; (use-package dap-mode
+;;   :ensure t
+;;   :config
+;;   (dap-mode 1)
+;;   (dap-ui-mode 1)
+;;   (require 'dap-elixir)
+;;   )
+#+END_SRC
 ** Javascript
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (setq-default js-indent-level 2)
 
 (use-package js2-mode
@@ -1493,9 +1411,9 @@ See URL `http://elixir-lang.org/'."
   :mode (("\\.jsx$" . rjsx-mode)
          ("components/.+\\.js$" . rjsx-mode))
   :hook (rjsx-mode . (lambda ()
-                          (flycheck-mode)
-                          (company-mode)
-                          (js2-refactor-mode -1)))
+                       (flycheck-mode)
+                       (company-mode)
+                       (js2-refactor-mode -1)))
   :init
   (defun +javascript-jsx-file-p ()
     "Detect React or preact imports early in the file."
@@ -1513,7 +1431,7 @@ See URL `http://elixir-lang.org/'."
   :config
   (setq prettier-js-args '(
                            "--trailing-comma" "es5"
-                           "--single-quote" "true"
+                           "--single-quote" "false"
                            "--print-width" "100"
                            ))
   (add-hook 'js2-mode-hook 'prettier-js-mode)
@@ -1541,13 +1459,13 @@ See URL `http://elixir-lang.org/'."
     (when (and eslint (file-executable-p eslint))
       (setq-local flycheck-javascript-eslint-executable eslint))))
 
-  (defun shan/switch-to-previous-buffer ()
-    "Switch to previously open buffer.
+(defun shan/switch-to-previous-buffer ()
+  "Switch to previously open buffer.
   Repeated invocations toggle between the two most recently open buffers."
-    (interactive)
-    (switch-to-buffer (other-buffer (current-buffer) 1)))
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
 
-  (key-chord-define-global "JJ" 'shan/switch-to-previous-buffer)
+(key-chord-define-global "JJ" 'shan/switch-to-previous-buffer)
 
 ;; Adds the node_modules/.bin directory to the buffer exec_path. E.g. support project local eslint installations.
 ;; https://github.com/codesuki/add-node-modules-path/tree/master
@@ -1565,9 +1483,9 @@ See URL `http://elixir-lang.org/'."
   (setq json-reformat:pretty-string? t)
   (setq js-indent-level 2))
 
-   #+END_SRC
+#+END_SRC
 ** JSON
-   Install json-mode and make its reformat keybinding match the global default.
+Install json-mode and make its reformat keybinding match the global default.
 
 #+BEGIN_SRC emacs-lisp
 (use-package json-mode
@@ -1578,7 +1496,7 @@ See URL `http://elixir-lang.org/'."
 
 #+END_SRC
 ** Ruby
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package ruby-mode
   :ensure t
   :mode "\\.rb\\'"
@@ -1594,7 +1512,8 @@ See URL `http://elixir-lang.org/'."
   (setq ruby-indent-level 2
         ruby-indent-tabs-mode nil)
   (add-hook 'ruby-mode 'subword-mode)
-
+  ;; (add-hook 'ruby-mode 'lsp-mode)
+  
   :bind
   (([(meta down)] . ruby-forward-sexp)
    ([(meta up)]   . ruby-backward-sexp)
@@ -1624,17 +1543,18 @@ See URL `http://elixir-lang.org/'."
   :init
   (add-hook 'ruby-mode-hook 'inf-ruby-minor-mode))
 
-;; Robe
-(use-package robe
-  :ensure t
-  :bind ("C-M-." . robe-jump)
-  :init
-  (add-hook 'ruby-mode-hook 'robe-mode)
-  :config
-  (defadvice inf-ruby-console-auto
-      (before activate-rbenv-for-robe activate)
-    (rbenv-activate-corresponding-ruby))
-  (push 'company-robe company-backends))
+;; ;; Robe
+;; (use-package robe
+;;   :ensure t
+;;   :bind ("C-M-." . robe-jump)
+;;   :init
+;;   (add-hook 'ruby-mode-hook 'robe-mode)
+;;   :config
+;;   (defadvice inf-ruby-console-auto
+;;       (before activate-rbenv-for-robe activate)
+;;     (rbenv-use-corresponding))
+
+;;   (push 'company-robe company-backends))
 
 ;; in buffer interpreter
 (use-package seeing-is-believing
@@ -1679,7 +1599,7 @@ See URL `http://elixir-lang.org/'."
       ad-do-it))
 
   (bind-keys :map rspec-mode-map
-             ("<return>" . reindent-phen-newline-and-indent)
+             ;; ("<return>" . reindent-phen-newline-and-indent)
              ("M-p ;" . rspec-poggle-spec-and-parget)
              ("M-p d" . rspec-disable-example)
              ("M-p e" . rspec-enable-example)
@@ -1702,21 +1622,22 @@ See URL `http://elixir-lang.org/'."
   :ensure t
   :mode ("\\.ya?ml\\'" . yaml-mode))
 
-   #+END_SRC
+#+END_SRC
 * Misc
+
 ** Non-ELPA packages
 
-   Some packages aren't in ELPA, so they're stored in the [[file:site-lisp][site-lisp]]
-   directory and loaded here.
+Some packages aren't in ELPA, so they're stored in the [[file:site-lisp][site-lisp]]
+directory and loaded here.
 
 *** Titlecase
 
-    As in the titlecase package instructions, the titlecase command needs to be in the $PATH for this to work.
+As in the titlecase package instructions, the titlecase command needs to be in the $PATH for this to work.
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package titlecase
   :load-path "~/.emacs.d/site-lisp")
-    #+END_SRC
+#+END_SRC
 
 *** HideShow Vis
 #+BEGIN_SRC emacs-lisp
@@ -1730,44 +1651,267 @@ See URL `http://elixir-lang.org/'."
 #+END_SRC
 ** Display Time
 
-   When displaying the time with =display-time-mode=, I don't care about
-   the load average.
+When displaying the time with =display-time-mode=, I don't care about
+the load average.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (setq display-time-default-load-average nil)
-   #+end_src
+#+end_src
 
 ** Display Battery Mode
 
-   See the documentation for =battery-mode-line-format= for the format
-   characters.
+See the documentation for =battery-mode-line-format= for the format
+characters.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (setq battery-mode-line-format "[%b%p%% %t]")
-   #+end_src
+#+end_src
 
 ** Docview keybindings
 
-   Convenience bindings to use doc-view with the arrow keys.
+Convenience bindings to use doc-view with the arrow keys.
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package doc-view
   :commands doc-view-mode
   :config
   (define-key doc-view-mode-map (kbd "<right>") 'doc-view-next-page)
   (define-key doc-view-mode-map (kbd "<left>") 'doc-view-previous-page))
-   #+end_src
+#+end_src
 
 ** OS X scrolling
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (setq mouse-wheel-scroll-amount (quote (0.01)))
-   #+end_src
+#+end_src
 
-** Emacsclient
+* Others
+# ** Emacsclient
 
-   #+begin_src emacs-lisp
-(use-package server
-  :config
-  (server-start))
-   #+end_src
+#    #+begin_src emacs-lisp
+# (use-package server
+#   :config
+#   (server-start))
+#    #+end_src
+# ** C-Eldoc
+#    :PROPERTIES:
+#    :GitHub:   https://github.com/mooz/c-eldoc
+#    :END:
+
+#    This package displays function signatures in the mode line.
+
+#    #+begin_src emacs-lisp
+# (use-package c-eldoc
+#   :commands c-turn-on-eldoc-mode
+#   :ensure t
+#   :init (add-hook 'c-mode-hook #'c-turn-on-eldoc-mode))
+#    #+end_src
+
+# ** Emacs Refactor
+#    #+BEGIN_SRC emacs-lisp
+# (use-package emr
+#   :config
+#   (add-hook 'prog-mode-hook 'emr-initialize)
+#   ;; Just hit M-RET to access your refactoring tools in any supported mode.
+#   (define-key prog-mode-map (kbd "M-RET") 'emr-show-refactor-menu))
+#    #+END_SRC
+# ** Flycheck
+
+#    Still need to set up hooks so that flycheck automatically runs in
+#    python mode, etc. js2-mode is already really good for the syntax
+#    checks, so I probably don't need the jshint checks with flycheck for
+#    it.
+
+#    #+begin_src emacs-lisp
+# (use-package flycheck
+#   :ensure t
+#   :defer 10
+#   :config
+#   (setq flycheck-html-tidy-executable "tidy5")
+#   (add-hook 'after-init-hook 'global-flycheck-mode)
+#   ;;(add-hook 'flycheck-mode-hook 'shan/use-eslint-from-node-modules)
+#   (add-to-list 'flycheck-disabled-checkers 'ruby-reek)
+#   (add-hook 'ruby-mode-hook 
+#             (lambda () 
+#               (flycheck-disable-checker 'ruby-reek)))
+#   )
+#    #+end_src
+
+# *** Linter setups
+
+#     Install the HTML5/CSS/JavaScript linters.
+
+#     #+begin_src sh
+# # brew tap homebrew/dupes
+# # brew install tidy
+# # npm install -g eslint
+# # npm install -g csslint
+#     #+end_src
+
+# ** Fzf
+#    #+BEGIN_SRC emacs-lisp
+# (use-package fzf
+#   :ensure t)
+
+#    #+END_SRC
+
+# ** Highlight Indent Guides
+#    #+BEGIN_SRC emacs-lisp
+# (use-package highlight-indent-guides
+#   :ensure t
+#   :defer t
+#   :init
+#   (setq highlight-indent-guides-method 'character)
+#   ;; (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+# )
+
+#    #+END_SRC
+
+# ** Macrostep
+
+#    Macrostep allows you to see what Elisp macros expand to. Learned about
+#    it from the [[https://www.youtube.com/watch?v%3D2TSKxxYEbII][package highlight talk for use-package]].
+
+#    #+begin_src emacs-lisp
+# (use-package macrostep
+#   :ensure t
+#   :bind ("H-`" . macrostep-expand))
+#    #+end_src
+
+# ** Smartscan
+
+#    #+BEGIN_QUOTE
+#    Quickly jumps between other symbols found at point in Emacs.
+#    #+END_QUOTE
+#    http://www.masteringemacs.org/article/smart-scan-jump-symbols-buffer
+
+
+#    #+begin_src emacs-lisp
+# (use-package smartscan
+#   :ensure t
+#   :config (global-smartscan-mode 1)
+#   :bind (("s-n" . smartscan-symbol-go-forward)
+#          ("s-p" . smartscan-symbol-go-backward)))
+#    #+end_src
+
+# ** Zoom-frm
+
+#    =zoom-frm= is a nice package that allows you to resize the text of
+#    entire Emacs frames (this includes text in the buffer, mode line, and
+#    minibuffer). The =zoom-in/out= command acts similar to the
+#    =text-scale-adjust= command---you can chain zooming in, out, or
+#    resetting to the default size once the command has been initially
+#    called.
+
+#    Changing the =frame-zoom-font-difference= essentially enables a
+#    "presentation mode" when calling =toggle-zoom-frame=.
+
+#    #+begin_src emacs-lisp
+# (use-package zoom-frm
+#   :load-path "site-lisp/zoom-frm"
+#   :bind (("C-M-=" . zoom-in/out)
+#          ("H-z"   . toggle-zoom-frame)
+#          ("s-<f1>" . toggle-zoom-frame))
+#   :config
+#   (setq frame-zoom-font-difference 10))
+#    #+end_src
+
+# ** Smartshift 
+# #+BEGIN_SRC emacs-lisp
+# ;; (use-package smart-shift
+# ;;   :ensure t
+# ;;   :chords (("<<" . smart-shift-up)
+# ;;            (">>" . smart-shift-down)))
+# ;;   :config
+# ;; (global-smartshift-mode 1)
+# ;; )
+# #+END_SRC
+# ** Treemacs 
+# #+BEGIN_SRC emacs-lisp
+# (use-package treemacs
+#   :ensure t
+#   :defer t
+#   :init
+#   (with-eval-after-load 'winum
+#     (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+#   :config
+#   (progn
+#     (setq treemacs-collapse-dirs              (if (executable-find "python") 3 0)
+#           treemacs-deferred-git-apply-delay   0.5
+#           treemacs-display-in-side-window     t
+#           treemacs-file-event-delay           5000
+#           treemacs-file-follow-delay          0.2
+#           treemacs-follow-after-init          t
+#           treemacs-follow-recenter-distance   0.1
+#           treemacs-goto-tag-strategy          'refetch-index
+#           treemacs-indentation                2
+#           treemacs-indentation-string         " "
+#           treemacs-is-never-other-window      nil
+#           treemacs-no-png-images              t
+#           treemacs-project-follow-cleanup     nil
+#           treemacs-persist-file               (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+#           treemacs-recenter-after-file-follow nil
+#           treemacs-recenter-after-tag-follow  nil
+#           treemacs-show-hidden-files          t
+#           treemacs-silent-filewatch           nil
+#           treemacs-silent-refresh             nil
+#           treemacs-sorting                    'alphabetic-desc
+#           treemacs-space-between-root-nodes   t
+#           treemacs-tag-follow-cleanup         t
+#           treemacs-tag-follow-delay           1.5
+#           treemacs-width                      30)
+
+#     ;; The default width and height of the icons is 22 pixels. If you are
+#     ;; using a Hi-DPI display, uncomment this to double the icon size.
+#     ;;(treemacs-resize-icons 44)
+
+#     (treemacs-follow-mode t)
+#     (treemacs-filewatch-mode t)
+#     (treemacs-fringe-indicator-mode t)
+#     (pcase (cons (not (null (executable-find "git")))
+#                  (not (null (executable-find "python3"))))
+#       (`(t . t)
+#        (treemacs-git-mode 'extended))
+#       (`(t . _)
+#        (treemacs-git-mode 'simple))))
+
+#   :bind
+#   (:map global-map
+#         ("M-0"       . treemacs-select-window)
+#         ("C-x t 1"   . treemacs-delete-other-windows)
+#         ("C-x t t"   . treemacs)
+#         ("C-x t B"   . treemacs-bookmark)
+#         ("C-x t C-t" . treemacs-find-file)
+#         ("C-x t M-t" . treemacs-find-tag))) ;;treemacs config over
+
+#     ;; (add-hook 'treemacs-after-create-hook (lambda (_)(call-interactively 'my-buffer-face-mode-fixed)))
+#     ;; (add-hook 'treemacs-mode-hook (lambda (_)(call-interactively 'my-buffer-face-mode-fixed)))
+
+
+# (use-package treemacs-projectile
+#   :after treemacs projectile
+#   :ensure t)
+
+# #+END_SRC
+# ** Quickrun
+
+#    #+BEGIN_SRC emacs-lisp
+# (use-package quickrun
+#   :defer 10
+#   :ensure t
+#   :bind ("H-q" . quickrun))
+#    #+END_SRC
+
+# ** Visible mode
+
+#    I found out about this mode by looking through simple.el. I use it to
+#    see raw org-mode files without going to a different mode like
+#    text-mode, which is what I had done in order to see invisible text
+#    (with org hyperlinks). The entire buffer contents will be visible
+#    while still being in org mode.
+
+#    #+begin_src emacs-lisp
+# ;; (use-package visible-mode
+# ;;   :bind (("H-v" . visible-mode)
+# ;;          ("s-<f2>" . visible-mode)))
+#     #+end_src
