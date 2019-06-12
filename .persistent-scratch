@@ -1,0 +1,49 @@
+(["*scratch*" "Hi Mark,
+
+
+
+
+Hey ______,
+
+Long time! I hope all is well.
+
+I want to check if you were looking to augument your tech team or have any software development needs. If so then I want to introduce my buddy Shan Bhardwaj, and his dev team.
+
+His company Addval is a boutique dev firm, based in Santa Monica, that helps companies design, develop, and launch web and mobile apps.
+
+In addition to doing a great job supporting my company, JOON, they've worked with a lot of early-stage startups and large companies like Calvin Klein, Vodafone, and Honda. I thought ___ might be a great fit and would love to see if they can help you as well!
+
+Are you the best person to chat with?
+
+
+(set-face-attribute 'flycheck-warning nil :height 120)
+(set-face-attribute 'flycheck-error-message nil :height 120)
+(set-face-attribute 'flycheck-info-overlay nil :height 120)
+(set-face-attribute 'flycheck-posframe-error-face nil :inherit 'error :height 120)
+(set-face-attribute 'flycheck-posframe-warning-face nil :inherit 'warning :height 120)
+(set-face-attribute 'flycheck-posframe-info-face nil :inherit 'info :height 120)
+
+(set-face-attribute 'company-box-candidate nil :inherit 'info :height 120)
+(set-face-attribute 'company-box-doc nil :inherit 'info :height 120)
+
+(custom-set-faces
+ '(region ((t (:inherit nil :background \"RoyalBlue4\"))))
+ '(highlight ((t (:inherit region :background \"dark olive green\"))))
+ '(hl-line ((t (:inherit highlight)))))
+
+(Setq dired-dwim-target t)
+
+(setq alchemist-goto-elixir-source-dir \"/path/to/elixir/source/\")
+
+(with-current-buffer (get-buffer \" *Echo Area 0*\")                             ; the leading space character is correct
+      (setq-local face-remapping-alist '((default (:family Monaco :height 110) variable-pitch)))) ; etc.
+
+(with-current-buffer \" *Echo Area 0*\" (face-remap-add-relative 'default '(:family \"Monaco\" :height 110)))
+
+- port forward from router to macmini
+- install/upgrade brew
+- install jenkins
+- install fastlane
+- install android-studio
+- install xcode and tools
+" (11 . 671) lisp-interaction-mode nil nil])

@@ -1,0 +1,21 @@
+exit
+exit
+exit
+ls
+mv new.html.erb rooms
+mv edit.html.erb rooms
+ls
+exi 
+exit 
+exit 
+extit
+exit
+EXIT
+exit
+cd ../../rumbl/
+mix phx.gen.context Accounts Credential credentials email:string:unique password_hash:string user_id:references:users
+cd ../../
+mix phx.gen.context Accounts Credential credentials email:string:unique password_hash:string user_id:references:users
+exit
+cd ../../../
+mix ecto.migrate 

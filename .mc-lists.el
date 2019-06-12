@@ -43,6 +43,7 @@
 
 (setq mc/cmds-to-run-once
       '(
+        dash-at-point
         dired-unmark-backward
         markdown-exdent-or-delete
         ))

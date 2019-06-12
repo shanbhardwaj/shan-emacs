@@ -1,5 +1,5 @@
-# -*- mode: snippet; require-final-newline: nil -*-
-# name: title
-# key: title
+# -*- mode: snippet -*-
+# name: Title
+# key: <ti
 # --
-#+TITLE: $0
+#+TITLE: ${1:What the hell}

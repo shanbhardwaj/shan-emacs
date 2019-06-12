@@ -1,0 +1,17 @@
+(setq highlight-indent-guides-method 'character)
+(add-hook 'prog-mode-hook (display-line-numbers-mode -1))
+
+(set-face-attribute 'mode-line nil :font "Monaco-12")
+(set-face-attribute 'term nil :font "Monaco-12")
+
+(defun my-buffer-face-mode-courrier ()
+    (interactive)
+    (setq buffer-face-mode-face '(:family "Consolas" :height 100))
+    (buffer-face-mode))
+
+(add-hook 'eshell-mode-hook 'my-buffer-face-mode-courrier)
+
+ (setq shell-pop-window-size 30)
+ (setq shell-pop-full-span t)
+ (setq shell-pop-window-position "bottom")
+
