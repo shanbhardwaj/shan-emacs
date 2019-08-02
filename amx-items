@@ -1,22 +1,22 @@
 
 ;; ----- amx-history -----
 (
+ restart-emacs
+ package-install
  dired
  neotree-dir
  mkdir
- neotree-open-file-in-system-application
  ag-project
  magit-status
- neotree-delete-node
 )
 
 ;; ----- amx-data -----
 (
  (org-babel-load-file . 163)
  (describe-key . 5)
- (restart-emacs . 137)
+ (restart-emacs . 138)
  (magit-status . 22)
- (package-install . 72)
+ (package-install . 73)
  (dired-sidebar-show-sidebar . 1)
  (dired-sidebar-toggle-sidebar . 3)
  (neotree . 5)
