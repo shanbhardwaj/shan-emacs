@@ -46,4 +46,6 @@
         dash-at-point
         dired-unmark-backward
         markdown-exdent-or-delete
+        menu-set-font
+        ns-respond-to-change-font
         ))

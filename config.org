@@ -34,6 +34,7 @@ customize settings in [[file:init.el][init.el]].
 (setq max-lisp-eval-depth 10000)
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
+(menu-bar-mode -1)
 #+end_src
 
 * System Detection
@@ -86,6 +87,23 @@ Example output:
                 "\\([a-z_]+: \\)"
                 -1 1 nil))
 #+end_src
+
+#+begin_src emacs-lisp
+  (defun fontify-frame (frame)
+    (interactive)
+    (if sys/macp
+        (progn
+          (if (> (x-display-pixel-width) 3000)
+              (set-frame-parameter frame 'font "Monaco 14") ;; 5k Display
+            (set-frame-parameter frame 'font "Monaco 12")))))
+
+  ;; Fontify current frame
+  (fontify-frame nil)
+
+  ;; Fontify any future frames
+  (push 'fontify-frame after-make-frame-functions)
+
+#+end_src
 * Theme
 
 ** Doom theme
@@ -96,7 +114,7 @@ Example output:
   :config
   (doom-themes-visual-bell-config)
   (doom-themes-org-config)
-  (load-theme 'doom-one-light)
+  (load-theme 'doom-molokai t)
   )
 
 (use-package doom-modeline
@@ -106,10 +124,10 @@ Example output:
   (setq doom-modeline-buffer-file-name-style 'truncate-all)
   ;; (setq doom-modeline-icon t)
   ;; (setq doom-modeline-major-mode-icon t)
-  ;; (setq doom-modeline-height 8)
   (setq doom-modeline-checker-simple-format nil)
-  (set-face-attribute 'mode-line nil :font "Monaco-10")
-  (set-face-attribute 'mode-line-inactive nil :font "Monaco-10")
+  (set-face-attribute 'mode-line nil :height 0.9)
+  (set-face-attribute 'mode-line-inactive nil :height 0.9)
+  (setq doom-modeline-height 12)
   )
 
 #+END_SRC
@@ -119,8 +137,9 @@ Example output:
 (defun reset-modeline()
   "Reset the modeline to 12pt font"
   (interactive)
-  (set-face-attribute 'mode-line nil :font "Monaco-12")
-  (set-face-attribute 'mode-line-inactive nil :font "Monaco-12")
+  (set-face-attribute 'mode-line nil :height 100)
+  (set-face-attribute 'mode-line-inactive nil :height 100)
+  (setq doom-modeline-height 12)
   )
 
 (defun switch-theme (theme)
@@ -166,7 +185,7 @@ And here's how we tell Emacs to use the font we want to use.
 #+begin_src emacs-lisp
 (add-to-list 'default-frame-alist
              ;; '(font . "-*-Operator Mono-medium-normal-normal-*-14-*-*-*-m-0-iso10646-1")
-             '(font . "Monaco-14")
+             '(font . "Monaco for Powerline-12")
              )
 
 #+end_src
@@ -187,6 +206,13 @@ the emacs-ac-emoji package.]]
                     ((string-equal system-type "gnu/linux") "Symbola")))))
   (set-fontset-font t 'unicode font nil 'prepend))
 #+END_SRC
+
+** Enable Ligatures
+#+begin_src emacs-lisp
+(if (fboundp 'mac-auto-operator-composition-mode)
+    (mac-auto-operator-composition-mode))
+
+#+end_src
 
 ** Custom Mode faces
 
@@ -328,21 +354,21 @@ There are configurations to make when running Emacs on macOS (hence the
   (global-set-key (kbd "M-z") 'undo)
 
   ;; Use Command-` to switch between Emacs windows (not frames)
-  (bind-key "s-`" 'other-window)
+  (bind-key "A-`" 'other-window)
 
   ;; Use Command-Shift-` to switch Emacs frames in reverse
   (bind-key "s-~" (lambda() () (interactive) (other-window -1)))
 
   ;; Because of the keybindings above, set one for `other-frame'
-  (bind-key "s-1" 'other-frame)
+  (bind-key "S-1" 'other-frame)
 
   ;; Fullscreen!
   (setq ns-use-native-fullscreen nil) ; Not Lion style
-  (bind-key "<s-return>" 'toggle-frame-fullscreen)
+  (bind-key "<A-return>" 'toggle-frame-fullscreen)
 
   ;; buffer switching
-  (bind-key "s-{" 'previous-buffer)
-  (bind-key "s-}" 'next-buffer)
+  (bind-key "M-[" 'previous-buffer)
+  (bind-key "M-]" 'next-buffer)
 
   ;; Compiling
   (bind-key "H-c" 'compile)
@@ -784,6 +810,7 @@ These are the packages that are not built into Emacs.
 #+BEGIN_SRC emacs-lisp
 (use-package ag
   :commands ag
+  :defer t
   :ensure t)
 #+END_SRC
 
@@ -811,6 +838,7 @@ what I have them set to (with respect to Dvorak, of course).
 #+begin_src emacs-lisp
 (use-package ace-window
   :ensure t
+  :defer t
   :config
   (setq aw-keys '(?a ?o ?e ?u ?h ?t ?n ?s))
   (ace-window-display-mode)
@@ -823,6 +851,7 @@ what I have them set to (with respect to Dvorak, of course).
 (use-package aggressive-indent
   :ensure t
   :config
+  :defer t
   ;; (add-hook 'prog-mode-hook #'aggressive-indent-mode)
   )
 #+END_SRC
@@ -832,6 +861,7 @@ what I have them set to (with respect to Dvorak, of course).
 ;; Pass a URL to a WWW browser
 (use-package browse-url
   :ensure nil
+  :defer t
   :defines dired-mode-map
   :bind (("C-c C-z ." . browse-url-at-point)
          ("C-c C-z b" . browse-url-of-buffer)
@@ -1006,6 +1036,7 @@ tools I use).
 #+begin_src emacs-lisp
 (use-package dash-at-point
   :ensure t
+  :defer t
   :bind (("s-D"     . dash-at-point)
          ("C-c e"   . dash-at-point-with-docset)))
 #+end_src
@@ -1029,6 +1060,7 @@ According to [[http://emmet.io/][their website]], "Emmet — the essential toolk
 #+begin_src emacs-lisp
 (use-package emmet-mode
   :ensure t
+  :defer t
   :commands emmet-mode
   :config
   (add-hook 'html-mode-hook 'emmet-mode)
@@ -1077,7 +1109,7 @@ it.
   (add-hook 'after-init-hook 'global-flycheck-mode)
   (setq flycheck-html-tidy-executable "tidy5")
   ;;(add-hook 'flycheck-mode-hook 'shan/use-eslint-from-node-modules)
-  (setq-default flycheck-disabled-checkers '(ruby-reek))
+  (setq-default flycheck-disabled-checkers '(ruby-reek ruby-rubylint))
   (add-hook 'ruby-mode-hook
             (lambda ()
               (flycheck-disable-checker 'ruby-reek)))
@@ -1108,6 +1140,7 @@ it.
 ** HL TODO
 #+begin_src emacs-lisp
 (use-package hl-todo
+  :defer t
   :custom-face (hl-todo ((t (:box t :inherit))))
   :bind (:map hl-todo-mode-map
               ([C-f3] . hl-todo-occur)
@@ -1121,6 +1154,7 @@ it.
 #+begin_src emacs-lisp
 ;; Highlight symbols
 (use-package symbol-overlay
+  :defer t
   :diminish
   :defines iedit-mode
   :commands (symbol-overlay-get-symbol
@@ -1134,7 +1168,8 @@ it.
          ("M-P" . symbol-overlay-switch-backward)
          ("M-C" . symbol-overlay-remove-all)
          ([M-f3] . symbol-overlay-remove-all))
-  :hook ((prog-mode . symbol-overlay-mode)
+  :hook (
+         ;; (prog-mode . symbol-overlay-mode)
          (iedit-mode . (lambda () (symbol-overlay-mode -1)))
          (iedit-mode-end . symbol-overlay-mode)))
 
@@ -1208,10 +1243,12 @@ No more juggling windows after commiting. It's magit bliss.
 #+BEGIN_SRC emacs-lisp
 ;; sidebar and dired in one
 (use-package neotree
+  :defer t
   :bind
   ("<f8>" . neotree-toggle)
   :config
   ;; needs package all-the-icons
+  (setq neo-window-position 'right)
   (setq neo-theme (if (display-graphic-p) 'ascii 'arrow))
 
   ;; Disable line-numbers minor mode for neotree
@@ -1229,7 +1266,7 @@ No more juggling windows after commiting. It's magit bliss.
 (defun my-buffer-face-mode-fixed ()
   "Sets a fixed width (monospace) font in current buffer"
   (interactive)
-  (setq buffer-face-mode-face '(:family "Operator Mono" :height 110))
+  (setq buffer-face-mode-face '(:family "Operator Mono" :height 100))
   (buffer-face-mode))
 
 (add-hook 'neotree-mode-hook 'my-buffer-face-mode-fixed)
@@ -1757,27 +1794,27 @@ No more juggling windows after commiting. It's magit bliss.
 ;;               ([remap flyspell-correct-word-before-point] . flyspell-correct-previous-word-generic)))
 #+END_SRC
 ** iEdit
-#+begin_src
+#+begin_src emacs-lisp
 ;; Edit multiple regions in the same way simultaneously
-(use-package iedit
-  :defines desktop-minor-mode-table
-  :bind (("C-;" . iedit-mode)
-         ("C-x r RET" . iedit-rectangle-mode)
-         :map isearch-mode-map ("C-;" . iedit-mode-from-isearch)
-         :map esc-map ("C-;" . iedit-execute-last-modification)
-         :map help-map ("C-;" . iedit-mode-toggle-on-function))
-  :config
-  ;; Avoid restoring `iedit-mode'
-  (with-eval-after-load 'desktop
-    (add-to-list 'desktop-minor-mode-table
-                 '(iedit-mode nil))))
+;; (use-package iedit
+;;   :defer t
+;;   :defines desktop-minor-mode-table
+;;   :bind (("C-;" . iedit-mode)
+;;          ("C-x r RET" . iedit-rectangle-mode)
+;;          :map isearch-mode-map ("C-;" . iedit-mode-from-isearch)
+;;          :map esc-map ("C-;" . iedit-execute-last-modification)
+;;          :map help-map ("C-;" . iedit-mode-toggle-on-function))
+;;   :config
+;;   ;; Avoid restoring `iedit-mode'
+;;   (with-eval-after-load 'desktop
+;;     (add-to-list 'desktop-minor-mode-table
+;;                  '(iedit-mode nil))))
 #+end_src
 ** Markdown mode
 
-**
-
 #+begin_src emacs-lisp
 (use-package markdown-mode
+  :defer t
   :ensure t
   :mode (("\\.markdown\\'" . markdown-mode)
          ("\\.md\\'"       . markdown-mode)))
@@ -1790,6 +1827,7 @@ We'll also need to ~(require 'multiple-cusors)~ because of [[https://github.com/
 #+begin_src emacs-lisp
 (use-package multiple-cursors
   :ensure t
+  :defer t
   :bind (("C-S-c C-S-c" . mc/edit-lines)
          ("C->"         . mc/mark-next-like-this)
          ("C-<"         . mc/mark-previous-like-this)
@@ -1842,10 +1880,12 @@ Integrates with IPython.
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-delimiters
   :ensure t
+  :delight
   :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package rainbow-mode
   :ensure t
+  :delight
   :hook (prog-mode . rainbow-mode)
   :config
   (setq rainbow-x-colors nil))
@@ -1876,6 +1916,7 @@ around so much.
 #+begin_src emacs-lisp :tangle no
 (use-package web-mode
   :ensure t
+  :defer t
   :mode ("\\.html\\'")
   :config
   (setq web-mode-markup-indent-offset 2)
@@ -1973,10 +2014,10 @@ creating a buffer to do some scratch work or reusing the initial
   (add-hook 'comint-output-filter-functions #'comint-strip-ctrl-m)
 
   ;; Company mode backend for shell functions
-  (use-package company-shell
-    :after company
-    :init (cl-pushnew '(company-shell company-shell-env company-fish-shell)
-                      company-backends))
+  ;; (use-package company-shell
+  ;;   :after company
+  ;;   :init (cl-pushnew '(company-shell company-shell-env company-fish-shell)
+  ;;                     company-backends))
 
   ;; Bash completion
   (use-package bash-completion
@@ -2062,14 +2103,14 @@ creating a buffer to do some scratch work or reusing the initial
   :defer t
   :config
   ;; (super-save-mode +1)
-)
+  )
 #+END_SRC
 ** Undo Tree
 
 #+BEGIN_SRC emacs-lisp
 (use-package undo-tree
   :ensure t
-  :diminish undo-tree
+  :delight
   :init
   (global-undo-tree-mode))
 #+END_SRC
@@ -2167,12 +2208,13 @@ Luckily, I can modify the way Emacs formats code with this configuration.
 ;; LSP
 
 (use-package lsp-mode
-  :commands lsp
+  :commands lsp-deferred
   :ensure t
   :diminish lsp-mode
   :hook
-  ((elixir-mode . lsp)
-   (ruby-mode . lsp))
+  ((elixir-mode . lsp-deferred)
+   ;; (ruby-mode . lsp-deferred)
+   )
   :init
   (add-to-list 'exec-path "/Users/shan/projects/elixir/elixir-ls/release")
   )
@@ -2182,7 +2224,7 @@ Luckily, I can modify the way Emacs formats code with this configuration.
   :after lsp-mode
   :commands lsp-ui-mode
   :init
-  (setq lsp-ui-doc-enable nil)
+  ;; (setq lsp-ui-doc-enable nil)
   (setq lsp-ui-flycheck-enable t)
   (setq lsp-auto-guess-root t)       ; Detect project root
   (setq lsp-prefer-flymake nil)      ; Use lsp-ui and flycheck
@@ -2201,9 +2243,11 @@ Luckily, I can modify the way Emacs formats code with this configuration.
   :config
   (dap-mode 1)
   (dap-ui-mode 1)
-  (require 'dap-ruby)
+  ;; (require 'dap-ruby)
   (require 'dap-elixir)
   )
+
+(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 #+END_SRC
 ** Elixir
 #+BEGIN_SRC emacs-lisp
@@ -2379,7 +2423,7 @@ Install json-mode and make its reformat keybinding match the global default.
   :defer t
   :init
   (add-hook 'ruby-mode-hook 'rubocop-mode)
-  :diminish rubocop-mode)
+  :diminish cop)
 
 ;; InfRuby to change ruby
 (use-package inf-ruby
@@ -2402,6 +2446,7 @@ Install json-mode and make its reformat keybinding match the global default.
 ;; in buffer interpreter
 (use-package seeing-is-believing
   :ensure t
+  :delight
   :hook (ruby-mode . seeing-is-believing)
   :config
   (setq seeing-is-believing-max-length 150
@@ -2419,6 +2464,7 @@ Install json-mode and make its reformat keybinding match the global default.
 ;; Ruby Tools
 (use-package ruby-tools
   :ensure t
+  :delight
   :defer t
   :init
   (add-hook 'ruby-mode-hook 'ruby-tools-mode))
@@ -2634,73 +2680,73 @@ Convenience bindings to use doc-view with the arrow keys.
 # ;; (global-smartshift-mode 1)
 # ;; )
 # #+END_SRC
-# ** Treemacs
-# #+BEGIN_SRC emacs-lisp
-# (use-package treemacs
-#   :ensure t
-#   :defer t
-#   :init
-#   (with-eval-after-load 'winum
-#     (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-#   :config
-#   (progn
-#     (setq treemacs-collapse-dirs              (if (executable-find "python") 3 0)
-#           treemacs-deferred-git-apply-delay   0.5
-#           treemacs-display-in-side-window     t
-#           treemacs-file-event-delay           5000
-#           treemacs-file-follow-delay          0.2
-#           treemacs-follow-after-init          t
-#           treemacs-follow-recenter-distance   0.1
-#           treemacs-goto-tag-strategy          'refetch-index
-#           treemacs-indentation                2
-#           treemacs-indentation-string         " "
-#           treemacs-is-never-other-window      nil
-#           treemacs-no-png-images              t
-#           treemacs-project-follow-cleanup     nil
-#           treemacs-persist-file               (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-#           treemacs-recenter-after-file-follow nil
-#           treemacs-recenter-after-tag-follow  nil
-#           treemacs-show-hidden-files          t
-#           treemacs-silent-filewatch           nil
-#           treemacs-silent-refresh             nil
-#           treemacs-sorting                    'alphabetic-desc
-#           treemacs-space-between-root-nodes   t
-#           treemacs-tag-follow-cleanup         t
-#           treemacs-tag-follow-delay           1.5
-#           treemacs-width                      30)
+** Treemacs
+#+BEGIN_SRC emacs-lisp
+(use-package treemacs
+  :ensure t
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-collapse-dirs              (if (executable-find "python") 3 0)
+          treemacs-deferred-git-apply-delay   0.5
+          treemacs-display-in-side-window     t
+          treemacs-file-event-delay           5000
+          treemacs-file-follow-delay          0.2
+          treemacs-follow-after-init          t
+          treemacs-follow-recenter-distance   0.1
+          treemacs-goto-tag-strategy          'refetch-index
+          treemacs-indentation                2
+          treemacs-indentation-string         " "
+          treemacs-is-never-other-window      nil
+          treemacs-no-png-images              t
+          treemacs-project-follow-cleanup     nil
+          treemacs-persist-file               (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-recenter-after-file-follow nil
+          treemacs-recenter-after-tag-follow  nil
+          treemacs-show-hidden-files          t
+          treemacs-silent-filewatch           nil
+          treemacs-silent-refresh             nil
+          treemacs-sorting                    'alphabetic-desc
+          treemacs-space-between-root-nodes   t
+          treemacs-tag-follow-cleanup         t
+          treemacs-tag-follow-delay           1.5
+          treemacs-width                      30)
 
-#     ;; The default width and height of the icons is 22 pixels. If you are
-#     ;; using a Hi-DPI display, uncomment this to double the icon size.
-#     ;;(treemacs-resize-icons 44)
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
 
-#     (treemacs-follow-mode t)
-#     (treemacs-filewatch-mode t)
-#     (treemacs-fringe-indicator-mode t)
-#     (pcase (cons (not (null (executable-find "git")))
-#                  (not (null (executable-find "python3"))))
-#       (`(t . t)
-#        (treemacs-git-mode 'extended))
-#       (`(t . _)
-#        (treemacs-git-mode 'simple))))
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode nil)
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null (executable-find "python3"))))
+      (`(t . t)
+       (treemacs-git-mode 'extended))
+      (`(t . _)
+       (treemacs-git-mode 'simple))))
 
-#   :bind
-#   (:map global-map
-#         ("M-0"       . treemacs-select-window)
-#         ("C-x t 1"   . treemacs-delete-other-windows)
-#         ("C-x t t"   . treemacs)
-#         ("C-x t B"   . treemacs-bookmark)
-#         ("C-x t C-t" . treemacs-find-file)
-#         ("C-x t M-t" . treemacs-find-tag))) ;;treemacs config over
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag))) ;;treemacs config over
 
-#     ;; (add-hook 'treemacs-after-create-hook (lambda (_)(call-interactively 'my-buffer-face-mode-fixed)))
-#     ;; (add-hook 'treemacs-mode-hook (lambda (_)(call-interactively 'my-buffer-face-mode-fixed)))
+    ;; (add-hook 'treemacs-after-create-hook (lambda (_)(call-interactively 'my-buffer-face-mode-fixed)))
+    ;; (add-hook 'treemacs-mode-hook (lambda (_)(call-interactively 'my-buffer-face-mode-fixed)))
 
 
-# (use-package treemacs-projectile
-#   :after treemacs projectile
-#   :ensure t)
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
 
-# #+END_SRC
+#+END_SRC
 # ** Quickrun
 
 #    #+BEGIN_SRC emacs-lisp

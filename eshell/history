@@ -19,3 +19,16 @@ mix phx.gen.context Accounts Credential credentials email:string:unique password
 exit
 cd ../../../
 mix ecto.migrate 
+exit
+exit 
+exit
+exit
+exit
+exit
+exit
+exit
+exit
+cd projects/elixir/
+ls
+git clone git@github.com:korolvs/el_chat.git
+exit

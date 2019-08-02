@@ -1,49 +1,77 @@
-(["*scratch*" "Hi Mark,
+(["*scratch*" "Q: What is our business model, how will we make money?
+We are working on making the whole CMS work with voice only. The doctor will be able to just dictate into the system, in the native language.
+So we will be charging for premium features.
+1. Care coordination
+2. Patient management
+3. Remote Monitoring
+
+:cl--generic--under-construction
+
+the base idea was to create a healthcare solution that will makes peoples lives better.
+- Improve accessibility
+- Improve quality
+For doing whatever you will have to digitize data. People are not into digitization. It has to happen at the point of generation.
+The clinics/doctor practices are not invested in practice management. Healthcare is transactional and majority of the doctors are more into seeing the transaction happen rather than do anything to make the patients life easier. Healthcare is revenue driven.
+The younger doctors are very open to a clinic/practice management system.
+
+So where we are is we've created a clinic management system and we are giving it out to doctors for free. Its feature complete and competes very well with other commercial software. There are also some unique features where the clinic can be connected to labs, pharmacies and other clinics and hospitals. There is also a mobile app for the doctors. We want to make that app work in complete concert with the cms where the doctor can use that app as voice interface to the CMS.
+
+We have also created a mobile app for the Patient. The purpose of the app is
+- to increase accessibilty
+- push the careplan (prescription etc) directly to the patient. Digitization helps in all kinds of ways.
+
+Solution: Build a two sided marketplace.
+
+The doctors hate the keyboard, everywhere but particularly in india where they do not get any typing training. So the next thing was for the doctors to be able to talk to the app, data entry using speech to text. We build something that is currently reliant on the google speech apis. For general text it works pretty well but not for the medical terms. So first thing is I want to get that production ready.
+
+Second is the question of population health. How to apply ml/ai to SDOH.
+Thrid is AI applied to image processing has been working very well around the world or at least a lot of companies are showing promising results. E.g. tuberculosis detection using xrays, malignant cell detection in pathology and also some interesting results in dermetology. How should i go about getting upto speed on these.
 
 
+lambda
+~>
+==>
+=>
+|>
+(mac-auto-operator-composition-mode t)
+(mac-auto-operator-composition-mode t)
+
+(fontify-frame nil)
+(setq doom-modeline-height 1)
 
 
-Hey ______,
+From what you guys have put here and my own thoughts I'd say the most important thing is communication. And that is true!
 
-Long time! I hope all is well.
+By far the most important attribute would be effective communication between the team. Its the fabric that binds individuals and creates teams. If the team members or parts of the team
+- cannot commuicate with each other or
+- do not want to communicate with each other
 
-I want to check if you were looking to augument your tech team or have any software development needs. If so then I want to introduce my buddy Shan Bhardwaj, and his dev team.
+then thats receipe for disaster. Software engineers are by trade adept at a pretty decent baseline of cognitive thinking and that enables them to very easily come up with exceptions and explanations and deflections and excuses. While at the sametime if I were to indulge in gross generalization then software engineers are also not the most adept at being able to express their feelings and there's certainly very little training for it. So if you have a software team that is not communicating well, I would immediately make getting to the bottom of that the very first priority. No matter what methodology and incentive structure you use without good communication you will find yourself walking uphill and against the wind.
 
-His company Addval is a boutique dev firm, based in Santa Monica, that helps companies design, develop, and launch web and mobile apps.
+(use-package spaceline-all-the-icons 
+  :after spaceline
+  :config (spaceline-all-the-icons-theme))
 
-In addition to doing a great job supporting my company, JOON, they've worked with a lot of early-stage startups and large companies like Calvin Klein, Vodafone, and Honda. I thought ___ might be a great fit and would love to see if they can help you as well!
+(spaceline-all-the-icons--setup-package-updates) ;; Enable package update indicator
+(spaceline-all-the-icons--setup-git-ahead)       ;; Enable # of commits ahead of upstream in git
+(spaceline-all-the-icons--setup-paradox)         ;; Enable Paradox mode line
+(spaceline-all-the-icons--setup-neotree)         ;; Enable Neotree mode line
 
-Are you the best person to chat with?
+(spaceline-toggle-all-the-icons-SEGMENT-on)
 
 
-(set-face-attribute 'flycheck-warning nil :height 120)
-(set-face-attribute 'flycheck-error-message nil :height 120)
-(set-face-attribute 'flycheck-info-overlay nil :height 120)
-(set-face-attribute 'flycheck-posframe-error-face nil :inherit 'error :height 120)
-(set-face-attribute 'flycheck-posframe-warning-face nil :inherit 'warning :height 120)
-(set-face-attribute 'flycheck-posframe-info-face nil :inherit 'info :height 120)
+https://www.medminder.com
+https://www.adheretech.com/how-it-works
+http://www.cataliahealth.com
+https://www.proteus.com
+https://aicure.com
+https://www.emocha.com
+https://www.propellerhealth.com (specific to asthma and COPD)
+https://coherohealth.com (specific to asthma and COPD)
+https://www.mangohealth.com
+https://healthprize.com (most tech tracking)
+http://care-advisors.com/#howitworks
+https://lifewiregroup.com
 
-(set-face-attribute 'company-box-candidate nil :inherit 'info :height 120)
-(set-face-attribute 'company-box-doc nil :inherit 'info :height 120)
 
-(custom-set-faces
- '(region ((t (:inherit nil :background \"RoyalBlue4\"))))
- '(highlight ((t (:inherit region :background \"dark olive green\"))))
- '(hl-line ((t (:inherit highlight)))))
-
-(Setq dired-dwim-target t)
-
-(setq alchemist-goto-elixir-source-dir \"/path/to/elixir/source/\")
-
-(with-current-buffer (get-buffer \" *Echo Area 0*\")                             ; the leading space character is correct
-      (setq-local face-remapping-alist '((default (:family Monaco :height 110) variable-pitch)))) ; etc.
-
-(with-current-buffer \" *Echo Area 0*\" (face-remap-add-relative 'default '(:family \"Monaco\" :height 110)))
-
-- port forward from router to macmini
-- install/upgrade brew
-- install jenkins
-- install fastlane
-- install android-studio
-- install xcode and tools
-" (11 . 671) lisp-interaction-mode nil nil])
+https://www.dignityhealth.org/about-us/coordinated-care" (1 . 4230) lisp-interaction-mode nil nil])
