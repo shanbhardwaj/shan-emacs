@@ -1266,7 +1266,7 @@ No more juggling windows after commiting. It's magit bliss.
 (defun my-buffer-face-mode-fixed ()
   "Sets a fixed width (monospace) font in current buffer"
   (interactive)
-  (setq buffer-face-mode-face '(:family "Monaco" :height 100))
+  (setq buffer-face-mode-face '(:family "Monaco for Powerline" :height 100))
   (buffer-face-mode))
 
 (add-hook 'neotree-mode-hook 'my-buffer-face-mode-fixed)
