@@ -1,13 +1,13 @@
 
 ;; ----- amx-history -----
 (
- dired
- neotree-dir
- mkdir
- neotree-open-file-in-system-application
- ag-project
+ paradox-upgrade-packages
+ align-regexp
+ toggle-frame-fullscreen
  magit-status
- neotree-delete-node
+ align-values
+ ruby-toggle-string-quotes
+ dired
 )
 
 ;; ----- amx-data -----
@@ -15,7 +15,7 @@
  (org-babel-load-file . 163)
  (describe-key . 5)
  (restart-emacs . 137)
- (magit-status . 22)
+ (magit-status . 23)
  (package-install . 72)
  (dired-sidebar-show-sidebar . 1)
  (dired-sidebar-toggle-sidebar . 3)
@@ -72,7 +72,7 @@
  (hs-hide-all . 4)
  (hs-hide-block . 12)
  (hs-hide-level . 9)
- (align-regexp . 67)
+ (align-regexp . 68)
  (ecb-activate . 2)
  (load-library . 1)
  (ecb-deactivate . 1)
@@ -88,7 +88,7 @@
  (prettier-js . 1)
  (untabify . 8)
  (indent-region . 4)
- (ruby-toggle-string-quotes . 4)
+ (ruby-toggle-string-quotes . 5)
  (yank-pop . 3)
  (hs-show-block . 5)
  (scratch . 2)
@@ -152,7 +152,7 @@
  (git-messenger:popup-message . 2)
  (flycheck-disable-checker . 4)
  (rainbow-delimiters-mode . 1)
- (align-values . 4)
+ (align-values . 5)
  (counsel-ag . 1)
  (dired . 2)
  (display-time . 1)
@@ -183,7 +183,7 @@
  (customize-group . 2)
  (counsel-load-theme . 6)
  (paradox-filter-upgrades . 2)
- (paradox-upgrade-packages . 14)
+ (paradox-upgrade-packages . 15)
  (paradox-refresh-upgradeable-packages . 1)
  (debug-on-entry . 1)
  (amx . 1)
@@ -229,4 +229,5 @@
  (neotree-delete-node . 1)
  (neotree-open-file-in-system-application . 1)
  (mkdir . 1)
+ (toggle-frame-fullscreen . 1)
 )
