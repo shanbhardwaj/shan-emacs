@@ -477,11 +477,11 @@ It goes without saying that I also use it to manage my Emacs config.
 Although Org mode ships with Emacs, the latest version can be installed externally. The configuration here follows the [[http://orgmode.org/elpa.html][Org mode ELPA installation instructions]].
 
 #+BEGIN_SRC emacs-lisp
-(use-package org
-  :ensure org-plus-contrib
-  :config
-  (require 'org-tempo)
-  )
+  (use-package org
+    ;;:ensure org-plus-contrib              ;
+    :config
+    (require 'org-tempo)
+    )
 #+END_SRC
 
 On Org mode version 9 I wasn't able to execute source blocks out of the box. [[https://emacs.stackexchange.com/a/28604][Others have ran into the same issue too]]. The solution is to remove the .elc files from the package directory:

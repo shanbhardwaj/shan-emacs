@@ -12,11 +12,12 @@
 (setq inhibit-startup-message t)
 (setq initial-scratch-message "")
 
-(add-to-list 'default-frame-alist 
+(add-to-list 'default-frame-alist
              '(fullscreen . maximized))
 
 
-;;; Set up package
+
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3");;; Set up package
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
