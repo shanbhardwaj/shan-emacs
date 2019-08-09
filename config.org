@@ -114,7 +114,7 @@ Example output:
   :config
   (doom-themes-visual-bell-config)
   (doom-themes-org-config)
-  (load-theme 'doom-molokai t)
+  (load-theme 'railscasts-reloaded t)
   )
 
 (use-package doom-modeline
@@ -140,6 +140,7 @@ Example output:
   (set-face-attribute 'mode-line nil :height 100)
   (set-face-attribute 'mode-line-inactive nil :height 100)
   (setq doom-modeline-height 12)
+  (set-face-attribute 'line-number nil :font "Monaco-10")
   )
 
 (defun switch-theme (theme)
@@ -153,7 +154,7 @@ Example output:
   (let ((enabled-themes custom-enabled-themes))
     (mapc #'disable-theme custom-enabled-themes)
     (load-theme theme t)
-    ;; (reset-modeline)
+    (reset-modeline)
     ))
 
 (defun disable-active-themes ()
@@ -312,7 +313,13 @@ Page-Breaks in GNU Emacs" by Eric J. M. Ritz.]]
 
 # TODO: Change this to auto for prog-mode only
 # (when (version<= "26.0.50" emacs-version )
-# (add-hook 'prog-mode-hook  (display-line-numbers-mode))
+
+;; native line numbers
+# (setq-default display-line-numbers 'visual
+#               display-line-numbers-current-absolute t
+#               display-line-numbers-width 4
+#               display-line-numbers-widen t)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 # (global-display-line-numbers-mode t)
 
 # Customize the minibuffer
@@ -346,10 +353,11 @@ There are configurations to make when running Emacs on macOS (hence the
 
   ;; set the Fn key as the hyper key
   (setq ns-function-modifier 'hyper)
-  (setq ns-option-modifier 'super)
+  ;; (setq ns-option-modifier 'super)
+  (setq mac-option-modifier 'super)
   (setq ns-command-modifier 'meta)
 
-  ;; Typical Mac bindings
+  ;; typical mac bindings
   (global-set-key (kbd "M-s") 'save-buffer)
   (global-set-key (kbd "M-z") 'undo)
 
