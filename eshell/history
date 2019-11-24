@@ -32,3 +32,12 @@ cd projects/elixir/
 ls
 git clone git@github.com:korolvs/el_chat.git
 exit
+exit
+exit 
+exit
+exit
+exit
+exit
+createdb shan
+psql -U shan -l
+exit

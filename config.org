@@ -93,7 +93,7 @@ Example output:
     (interactive)
     (if sys/macp
         (progn
-          (if (> (x-display-pixel-width) 3000)
+          (if (> (x-display-pixel-width) 4000)
               (set-frame-parameter frame 'font "Monaco 14") ;; 5k Display
             (set-frame-parameter frame 'font "Monaco 12")))))
 
@@ -114,7 +114,7 @@ Example output:
   :config
   (doom-themes-visual-bell-config)
   (doom-themes-org-config)
-  (load-theme 'railscasts-reloaded t)
+  (load-theme 'doom-vibrant t)
   )
 
 (use-package doom-modeline
@@ -141,6 +141,7 @@ Example output:
   (set-face-attribute 'mode-line-inactive nil :height 100)
   (setq doom-modeline-height 12)
   (set-face-attribute 'line-number nil :font "Monaco-10")
+  (set-face-attribute 'line-number-current-line nil :font "Monaco-10")
   )
 
 (defun switch-theme (theme)
@@ -186,7 +187,8 @@ And here's how we tell Emacs to use the font we want to use.
 #+begin_src emacs-lisp
 (add-to-list 'default-frame-alist
              ;; '(font . "-*-Operator Mono-medium-normal-normal-*-14-*-*-*-m-0-iso10646-1")
-             '(font . "Monaco for Powerline-12")
+             ;; '(font . "Monaco for Powerline-12")
+             '(font . "Cascadia Code-14")
              )
 
 #+end_src
@@ -229,7 +231,7 @@ the emacs-ac-emoji package.]]
 (defun my-term-mode-face ()
   "Sets a fixed width (monospace) font in current buffer"
   (interactive)
-  (setq buffer-face-mode-face '(:family "Monaco" :height 0.8))
+  (setq buffer-face-mode-face '(:family "Monaco" :height 100))
   (buffer-face-mode))
 
 #+end_src
@@ -294,12 +296,14 @@ Sources for this section include [[https://github.com/magnars/.emacs.d/blob/mast
 ;; highlight current line everywhere
 (global-hl-line-mode 1)
 
-(global-unset-key (kbd "M-m")
+(global-unset-key (kbd "M-m"))
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
                   ;; (global-set-key (kbd "C-+") 'text-scale-increase)
                   ;; (global-set-key (kbd "C--") 'text-scale-decrease)
-                  ;; (global-set-key (kbd "C-+") 'text-scale-increase)
-                  ;; (global-set-key (kbd "C--") 'text-scale-decrease)
-                  )
+
+
+(windmove-default-keybindings 'super)
 #+end_src
 
 Here we make page-break characters look pretty, instead of appearing
@@ -314,20 +318,21 @@ Page-Breaks in GNU Emacs" by Eric J. M. Ritz.]]
 # TODO: Change this to auto for prog-mode only
 # (when (version<= "26.0.50" emacs-version )
 
+#+BEGIN_SRC emacs-lisp
 ;; native line numbers
-# (setq-default display-line-numbers 'visual
-#               display-line-numbers-current-absolute t
-#               display-line-numbers-width 4
-#               display-line-numbers-widen t)
+;; (setq-default display-line-numbers 'visual
+;;               display-line-numbers-current-absolute t
+;;               display-line-numbers-width 4
+;;               display-line-numbers-widen t)
+;; (global-display-line-numbers-mode t)
+
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-# (global-display-line-numbers-mode t)
 
 # Customize the minibuffer
-#+BEGIN_SRC emacs-lisp
 (add-hook 'minibuffer-setup-hook 'my-minibuffer-setup)
 (defun my-minibuffer-setup ()
   (set (make-local-variable 'face-remapping-alist)
-       '((default :height 0.8))))
+       '((default :height 0.9))))
 #+END_SRC
 
 * Mac customizations
@@ -347,15 +352,15 @@ There are configurations to make when running Emacs on macOS (hence the
   ;; delete files by moving them to the trash
   (setq delete-by-moving-to-trash t)
   (setq trash-directory "~/.Trash")
-
   ;; Don't make new frames when opening a new file with Emacs
   (setq ns-pop-up-frames nil)
 
   ;; set the Fn key as the hyper key
-  (setq ns-function-modifier 'hyper)
+  ;; (setq ns-function-modifier 'hyper)
   ;; (setq ns-option-modifier 'super)
+  ;; (setq ns-command-modifier 'meta)
+
   (setq mac-option-modifier 'super)
-  (setq ns-command-modifier 'meta)
 
   ;; typical mac bindings
   (global-set-key (kbd "M-s") 'save-buffer)
@@ -372,7 +377,7 @@ There are configurations to make when running Emacs on macOS (hence the
 
   ;; Fullscreen!
   (setq ns-use-native-fullscreen nil) ; Not Lion style
-  (bind-key "<A-return>" 'toggle-frame-fullscreen)
+  (bind-key "<s-return>" 'toggle-frame-fullscreen)
 
   ;; buffer switching
   (bind-key "M-[" 'previous-buffer)
@@ -1256,7 +1261,7 @@ No more juggling windows after commiting. It's magit bliss.
   ("<f8>" . neotree-toggle)
   :config
   ;; needs package all-the-icons
-  (setq neo-window-position 'right)
+  (setq neo-window-position 'left)
   (setq neo-theme (if (display-graphic-p) 'ascii 'arrow))
 
   ;; Disable line-numbers minor mode for neotree
@@ -2060,17 +2065,17 @@ creating a buffer to do some scratch work or reusing the initial
 
 
 ;; Shell Pop
-(use-package shell-pop
-  :bind ([f12] . shell-pop)
-  :init (let ((val
-               (if sys/win32p
-                   '("eshell" "*eshell*" (lambda () (eshell)))
-                 '("\\*shell\\*" "*eshell*"
-                   (lambda () (eshell shell-pop-term-shell))))))
-          (setq shell-pop-shell-type val))
-  (setq shell-pop-window-size 20)
-  :hook (shell-mode . my-term-mode-face)
-  )
+;; (use-package shell-pop
+;;   :bind ([f12] . shell-pop)
+;;   :init (let ((val
+;;                (if sys/win32p
+;;                    '("eshell" "*eshell*" (lambda () (eshell)))
+;;                  '("\\*shell\\*" "*eshell*"
+;;                    (lambda () (eshell shell-pop-term-shell))))))
+;;           (setq shell-pop-shell-type val))
+;;   (setq shell-pop-window-size 20)
+;;   :hook (shell-mode . my-term-mode-face)
+;;   )
 
 
 
