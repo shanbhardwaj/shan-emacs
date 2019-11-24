@@ -493,7 +493,7 @@ Although Org mode ships with Emacs, the latest version can be installed external
   (use-package org
     ;;:ensure org-plus-contrib              ;
     :config
-    (require 'org-tempo)
+    ;; (require 'org-tempo)
     )
 #+END_SRC
 
