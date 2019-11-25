@@ -2,18 +2,18 @@
 ;; ----- amx-history -----
 (
  restart-emacs
- reset-modeline
  org-babel-load-file
- switch-theme
- sort-lines
+ customize-themes
+ describe-theme
  magit-status
- ruby-tools-to-single-quote-string
+ projectile-ag
+ describe-variable
 )
 
 ;; ----- amx-data -----
 (
  (magit-stash . 1)
- (magit-status . 9)
+ (magit-status . 11)
  (make-directory . 3)
  (rename-file . 1)
  (switch-theme . 29)
@@ -25,17 +25,17 @@
  (transpose-chars . 1)
  (package-install . 7)
  (command-apropos . 1)
- (reset-modeline . 12)
+ (reset-modeline . 13)
  (customize-face . 3)
- (org-babel-load-file . 18)
- (restart-emacs . 16)
+ (org-babel-load-file . 20)
+ (restart-emacs . 17)
  (disable-active-themes . 1)
  (emacs-init-time . 1)
  (windmove-left . 1)
  (windmove-right . 1)
  (package-list-packages . 2)
  (text-scale-decrease . 1)
- (describe-theme . 3)
+ (describe-theme . 4)
  (text-scale-increase . 1)
  (set-background-color . 4)
  (paradox-upgrade-packages . 6)
@@ -59,4 +59,7 @@
  (shell-pop . 1)
  (multi-term . 1)
  (sort-lines . 3)
+ (describe-variable . 3)
+ (projectile-ag . 1)
+ (customize-themes . 2)
 )

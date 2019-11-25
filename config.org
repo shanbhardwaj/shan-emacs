@@ -5,19 +5,6 @@ I have been using Emacs since 2000 and i have declared Emacs Bankruptcy
 many times. It  has always been a learning experience. Mostly it works best
 when I stick with it.
 
-* Installing Emacs
-
-On macOS, [[http://brew.sh/][homebrew]] is an easy way to install emacs.
-
-Here's what the parameters means.
-- ~--with-cocoa~ :: installs emacs with the macOS GUI version
-- ~--with-imagemagick~ :: installs emacs with imagemagick support for image processing
-- ~--with-gnutls~ :: installs emacs with GnuTLS for encrypted SSL and TLS connections
-
-     #+begin_src sh
-brew install emacs --with-cocoa --with-imagemagick --with-gnutls
-     #+end_src
-
 * Personal Information
 
 #+begin_src emacs-lisp
@@ -114,7 +101,7 @@ Example output:
   :config
   (doom-themes-visual-bell-config)
   (doom-themes-org-config)
-  (load-theme 'doom-vibrant t)
+  (load-theme 'doom-spacegrey t)
   )
 
 (use-package doom-modeline
@@ -188,7 +175,7 @@ And here's how we tell Emacs to use the font we want to use.
 (add-to-list 'default-frame-alist
              ;; '(font . "-*-Operator Mono-medium-normal-normal-*-14-*-*-*-m-0-iso10646-1")
              ;; '(font . "Monaco for Powerline-12")
-             '(font . "Cascadia Code-14")
+             '(font . "Cascadia Mono-14")
              )
 
 #+end_src
@@ -328,7 +315,7 @@ Page-Breaks in GNU Emacs" by Eric J. M. Ritz.]]
 
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
-# Customize the minibuffer
+;; Customize the minibuffer
 (add-hook 'minibuffer-setup-hook 'my-minibuffer-setup)
 (defun my-minibuffer-setup ()
   (set (make-local-variable 'face-remapping-alist)
