@@ -3,58 +3,55 @@
 
 ;;; Begin initialization
 ;; Turn off mouse interface early in startup to avoid momentary display
-(when window-system
-  ;; (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (tooltip-mode -1))
+;; (when window-system
+;;   ;; (menu-bar-mode -1)
+;;   (tool-bar-mode -1)
+;;   (scroll-bar-mode -1)
+;;   (tooltip-mode -1))
 
 (setq inhibit-startup-message t)
 (setq initial-scratch-message "")
 
-(add-to-list 'default-frame-alist
-             '(fullscreen . maximized))
-
+;; (add-to-list 'default-frame-alist
+;;              '(fullscreen . maximized))
 
 
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3");;; Set up package
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
-;; (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
-(when (boundp 'package-pinned-packages)
-  (setq package-pinned-packages
-        '((org-plus-contrib . "org"))))
-(package-initialize)
 
-;;; Bootstrap use-package
-;; Install use-package if it's not already installed.
-;; use-package is used to configure the rest of the packages.
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package)
-  (package-install 'diminish))
+;; (require 'package)
+;; (add-to-list 'package-archives
+;;              '("melpa" . "https://melpa.org/packages/") t)
+;; ;; (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
+;; (when (boundp 'package-pinned-packages)
+;;   (setq package-pinned-packages
+;;         '((org-plus-contrib . "org"))))
+;; (package-initialize)
 
-;; `Paradox' is an enhanced interface for package management, which also
-;; provides some helpful utility functions we're going to be using
-;; extensively. Thus, the first thing we do is install it if it's not there
-;; already.
-(when (not (package-installed-p 'paradox))
-  (package-install 'paradox))
+;; Disable package.el in favor of straight.el
+(setq package-enable-at-startup nil)
 
-;; First, we make sure it's installed, using a function provided by
-;; Paradox, which we've just installed the hard way.
-;; (paradox-require 'use-package)
+(defvar bootstrap-version)
+(let ((bootstrap-file
+      (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+        "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+        'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-;; Next, we load it so it's always available.
-;; (require 'use-package)
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
 
-;; From use-package README
-(eval-when-compile
-  (require 'use-package)
-  (setq use-package-always-ensure t)
-  ;; (setq use-package-always-defer t)
-  )
+;; Configure use-package to use straight.el by default
+(use-package straight
+             :custom (straight-use-package-by-default t))
+(use-package general
+  :straight t)
+(require 'general)
 (require 'diminish)                ;; if you use :diminish
 (require 'bind-key)
 

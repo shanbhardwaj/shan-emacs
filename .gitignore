@@ -10,3 +10,7 @@
 /url/
 /tramp
 /*.cache
+/..config.org.~undo-tree~.~undo-tree~
+.DS_Store
+/config.el
+/.DS*
