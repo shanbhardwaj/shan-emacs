@@ -51,6 +51,8 @@
              :custom (straight-use-package-by-default t))
 (use-package general
   :straight t)
+(use-package diminish
+  :straight t)
 (require 'general)
 (require 'diminish)                ;; if you use :diminish
 (require 'bind-key)
