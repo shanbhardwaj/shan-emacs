@@ -555,7 +555,6 @@ do just that to reduce the repetition.
 
 #+end_src
 
-
 * ELPA packages
 
 These are the packages that are not built into Emacs.
