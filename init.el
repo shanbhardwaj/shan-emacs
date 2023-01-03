@@ -44,11 +44,12 @@
   (load bootstrap-file nil 'nomessage))
 
 (straight-use-package 'use-package)
-(setq straight-use-package-by-default t)
+;;(setq straight-use-package-by-default t)
 
 ;; Configure use-package to use straight.el by default
 (use-package straight
-             :custom (straight-use-package-by-default t))
+  ;;:custom (straight-use-package-by-default t)
+  )
 (use-package general
   :straight t)
 (use-package diminish

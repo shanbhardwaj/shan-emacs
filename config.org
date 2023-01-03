@@ -21,11 +21,11 @@ customize settings in [[file:init.el][init.el]].
 (setq max-lisp-eval-depth 10000)
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
-(menu-bar-mode -1)
+;; (menu-bar-mode -1)
 (setq initial-major-mode 'fundamental-mode)
 (recentf-mode 1)
 (save-place-mode 1)
-(global-auto-revert-mode 1)g
+(global-auto-revert-mode 1)
 #+end_src
 
 * System Detection
@@ -93,6 +93,12 @@ Example output:
 
   ;; Fontify any future frames
   ;; (push 'fontify-frame after-make-frame-functions)
+(defun open-init-file ()
+  "Open this very file."
+  (interactive)
+  (find-file "~/.emacs.d/config.org"))
+
+(bind-key "C-x e" #'open-init-file)
 
 #+end_src
 * Theme
@@ -100,26 +106,31 @@ Example output:
 ** Doom theme
 
 #+BEGIN_SRC emacs-lisp
-  (use-package doom-themes
-    :straight t
-    :config
-    (doom-themes-visual-bell-config)
-    (doom-themes-org-config)
-    (load-theme 'doom-ir-black t)
-    )
+;; (use-package doom-themes
+;;   :straight t
+;;   :config
+;;   (doom-themes-visual-bell-config)
+;;   (doom-themes-org-config)
+;;   ;; (load-theme 'doom-ir-black t)
+;;   )
 
-  ;; (use-package doom-modeline
-  ;;   :straight t
-  ;;   :hook (after-init . doom-modeline-mode)
-  ;;   :config
-  ;;   (setq doom-modeline-buffer-file-name-style 'truncate-all)
-  ;;   ;; (setq doom-modeline-icon t)
-  ;;   ;; (setq doom-modeline-major-mode-icon t)
-  ;;   (setq doom-modeline-checker-simple-format nil)
-  ;;   ;; (set-face-attribute 'mode-line nil :height 0.9)
-  ;;   ;; (set-face-attribute 'mode-line-inactive nil :height 0.9)
-  ;;   (setq doom-modeline-height 12)
-  ;;   )
+;; (use-package modus-themes
+;;   :straight t)
+(load-theme 'modus-vivendi)
+
+
+;; (use-package doom-modeline
+;;   :straight t
+;;   :hook (after-init . doom-modeline-mode)
+;;   :config
+;;   (setq doom-modeline-buffer-file-name-style 'truncate-all)
+;;   ;; (setq doom-modeline-icon t)
+;;   ;; (setq doom-modeline-major-mode-icon t)
+;;   (setq doom-modeline-checker-simple-format nil)
+;;   ;; (set-face-attribute 'mode-line nil :height 0.9)
+;;   ;; (set-face-attribute 'mode-line-inactive nil :height 0.9)
+;;   (setq doom-modeline-height 12)
+;;   )
 
 #+END_SRC
 ** Convenient theme functions
@@ -185,7 +196,7 @@ And here's how we tell Emacs to use the font we want to use.
 (add-to-list 'default-frame-alist
              ;; '(font . "-*-Operator Mono-medium-normal-normal-*-14-*-*-*-m-0-iso10646-1")
              ;; '(font . "Monaco for Powerline-12")
-             ;; '(font . "Cascadia Mono-14")
+             ;; '(font . "Iosevka Comfy 14")
              '(font . "Monaco-12")
              )
 
@@ -201,7 +212,7 @@ And here's how we tell Emacs to use the font we want to use.
 ** Custom Mode faces
 *** Echo Area
 #+begin_src emacs-lisp
-(with-current-buffer " *Echo Area 0*" (face-remap-add-relative 'default '(:family "Monaco" :height 110)))
+;; (with-current-buffer " *Echo Area 0*" (face-remap-add-relative 'default '(:family "Monaco" :height 110)))
 #+end_src
 
 *** Term Faces
@@ -395,6 +406,15 @@ match the same one on macOS.
     :config
     (require 'org-tempo)
     )
+
+(use-package org-auto-tangle
+  :straight t
+  :defer t
+  :hook (org-mode . org-auto-tangle-mode)
+  :config
+  (setq org-auto-tangle-babel-safelist '(
+                                     "~/.emacs.d/config.org"
+                                     )))
 #+END_SRC
 
 ** Org babel languages
@@ -493,6 +513,26 @@ do just that to reduce the repetition.
 (use-package transpose-frame
   :straight t
   :bind ("H-t" . transpose-frame))
+#+end_src
+
+** Tabs
+#+begin_src emacs-lisp
+;; (use-package centaur-tabs
+;;   :straight t
+;;   :hook
+;;   (dired-mode . centaur-tabs-local-mode)
+;;   :config
+;;   (setq centaur-tabs-style "bar"
+;;         centaur-tabs-plain-icons t
+;;         centaur-tabs-modified-marker t
+;;         centaur-tabs-gray-out-icons 'buffer
+;;         centaur-tabs-modified-marker "*")
+;; ;;  (centaur-tabs-headline-match)
+;;   (centaur-tabs-mode t)
+;;   :bind
+;;   ("C-<prior>" . centaur-tabs-backward)
+;;   ("C-<next>" . centaur-tabs-forward))
+
 #+end_src
 
 * Whitespace mode
@@ -650,14 +690,14 @@ it.
   :bind (("C-c n" . 'flycheck-next-error)
          ;; ("C-c p" . 'flycheck-previous-error)
          )
-  :config
-  (add-hook 'prog-mood-hook 'flycheck-mode)
-  (setq flycheck-html-tidy-executable "tidy5")
-  ;;(add-hook 'flycheck-mode-hook 'shan/use-eslint-from-node-modules)
-  (setq-default flycheck-disabled-checkers '(ruby-reek ruby-rubylint))
-  (add-hook 'ruby-mode-hook
-            (lambda ()
-              (flycheck-disable-checker 'ruby-reek)))
+  ;; :config
+  ;; (add-hook 'prog-mood-hook 'flycheck-mode)
+  ;; (setq flycheck-html-tidy-executable "tidy5")
+  ;; ;;(add-hook 'flycheck-mode-hook 'shan/use-eslint-from-node-modules)
+  ;; (setq-default flycheck-disabled-checkers '(ruby-reek ruby-rubylint))
+  ;; (add-hook 'ruby-mode-hook
+  ;;           (lambda ()
+  ;;            (flycheck-disable-checker 'ruby-reek)))
   )
 
 (use-package flycheck-posframe
@@ -685,6 +725,7 @@ it.
 ** HL TODO
 #+begin_src emacs-lisp
 (use-package hl-todo
+  :straight t
   :defer t
   :custom-face (hl-todo ((t (:box t :inherit))))
   :bind (:map hl-todo-mode-map
@@ -854,6 +895,9 @@ creating a buffer to do some scratch work or reusing the initial
 (use-package undo-tree
   :straight t
   :diminish undo-tree-mode
+  :config
+  ;; (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+  (setq undo-tree-auto-save-history nil)
   :init
   (global-undo-tree-mode))
 #+END_SRC
@@ -994,7 +1038,27 @@ Install json-mode and make its reformat keybinding match the global default.
   :mode ("\\.ya?ml\\'" . yaml-mode))
 
 #+END_SRC
+** Clojure
+#+begin_src emacs-lisp
+(use-package clojure-mode
+  :straight t
+  :mode "\\.clj$"
+  :init
+  (setq clojure-align-forms-automatically t))
 
+(use-package cider
+  :straight t
+  :hook (clojure-mode . cider-mode)
+  :init
+  (setq nrepl-hide-special-buffers t)
+  (setq nrepl-sync-request-timeout nil)
+  (setq cider-repl-display-help-banner nil))
+
+(use-package org
+:config
+(require 'ob-clojure)
+(setq org-babel-clojure-backend 'cider))
+#+end_src
 * Misc
 ** Non-ELPA packages
 *** HideShow Vis
@@ -1003,7 +1067,7 @@ Install json-mode and make its reformat keybinding match the global default.
   :load-path "~/.emacs.d/github/hideshowvis"
   :diminish hideshowvis-enable
   :config
-  (add-hook 'prog-mode-hook 'hideshowvis-enable)
+  (add-hook 'prog-mode-hook 'hideshowvis-minor-mode)
   (hideshowvis-symbols))
 #+END_SRC
 ** Display Time
@@ -1059,6 +1123,7 @@ characters.
 #+begin_src emacs-lisp
 ;; Example configuration for Consult
 (use-package consult
+  :straight t
   ;; Replace bindings. Lazily loaded due by `use-package'.
   :bind (;; C-c bindings (mode-specific-map)
          ("C-c h" . consult-history)
@@ -1144,6 +1209,7 @@ characters.
 ** Corfu
 #+begin_src emacs-lisp
 (use-package corfu
+  :straight t
   :hook (lsp-completion-mode . kb/corfu-setup-lsp) ; Use corfu for lsp completion
   :general
   (:keymaps 'corfu-map
@@ -1211,5 +1277,59 @@ characters.
 default lsp-passthrough."
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless))))
+
+#+end_src
+** Mail
+#+begin_src emacs-lisp
+
+(use-package mu4e
+  :load-path  "/opt/homebrew/Cellar/mu/1.8.13/share/emacs/site-lisp/mu/mu4e/"
+  :config
+  (setq mu4e-mu-binary (executable-find "mu"))
+  ;; This is set to 't' to avoid mail syncing issues when using mbsync
+  (setq mu4e-change-filenames-when-moving t)
+
+  ;; Refresh mail using isync every 10 minutes
+  (setq mu4e-update-interval (* 10 60))
+  (setq mu4e-get-mail-command "mbsync -a")
+  (setq mu4e-maildir "~/Mail")
+
+  (setq mu4e-contexts
+        (list
+         ;; Work account
+         (make-mu4e-context
+          :name "Addval"
+          :match-func
+            (lambda (msg)
+              (when msg
+                (string-prefix-p "/Addval" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "shan@addvalsolutions.com")
+                  (user-full-name    . "Shantanu Bhardwaj")
+                  (mu4e-drafts-folder  . "/Addval/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Addval/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Addval/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Addval/[Gmail]/Trash")))
+
+         ;; Personal account
+         (make-mu4e-context
+          :name "Kulcare"
+          :match-func
+            (lambda (msg)
+              (when msg
+                (string-prefix-p "/Kulcare" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "shantanu@kulcare.com")
+                  (user-full-name    . "Shantanu Bhardwaj")
+                  (mu4e-drafts-folder  . "/Kulcare/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Kulcare/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Kulcare/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Kulcare/[Gmail]/Trash")))))
+
+  (setq mu4e-maildir-shortcuts
+      '(("/Kulcare/Inbox"             . ?i)
+        ("/Addval/Inbox"              . ?w)
+        ("/Kulcare/[Gmail]/Sent Mail" . ?s)
+        ("/Kulcare/[Gmail]/Trash"     . ?t)
+        ("/Kulcare/[Gmail]/Drafts"    . ?d)
+        ("/Kulcare/[Gmail]/All Mail"  . ?a))))
 
 #+end_src

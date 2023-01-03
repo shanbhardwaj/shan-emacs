@@ -14,3 +14,7 @@
 .DS_Store
 /config.el
 /.DS*
+/eln-cache/
+/history
+/places
+/straight/
