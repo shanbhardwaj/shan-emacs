@@ -1,1 +1,12 @@
-(["*scratch*" "" (1) fundamental-mode nil nil])
+(["*scratch*" "(defun kb/toggle-window-transparency ()
+  \"Toggle transparency.\"
+  (interactive)
+  (let ((alpha-transparency 75))
+    (pcase (frame-parameter nil 'alpha-background)
+      (alpha-transparency (set-frame-parameter nil 'alpha-background 100))
+      (t (set-frame-parameter nil 'alpha-background alpha-transparency)))))
+
+(set-frame-parameter nil 'alpha-background 80) ; For current frame
+(add-to-list 'default-frame-alist '(alpha-background . 100)) ; For all new frames henceforth
+
+" (66 . 318) lisp-interaction-mode nil nil])

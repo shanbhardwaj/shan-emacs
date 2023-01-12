@@ -80,19 +80,19 @@ Example output:
 #+end_src
 
 #+begin_src emacs-lisp
-  (defun fontify-frame (frame)
-    (interactive)
-    (if sys/macp
-        (progn
-          (if (> (x-display-pixel-width) 4000)
-              (set-frame-parameter frame 'font "Monaco 14") ;; 5k Display
-            (set-frame-parameter frame 'font "Monaco 12")))))
+(defun fontify-frame (frame)
+  (interactive)
+  (if sys/macp
+      (progn
+        (if (> (x-display-pixel-width) 4000)
+            (set-frame-parameter frame 'font "Monaco 14") ;; 5k Display
+          (set-frame-parameter frame 'font "Monaco 12")))))
 
-  ;; Fontify current frame
-  ;; (fontify-frame nil)
+;; Fontify current frame
+;; (fontify-frame nil)
 
-  ;; Fontify any future frames
-  ;; (push 'fontify-frame after-make-frame-functions)
+;; Fontify any future frames
+;; (push 'fontify-frame after-make-frame-functions)
 (defun open-init-file ()
   "Open this very file."
   (interactive)
@@ -157,7 +157,7 @@ Example output:
   (let ((enabled-themes custom-enabled-themes))
     (mapc #'disable-theme custom-enabled-themes)
     (load-theme theme t)
-    (reset-modeline)
+    ;; (reset-modeline)
     ))
 
 (defun disable-active-themes ()
@@ -196,8 +196,8 @@ And here's how we tell Emacs to use the font we want to use.
 (add-to-list 'default-frame-alist
              ;; '(font . "-*-Operator Mono-medium-normal-normal-*-14-*-*-*-m-0-iso10646-1")
              ;; '(font . "Monaco for Powerline-12")
-             ;; '(font . "Iosevka Comfy 14")
-             '(font . "Monaco-12")
+             '(font . "Iosevka Comfy 13")
+             ;; '(font . "Monaco-12")
              )
 
 #+end_src
@@ -289,8 +289,8 @@ Sources for this section include [[https://github.com/magnars/.emacs.d/blob/mast
 (global-unset-key (kbd "M-m"))
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
-                  ;; (global-set-key (kbd "C-+") 'text-scale-increase)
-                  ;; (global-set-key (kbd "C--") 'text-scale-decrease)
+;; (global-set-key (kbd "C-+") 'text-scale-increase)
+;; (global-set-key (kbd "C--") 'text-scale-decrease)
 
 
 (windmove-default-keybindings 'super)
@@ -331,61 +331,61 @@ There are configurations to make when running Emacs on macOS (hence the
 "darwin" system-type check).
 
 #+begin_src emacs-lisp
-  (when (string-equal system-type "darwin")
+(when (string-equal system-type "darwin")
 
-    (add-to-list 'default-frame-alist
-                 '(ns-transparent-titlebar . t))
-    ;; set the window frame to dark theme
-    (add-to-list 'default-frame-alist
-                 '(ns-appearance . dark))
+  (add-to-list 'default-frame-alist
+               '(ns-transparent-titlebar . t))
+  ;; set the window frame to dark theme
+  (add-to-list 'default-frame-alist
+               '(ns-appearance . dark))
 
-    ;; delete files by moving them to the trash
-    (setq delete-by-moving-to-trash t)
-    (setq trash-directory "~/.Trash")
-    ;; Don't make new frames when opening a new file with Emacs
-    (setq ns-pop-up-frames nil)
+  ;; delete files by moving them to the trash
+  (setq delete-by-moving-to-trash t)
+  (setq trash-directory "~/.Trash")
+  ;; Don't make new frames when opening a new file with Emacs
+  (setq ns-pop-up-frames nil)
 
-    ;; set the Fn key as the hyper key
-    ;; (setq ns-function-modifier 'hyper)
-    ;; (setq ns-option-modifier 'super)
-    ;; (setq ns-command-modifier 'meta)
+  ;; set the Fn key as the hyper key
+  ;; (setq ns-function-modifier 'hyper)
+  ;; (setq ns-option-modifier 'super)
+  ;; (setq ns-command-modifier 'meta)
 
-    (setq mac-option-modifier 'super)
-    (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'super)
+  (setq mac-command-modifier 'meta)
 
-    ;; typical mac bindings
-    ;; (global-set-key (kbd "M-s") 'save-buffer)
-    (global-set-key (kbd "M-z") 'undo)
+  ;; typical mac bindings
+  ;; (global-set-key (kbd "M-s") 'save-buffer)
+  (global-set-key (kbd "M-z") 'undo)
 
-    ;; Use Command-` to switch between Emacs windows (not frames)
-    (bind-key "A-`" 'other-window)
+  ;; Use Command-` to switch between Emacs windows (not frames)
+  (bind-key "A-`" 'other-window)
 
-    ;; Use Command-Shift-` to switch Emacs frames in reverse
-    (bind-key "s-~" (lambda() () (interactive) (other-window -1)))
+  ;; Use Command-Shift-` to switch Emacs frames in reverse
+  (bind-key "s-~" (lambda() () (interactive) (other-window -1)))
 
-    ;; Because of the keybindings above, set one for `other-frame'
-    (bind-key "S-1" 'other-frame)
+  ;; Because of the keybindings above, set one for `other-frame'
+  (bind-key "S-1" 'other-frame)
 
-    ;; Fullscreen!
-    (setq ns-use-native-fullscreen nil) ; Not Lion style
-    (bind-key "<s-return>" 'toggle-frame-fullscreen)
+  ;; Fullscreen!
+  (setq ns-use-native-fullscreen nil) ; Not Lion style
+  (bind-key "<s-return>" 'toggle-frame-fullscreen)
 
-    ;; buffer switching
-    (bind-key "M-[" 'previous-buffer)
-    (bind-key "M-]" 'next-buffer)
+  ;; buffer switching
+  (bind-key "M-[" 'previous-buffer)
+  (bind-key "M-]" 'next-buffer)
 
-    ;; Compiling
-    (bind-key "H-c" 'compile)
-    (bind-key "H-r" 'recompile)
-    (bind-key "H-s" (defun save-and-recompile () (interactive) (save-buffer) (recompile)))
+  ;; Compiling
+  (bind-key "H-c" 'compile)
+  (bind-key "H-r" 'recompile)
+  (bind-key "H-s" (defun save-and-recompile () (interactive) (save-buffer) (recompile)))
 
-    ;; disable the key that minimizes emacs to the dock because I don't
-    ;; minimize my windows
-    ;; (global-unset-key (kbd "C-z"))
+  ;; disable the key that minimizes emacs to the dock because I don't
+  ;; minimize my windows
+  ;; (global-unset-key (kbd "C-z"))
 
-    ;; Not going to use these commands
-    (put 'ns-print-buffer 'disabled t)
-    (put 'suspend-frame 'disabled t))
+  ;; Not going to use these commands
+  (put 'ns-print-buffer 'disabled t)
+  (put 'suspend-frame 'disabled t))
 #+end_src
 
 ~exec-path-from-shell~ makes the command-line path with Emacs's shell
@@ -401,11 +401,11 @@ match the same one on macOS.
 
 * Org mode
 #+BEGIN_SRC emacs-lisp
-  (use-package org
-    ;;:straight org-plus-contrib              ;
-    :config
-    (require 'org-tempo)
-    )
+(use-package org
+  ;;:straight org-plus-contrib              ;
+  :config
+  (require 'org-tempo)
+  )
 
 (use-package org-auto-tangle
   :straight t
@@ -413,8 +413,8 @@ match the same one on macOS.
   :hook (org-mode . org-auto-tangle-mode)
   :config
   (setq org-auto-tangle-babel-safelist '(
-                                     "~/.emacs.d/config.org"
-                                     )))
+                                         "~/.emacs.d/config.org"
+                                         )))
 #+END_SRC
 
 ** Org babel languages
@@ -669,6 +669,15 @@ tools I use).
   :config
   (dashboard-setup-startup-hook))
 #+END_SRC
+** Dired Ranger
+#+begin_src emacs-lisp
+(use-package dired-ranger
+  :straight t
+  :bind (:map dired-mode-map
+              ("W" . dired-ranger-copy)
+              ("X" . dired-ranger-move)
+              ("Y" . dired-ranger-paste)))
+#+end_src
 ** Expand Region
 #+BEGIN_SRC emacs-lisp
 (use-package expand-region
@@ -901,6 +910,30 @@ creating a buffer to do some scratch work or reusing the initial
   (global-undo-tree-mode))
 #+END_SRC
 
+** Vterm
+#+begin_src emacs-lisp
+(use-package vterm
+  :straight t
+  :commands vterm
+  :config
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
+  ;;(setq vterm-shell "zsh")
+  (setq vterm-max-scrollback 10000))
+
+(use-package multi-vterm
+  :straight t
+  ;; :config
+  ;; (add-hook 'vterm-mode-hook
+  ;;           (lambda ()
+  ;;             (setq-local evil-insert-state-cursor 'box)
+  ;;             (evil-insert-state)))
+  ;; (define-key vterm-mode-map [return]                      #'vterm-send-return)
+
+  ;; (setq vterm-keymap-exceptions nil)
+  )
+
+#+end_src
+
 ** Which Key
 # TODO: Needs configuration
 #+BEGIN_SRC emacs-lisp
@@ -908,7 +941,7 @@ creating a buffer to do some scratch work or reusing the initial
   :straight t
   :diminish which-key-mode
   :config
-  (add-hook 'after-init-hook 'which-key-mode))
+  :hook (after-init-hook . which-key-mode))
 
 #+END_SRC
 
@@ -1054,10 +1087,11 @@ Install json-mode and make its reformat keybinding match the global default.
   (setq cider-repl-display-help-banner nil))
 
 (use-package org
-:config
-(require 'ob-clojure)
-(setq org-babel-clojure-backend 'cider))
+  :config
+  (require 'ob-clojure)
+  (setq org-babel-clojure-backend 'cider))
 #+end_src
+
 * Misc
 ** Non-ELPA packages
 *** HideShow Vis
@@ -1094,11 +1128,11 @@ characters.
 (use-package vertico
   :straight t
   :bind (:map vertico-map
-         ("C-j" . vertico-next)
-         ("C-k" . vertico-previous)
-         ("C-f" . vertico-exit)
-         :map minibuffer-local-map
-         ("M-h" . backward-kill-word))
+              ("C-j" . vertico-next)
+              ("C-k" . vertico-previous)
+              ("C-f" . vertico-exit)
+              :map minibuffer-local-map
+              ("M-h" . backward-kill-word))
   :custom
   (vertico-cycle t)
   :init
@@ -1203,7 +1237,7 @@ characters.
 
   (setq consult-narrow-key "<") ;; (kbd "C-+")
 
- )
+  )
 #+end_src
 ** Corfu
 #+begin_src emacs-lisp
@@ -1278,9 +1312,8 @@ default lsp-passthrough."
           '(orderless))))
 
 #+end_src
-** Mail
+* Mail
 #+begin_src emacs-lisp
-
 (use-package mu4e
   :load-path  "/opt/homebrew/Cellar/mu/1.8.13/share/emacs/site-lisp/mu/mu4e/"
   :config
@@ -1295,40 +1328,126 @@ default lsp-passthrough."
 
   (setq mu4e-contexts
         (list
-         ;; Work account
+         ;; Addval account
          (make-mu4e-context
           :name "Addval"
           :match-func
-            (lambda (msg)
-              (when msg
-                (string-prefix-p "/Addval" (mu4e-message-field msg :maildir))))
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Addval" (mu4e-message-field msg :maildir))))
           :vars '((user-mail-address . "shan@addvalsolutions.com")
                   (user-full-name    . "Shantanu Bhardwaj")
+                  (smtpmail-smtp-server  . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 465)
+                  (smtpmail-stream-type  . ssl)
                   (mu4e-drafts-folder  . "/Addval/[Gmail]/Drafts")
                   (mu4e-sent-folder  . "/Addval/[Gmail]/Sent Mail")
                   (mu4e-refile-folder  . "/Addval/[Gmail]/All Mail")
                   (mu4e-trash-folder  . "/Addval/[Gmail]/Trash")))
 
-         ;; Personal account
+         ;; Kulcare account
          (make-mu4e-context
           :name "Kulcare"
           :match-func
-            (lambda (msg)
-              (when msg
-                (string-prefix-p "/Kulcare" (mu4e-message-field msg :maildir))))
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Kulcare" (mu4e-message-field msg :maildir))))
           :vars '((user-mail-address . "shantanu@kulcare.com")
                   (user-full-name    . "Shantanu Bhardwaj")
+                  ;; (smtpmail-smtp-server  . "smtp.gmail.com")
+                  ;; (smtpmail-smtp-service . 465)
+                  ;; (smtpmail-stream-type  . ssl)
                   (mu4e-drafts-folder  . "/Kulcare/[Gmail]/Drafts")
                   (mu4e-sent-folder  . "/Kulcare/[Gmail]/Sent Mail")
                   (mu4e-refile-folder  . "/Kulcare/[Gmail]/All Mail")
-                  (mu4e-trash-folder  . "/Kulcare/[Gmail]/Trash")))))
+                  (mu4e-trash-folder  . "/Kulcare/[Gmail]/Trash")))
+
+         ;; Codetiger account
+         (make-mu4e-context
+          :name "Codetiger"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Codetiger" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "shan@codetiger.com")
+                  (user-full-name    . "Shan Bhardwaj")
+                  ;; (smtpmail-smtp-server  . "smtp.gmail.com")
+                  ;; (smtpmail-smtp-service . 465)
+                  ;; (smtpmail-stream-type  . ssl)
+                  (mu4e-drafts-folder  . "/Codetiger/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Codetiger/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Codetiger/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Codetiger/[Gmail]/Trash")))
+
+         ;; Gmail account
+         (make-mu4e-context
+          :name "Gmail"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Gmail" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "bhardwaj.10@gmail.com")
+                  (user-full-name    . "Shantanu Bhardwaj")
+                  ;; (smtpmail-smtp-server  . "smtp.gmail.com")
+                  ;; (smtpmail-smtp-service . 465)
+                  ;; (smtpmail-stream-type  . ssl)
+                  (mu4e-drafts-folder  . "/Gmail/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Gmail/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Gmail/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Gmail/[Gmail]/Trash")))))
+
+  ;; sending email
+  ;; --------------
+
+  ;; Make sure plain text mails flow correctly for recipients
+  (setq mu4e-compose-format-flowed t)
+
+  ;; Only ask if a context hasn't been previously picked
+  (setq mu4e-compose-context-policy 'ask-if-none)
+
+  ;; don't keep message compose buffers around after sending:
+  (setq message-kill-buffer-on-exit t)
+
+  ;; send function:
+  (setq send-mail-function 'sendmail-send-it
+        message-send-mail-function 'sendmail-send-it)
+
+  ;; send program:
+  ;; this is exeranal. remember we installed it before.
+  (setq sendmail-program (executable-find "msmtp"))
+
+  ;; select the right sender email from the context.
+  (setq message-sendmail-envelope-from 'header)
+
 
   (setq mu4e-maildir-shortcuts
-      '(("/Kulcare/Inbox"             . ?i)
-        ("/Addval/Inbox"              . ?w)
-        ("/Kulcare/[Gmail]/Sent Mail" . ?s)
-        ("/Kulcare/[Gmail]/Trash"     . ?t)
-        ("/Kulcare/[Gmail]/Drafts"    . ?d)
-        ("/Kulcare/[Gmail]/All Mail"  . ?a))))
+        '(("/Kulcare/Inbox"             . ?i)
+          ("/Addval/Inbox"              . ?w)
+          ("/Kulcare/[Gmail]/Sent Mail" . ?s)
+          ("/Kulcare/[Gmail]/Trash"     . ?t)
+          ("/Kulcare/[Gmail]/Drafts"    . ?d)
+          ("/Kulcare/[Gmail]/All Mail"  . ?a))))
 
+;; (use-package mu4e-thread-fast-folding
+;;   :load-path "~/.emacs.d/github/mu4e-tff/")
+;; (mu4e-thread-folding-mode 1)
+
+(use-package mu4e-alert
+  :straight t
+  :hook (after-init-hook . mu4e-alert-enable-mode-line-display)
+  :config
+  (setq mu4e-alert-email-notification-types '(count)))
+
+(use-package mu4e-column-faces
+  :straight t)
+
+;; (use-package mu4e-dashboard
+;;   :straight t)
+
+
+#+end_src
+** SVG Lib
+#+begin_src emacs-lisp
+(use-package svg-lib
+  :straight t)
 #+end_src
