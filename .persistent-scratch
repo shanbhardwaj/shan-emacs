@@ -9,4 +9,4 @@
 (set-frame-parameter nil 'alpha-background 80) ; For current frame
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ; For all new frames henceforth
 
-" (66 . 318) lisp-interaction-mode nil nil])
+" (479 . 318) lisp-interaction-mode nil nil])
