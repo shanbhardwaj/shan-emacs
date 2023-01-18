@@ -196,7 +196,7 @@ And here's how we tell Emacs to use the font we want to use.
 (add-to-list 'default-frame-alist
              ;; '(font . "-*-Operator Mono-medium-normal-normal-*-14-*-*-*-m-0-iso10646-1")
              ;; '(font . "Monaco for Powerline-12")
-             '(font . "Iosevka Comfy 13")
+             '(font . "Iosevka Comfy 14")
              ;; '(font . "Monaco-12")
              )
 
@@ -722,6 +722,10 @@ Collection of Ridiculously Useful eXtensions
          ("C-a" . crux-move-beginning-of-line)
          ("C-x r" . crux-recentf-find-file)))
 #+END_SRC
+** Centered
+#+begin_src emacs-lisp
+(use-package centered-window :straight t)
+#+end_src
 ** Dash
 
 Integration with [[http://kapeli.com/dash][Dash, the API documentation browser on macOS]]. The
@@ -976,9 +980,9 @@ creating a buffer to do some scratch work or reusing the initial
 #+begin_src emacs-lisp
 (use-package seethru
 :straight t
-:defer t
+;; :defer t
 :config
-(seethru 80)
+(seethru 90)
 (seethru-recommended-keybinds)
 )
 #+end_src emacs-lisp
@@ -1206,6 +1210,23 @@ characters.
 (setq battery-mode-line-format "[%b%p%% %t]")
 #+end_src
 
+** Proced
+#+begin_src emacs-lisp
+(use-package proced
+  :ensure nil
+  :commands proced
+  :bind (("C-s-p" . proced))
+  :config
+  (setq-default proced-auto-update-flag t)
+  (setq proced-auto-update-interval 1
+        proced-goal-attribute nil
+        proced-enable-color-flag t)
+  (add-to-list
+   'proced-format-alist
+   '(custom user pid ppid sess tree pcpu pmem rss start time state (args comm)))
+  (setq-default proced-format 'custom))
+
+#+end_src
 * Completions
 
 ** Vertico + Marginalia
