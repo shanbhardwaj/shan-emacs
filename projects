@@ -1,3 +1,4 @@
 ;;; -*- lisp-data -*-
-(("~/projects/work/kulcare/kulcare-api-backend/")
+(("~/projects/work/taskify/")
+ ("~/projects/work/kulcare/kulcare-api-backend/")
  ("~/.emacs.d/"))

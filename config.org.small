@@ -21,97 +21,18 @@ customize settings in [[file:init.el][init.el]].
 (setq max-lisp-eval-depth 10000)
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
-(menu-bar-mode -1)
-#+end_src
+;; 
 
-* System Detection
-#+begin_src emacs-lisp
-(defconst sys/win32p
-  (eq system-type 'windows-nt)
-  "Are we running on a WinTel system?")
+;; (load-theme 'doom-snazzy)
 
-(defconst sys/linuxp
-  (eq system-type 'gnu/linux)
-  "Are we running on a GNU/Linux system?")
-
-(defconst sys/macp
-  (eq system-type 'darwin)
-  "Are we running on a Mac system?")
-
-(defconst sys/mac-x-p
-  (and (display-graphic-p) sys/macp)
-  "Are we running under X on a Mac system?")
-
-(defconst sys/linux-x-p
-  (and (display-graphic-p) sys/linuxp)
-  "Are we running under X on a GNU/Linux system?")
-
-(defconst emacs/>=25p
-  (>= emacs-major-version 25)
-  "Emacs is 25 or above.")
-
-(defconst emacs/>=26p
-  (>= emacs-major-version 26)
-  "Emacs is 26 or above.")
-
-(defconst emacs/>=27p
-  (>= emacs-major-version 27)
-  "Emacs is 27 or above.")
-
-#+end_src
-
-* Custom functions
-#+begin_src emacs-lisp
-(defun align-values (start end)
-  "Vertically aligns region based on lengths of the first value of each line.
-Example output:
-
-        foo        bar
-        foofoo     bar
-        foofoofoo  bar"
-  (interactive "r")
-  (align-regexp start end
-                "\\([a-z_]+: \\)"
-                -1 1 nil))
-#+end_src
-
-#+begin_src emacs-lisp
-  (defun fontify-frame (frame)
-    (interactive)
-    (if sys/macp
-        (progn
-          (if (> (x-display-pixel-width) 4000)
-              (set-frame-parameter frame 'font "Monaco 14") ;; 5k Display
-            (set-frame-parameter frame 'font "Monaco 12")))))
-
-  ;; Fontify current frame
-  (fontify-frame nil)
-
-  ;; Fontify any future frames
-  (push 'fontify-frame after-make-frame-functions)
-
-#+end_src
-* Theme
-
-** Doom theme
-
-#+BEGIN_SRC emacs-lisp
-(use-package doom-themes
-  :ensure t
-  :config
-  (doom-themes-visual-bell-config)
-  (doom-themes-org-config)
-  (load-theme 'doom-1337 t)
-  )
 
 ;; (use-package doom-modeline
-;;   :ensure t
 ;;   :hook (after-init . doom-modeline-mode)
 ;;   :config
 ;;   (setq doom-modeline-buffer-file-name-style 'truncate-all)
 ;;   ;; (setq doom-modeline-icon t)
 ;;   ;; (setq doom-modeline-major-mode-icon t)
-;;   ;; (setq doom-modeline-checker-simple-format nil)
+;;   (setq doom-modeline-checker-simple-format nil)
 ;;   ;; (set-face-attribute 'mode-line nil :height 0.9)
 ;;   ;; (set-face-attribute 'mode-line-inactive nil :height 0.9)
 ;;   (setq doom-modeline-height 12)
@@ -142,7 +63,7 @@ Example output:
   (let ((enabled-themes custom-enabled-themes))
     (mapc #'disable-theme custom-enabled-themes)
     (load-theme theme t)
-    (reset-modeline)
+    ;; (reset-modeline)
     ))
 
 (defun disable-active-themes ()
@@ -157,19 +78,6 @@ Example output:
 * Font
 
 [[http://adobe-fonts.github.io/source-code-pro/][Source Code Pro]] is a nice monospaced font.
-
-To install it on macOS, you can use Homebrew with [[http://caskroom.io/][Homebrew Cask]].
-
-And here's how we tell Emacs to use the font we want to use.
-
-#+begin_src emacs-lisp
-;; (add-to-list 'default-frame-alist
-;;              ;; '(font . "-*-Operator Mono-medium-normal-normal-*-14-*-*-*-m-0-iso10646-1")
-;;              ;; '(font . "Monaco for Powerline-12")
-;;              ;; '(font . "Cascadia Mono-14")
-;;              )
-
-#+end_src
 
 Note: To view all fonts that are available to use, run the following:
 
@@ -188,15 +96,34 @@ the emacs-ac-emoji package.]]
   (set-fontset-font t 'unicode font nil 'prepend))
 #+END_SRC
 
-** Custom Mode faces
+And here's how we tell Emacs to use the font we want to use.
 
+#+begin_src emacs-lisp
+(add-to-list 'default-frame-alist
+             ;; '(font . "-*-Operator Mono-medium-normal-normal-*-14-*-*-*-m-0-iso10646-1")
+             ;; '(font . "Monaco for Powerline-12")
+             ;; '(font . "Iosevka Comfy 16")
+             ;; '(font . "Monaco-12")
+             '(font . "Ubuntu Mono 14")
+             ;; '(font . "Jetbrains Mono 12") ;
+             )
+
+#+end_src
+
+** Enable Ligatures
+#+begin_src emacs-lisp
+(if (fboundp 'mac-auto-operator-composition-mode)
+    (mac-auto-operator-composition-mode))
+
+#+end_src
+
+** Custom Mode faces
 *** Echo Area
 #+begin_src emacs-lisp
-(with-current-buffer " *Echo Area 0*" (face-remap-add-relative 'default '(:family "Monaco" :height 110)))
+;; (with-current-buffer " *Echo Area 0*" (face-remap-add-relative 'default '(:family "Monaco" :height 110)))
 #+end_src
 
 *** Term Faces
-
 #+begin_src emacs-lisp
 ;; Use monospaced font faces in current buffer
 (defun my-term-mode-face ()
@@ -225,7 +152,6 @@ Sources for this section include [[https://github.com/magnars/.emacs.d/blob/mast
 ;; Keep all backup and auto-save files in one directory
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
-(setq make-backup-files nil)
 
 ;; UTF-8 please
 (setq locale-coding-system 'utf-8) ; pretty
@@ -271,8 +197,8 @@ Sources for this section include [[https://github.com/magnars/.emacs.d/blob/mast
 (global-unset-key (kbd "M-m"))
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
-                  ;; (global-set-key (kbd "C-+") 'text-scale-increase)
-                  ;; (global-set-key (kbd "C--") 'text-scale-decrease)
+;; (global-set-key (kbd "C-+") 'text-scale-increase)
+;; (global-set-key (kbd "C--") 'text-scale-decrease)
 
 
 (windmove-default-keybindings 'super)
@@ -283,8 +209,9 @@ as =^L= in Emacs. [[http://ericjmritz.name/2015/08/29/using-page-breaks-in-gnu-e
 Page-Breaks in GNU Emacs" by Eric J. M. Ritz.]]
 
 #+begin_src emacs-lisp
-;; (use-package page-break-lines
-;;   :ensure t)
+(use-package page-break-lines
+  :ensure t)
+
 #+end_src
 
 # TODO: Change this to auto for prog-mode only
@@ -301,10 +228,10 @@ Page-Breaks in GNU Emacs" by Eric J. M. Ritz.]]
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 ;; Customize the minibuffer
-(add-hook 'minibuffer-setup-hook 'my-minibuffer-setup)
-(defun my-minibuffer-setup ()
-  (set (make-local-variable 'face-remapping-alist)
-       '((default :height 0.9))))
+;; (add-hook 'minibuffer-setup-hook 'my-minibuffer-setup)
+;; (defun my-minibuffer-setup ()
+;;   (set (make-local-variable 'face-remapping-alist)
+;;        '((default :height 1.0))))
 #+END_SRC
 
 * Mac customizations
@@ -336,7 +263,7 @@ There are configurations to make when running Emacs on macOS (hence the
   (setq mac-command-modifier 'meta)
 
   ;; typical mac bindings
-  (global-set-key (kbd "M-s") 'save-buffer)
+  ;; (global-set-key (kbd "M-s") 'save-buffer)
   (global-set-key (kbd "M-z") 'undo)
 
   ;; Use Command-` to switch between Emacs windows (not frames)
@@ -376,85 +303,26 @@ match the same one on macOS.
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
-  :ensure t
   :init
   (exec-path-from-shell-initialize))
 #+end_src
 
-** Open other apps from Emacs
-
-#+BEGIN_SRC emacs-lisp
-(defun open-dir-in-finder ()
-  "Open a new Finder window to the path of the current buffer"
-  (interactive)
-  (start-process "mai-open-dir-process" nil "open" "."))
-
-(defun open-dir-in-iterm ()
-  "Open the current directory of the buffer in iTerm."
-  (interactive)
-  (let* ((iterm-app-path "/Applications/iTerm.app")
-         (iterm-brew-path "/opt/homebrew-cask/Caskroom/iterm2/1.0.0/iTerm.app")
-         (iterm-path (if (file-directory-p iterm-app-path)
-                         iterm-app-path
-                       iterm-brew-path)))
-    (start-process "mai-open-dir-process" nil "open" "-a" iterm-path ".")))
-
-(defun open-dir-in-studio ()
-  "Open the current directory in Android Studio."
-  (interactive)
-  (start-process "mai-open-dir-process" nil "studio" "."))
-
-(bind-key "C-c o f" 'open-dir-in-finder)
-(bind-key "C-c o t" 'open-dir-in-iterm)
-(bind-key "C-c o a" 'open-dir-in-studio)
-#+END_SRC
-
-** El Capitan fixes
-
-http://stuff-things.net/2015/10/05/emacs-visible-bell-work-around-on-os-x-el-capitan/
-
-#+BEGIN_SRC emacs-lisp
-;; (let* ((cmd "sw_vers -productVersion")
-;;        (macos-version (string-to-int
-;;                      (cadr (split-string
-;;                             (shell-command-to-string cmd)
-;;                             "\\."))))
-;;        (elcapitan-version 11))
-;;   (when (>= macos-version elcapitan-version)
-;;     (setq visible-bell nil)
-;;     (setq ring-bell-function 'ignore)
-
-;;     ;; El Capitan full screen animation is quick and delightful (enough to start using it).
-;;     (setq ns-use-native-fullscreen t)))
-#+END_SRC
-
-
 * Org mode
-
-Truly the way to [[http://orgmode.org/][live life in plain text]]. I mainly use it to take
-notes and save executable source blocks. I'm also starting to make use
-of its agenda, timestamping, and capturing features.
-
-It goes without saying that I also use it to manage my Emacs config.
-
 ** Installation
-
-Although Org mode ships with Emacs, the latest version can be installed externally. The configuration here follows the [[http://orgmode.org/elpa.html][Org mode ELPA installation instructions]].
-
 #+BEGIN_SRC emacs-lisp
-  (use-package org
-    ;;:ensure org-plus-contrib              ;
-    :config
-    ;; (require 'org-tempo)
-    )
+(use-package org
+  :config
+  (require 'org-tempo)
+  )
+
+(use-package org-auto-tangle
+  :defer t
+  :hook (org-mode . org-auto-tangle-mode)
+  :config
+  (setq org-auto-tangle-babel-safelist '(
+                                         "~/.emacs.d/config.org"
+                                         )))
 #+END_SRC
-
-On Org mode version 9 I wasn't able to execute source blocks out of the box. [[https://emacs.stackexchange.com/a/28604][Others have ran into the same issue too]]. The solution is to remove the .elc files from the package directory:
-
-#+BEGIN_SRC sh :var ORG_DIR=(let* ((org-v (cadr (split-string (org-version nil t) "@"))) (len (length org-v))) (substring org-v 1 (- len 2)))
-rm ${ORG_DIR}/*.elc
-#+END_SRC
-
 ** Org activation bindings
 
 Set up some global key bindings that integrate with Org Mode features.
@@ -589,29 +457,6 @@ Source block templates
 ( add-to-list 'org-structure-template-alist '("md" . "src markdown"))
 #+END_SRC
 
-** Org exporting
-
-*** Pandoc exporter
-
-Pandoc converts between a huge number of different file formats.
-
-#+begin_src emacs-lisp
-;; (use-package ox-pandoc
-;;   :no-require t
-;;   :defer 10
-;;   :ensure t)
-#+end_src
-*** LaTeX exporting
-
-I've had issues with getting BiBTeX to work correctly with the LaTeX exporter for PDF exporting. By changing the command to `latexmk` references appear in the PDF output like they should. Source: http://tex.stackexchange.com/a/161619.
-
-#+BEGIN_SRC emacs-lisp
-(setq org-latex-pdf-process (list "latexmk -pdf %f"))
-#+END_SRC
-
-
-
-
 * Window
 
 Convenient keybindings to resize windows.
@@ -643,78 +488,36 @@ do just that to reduce the repetition.
 (bind-key "C-x 3" 'hsplit-other-window)
 #+end_src
 
-** Winner mode
-
-Winner mode allows you to undo/redo changes to window changes in Emacs
-and allows you.
-
-#+begin_src emacs-lisp
-(use-package winner
-  :config
-  (winner-mode t)
-  :bind (("M-s-<left>" . winner-undo)
-         ("M-s-<right>" . winner-redo)))
-#+end_src
-
-** Winum mode
-#+BEGIN_SRC emacs-lisp
-(use-package winum
-  :ensure t
-  :config
-  (setq winum-keymap
-        (let ((map (make-sparse-keymap)))
-          (define-key map (kbd "C-`") 'winum-select-window-by-number)
-          (define-key map (kbd "C-²") 'winum-select-window-by-number)
-          (define-key map (kbd "M-0") 'winum-select-window-0-or-10)
-          (define-key map (kbd "M-1") 'winum-select-window-1)
-          (define-key map (kbd "M-2") 'winum-select-window-2)
-          (define-key map (kbd "M-3") 'winum-select-window-3)
-          (define-key map (kbd "M-4") 'winum-select-window-4)
-          (define-key map (kbd "M-5") 'winum-select-window-5)
-          (define-key map (kbd "M-6") 'winum-select-window-6)
-          (define-key map (kbd "M-7") 'winum-select-window-7)
-          (define-key map (kbd "M-8") 'winum-select-window-8)
-          map))
-
-  (require 'winum)
-
-  (defun winum-assign-9-to-calculator-8-to-flycheck-errors ()
-    (cond
-     ((equal (buffer-name) "*Calculator*") 9)
-     ((equal (buffer-name) "*Flycheck errors*") 8)))
-
-  (defun winum-assign-0-to-neotree-and ()
-    (when (string-match-p (buffer-name) ".*\\*NeoTree\\*.*") 10))
-
-  (add-to-list 'winum-assign-functions #'winum-assign-9-to-calculator-8-to-flycheck-errors)
-  ;; (add-to-list 'winum-assign-functions #'winum-assign-0-to-neotree)
-
-  (set-face-attribute 'winum-face nil :weight 'bold)
-
-  (setq window-numbering-scope            'global
-        winum-reverse-frame-list          nil
-        winum-auto-assign-0-to-minibuffer t
-        winum-assign-func                 'my-winum-assign-func
-        ;; winum-auto-setup-mode-line        t
-        ;; winum-mode-line-position          1
-        winum-ignored-buffers             '(" *which-key*"))
-
-  (winum-mode)
-  )
-#+END_SRC
 ** Transpose frame
 
 #+begin_src emacs-lisp
 (use-package transpose-frame
-  :ensure t
   :bind ("H-t" . transpose-frame))
+#+end_src
+
+** Tabs
+#+begin_src emacs-lisp
+;; (use-package centaur-tabs
+;;   :hook
+;;   (dired-mode . centaur-tabs-local-mode)
+;;   :config
+;;   (setq centaur-tabs-style "bar"
+;;         centaur-tabs-plain-icons t
+;;         centaur-tabs-modified-marker t
+;;         centaur-tabs-gray-out-icons 'buffer
+;;         centaur-tabs-modified-marker "*")
+;; ;;  (centaur-tabs-headline-match)
+;;   (centaur-tabs-mode t)
+;;   :bind
+;;   ("C-<prior>" . centaur-tabs-backward)
+;;   ("C-<next>" . centaur-tabs-forward))
+
 #+end_src
 
 * Whitespace mode
 # TODO: Add whitespace cleanup config
 #+begin_src emacs-lisp
 (use-package whitespace
-  :ensure nil
   :diminish
   :hook ((prog-mode outline-mode conf-mode) . whitespace-mode)
   :bind (("s-<f10>" . whitespace-mode)
@@ -740,7 +543,9 @@ These are the packages that are not built into Emacs.
 (use-package ag
   :commands ag
   :defer t
-  :ensure t)
+  :config
+  (setq ag-highlight-search t)
+  )
 #+END_SRC
 
 ** Ace Jump Mode
@@ -751,10 +556,9 @@ A quick way to jump around text in buffers.
 
 #+begin_src emacs-lisp
 (use-package ace-jump-mode
-  :ensure t
   :diminish ace-jump-mode
   :commands ace-jump-mode
-  :bind ("C-S-s" . ace-jump-mode))
+  :bind ("C-s-s" . ace-jump-mode))
 #+end_src
 
 ** Ace Window
@@ -766,7 +570,6 @@ what I have them set to (with respect to Dvorak, of course).
 
 #+begin_src emacs-lisp
 (use-package ace-window
-  :ensure t
   :defer t
   :config
   (setq aw-keys '(?a ?o ?e ?u ?h ?t ?n ?s))
@@ -778,7 +581,6 @@ what I have them set to (with respect to Dvorak, of course).
 ** Aggressive Indent
 #+BEGIN_SRC emacs-lisp
 (use-package aggressive-indent
-  :ensure t
   :config
   :defer t
   ;; (add-hook 'prog-mode-hook #'aggressive-indent-mode)
@@ -789,7 +591,6 @@ what I have them set to (with respect to Dvorak, of course).
 #+begin_src emacs-lisp
 ;; Pass a URL to a WWW browser
 (use-package browse-url
-  :ensure nil
   :defer t
   :defines dired-mode-map
   :bind (("C-c C-z ." . browse-url-at-point)
@@ -803,138 +604,11 @@ what I have them set to (with respect to Dvorak, of course).
 
 ;; Click to browse URL or to send to e-mail address
 (use-package goto-addr
-  :ensure nil
   :hook ((text-mode . goto-address-mode)
          (prog-mode . goto-address-prog-mode)))
 
 
 #+end_src
-
-** Company completion
-#+BEGIN_SRC emacs-lisp
-;; (use-package company
-;;   :diminish company-mode
-;;   :defines (company-dabbrev-ignore-case company-dabbrev-downcase)
-;;   :commands company-abort
-;;   :bind (("M-/" . company-complete)
-;;          ("<backtab>" . company-yasnippet)
-;;          :map company-active-map
-;;          ("C-p" . company-select-previous)
-;;          ("C-n" . company-select-next)
-;;          ("<tab>" . company-complete-common-or-cycle)
-;;          ("<backtab>" . my-company-yasnippet)
-;;          ;; ("C-c C-y" . my-company-yasnippet)
-;;          :map company-search-map
-;;          ("C-p" . company-select-previous)
-;;          ("C-n" . company-select-next))
-;;   :hook (after-init . global-company-mode)
-;;   :init
-;;   (defun my-company-yasnippet ()
-;;     (interactive)
-;;     (company-abort)
-;;     (call-interactively 'company-yasnippet))
-;;   :config
-;;   (setq company-tooltip-align-annotations t ; aligns annotation to the right
-;;         company-tooltip-limit 12            ; bigger popup window
-;;         company-idle-delay .2               ; decrease delay before autocompletion popup shows
-;;         company-echo-delay 0                ; remove annoying blinking
-;;         company-minimum-prefix-length 2
-;;         company-require-match nil
-;;         company-dabbrev-ignore-case nil
-;;         company-dabbrev-downcase nil)
-
-;;   ;; Icons and quickhelp
-;;   (when emacs/>=26p
-;;     (use-package company-box
-;;       :diminish
-;;       :hook (company-mode . company-box-mode)
-;;       :init (setq company-box-icons-alist 'company-box-icons-all-the-icons)
-;;       :config
-;;       (setq company-box-backends-colors nil)
-;;       (setq company-box-show-single-candidate t)
-;;       (setq company-box-max-candidates 50)
-;;       (set-face-attribute 'company-box-candidate nil :inherit 'info :height 120)
-
-;;       (defun company-box-icons--elisp (candidate)
-;;         (when (derived-mode-p 'emacs-lisp-mode)
-;;           (let ((sym (intern candidate)))
-;;             (cond ((fboundp sym) 'Function)
-;;                   ((featurep sym) 'Module)
-;;                   ((facep sym) 'Color)
-;;                   ((boundp sym) 'Variable)
-;;                   ((symbolp sym) 'Text)
-;;                   (t . nil)))))
-
-;;       (with-eval-after-load 'all-the-icons
-;;         (declare-function all-the-icons-faicon 'all-the-icons)
-;;         (declare-function all-the-icons-material 'all-the-icons)
-;;         (setq company-box-icons-all-the-icons
-;;               `((Unknown . ,(all-the-icons-material "find_in_page" :height 0.8 :v-adjust -0.15))
-;;                 (Text . ,(all-the-icons-material "text_fields" :height 0.8 :v-adjust -0.15))
-;;                 (Method . ,(all-the-icons-faicon "cube" :height 0.8 :v-adjust -0.05 :face 'all-the-icons-purple))
-;;                 (Function . ,(all-the-icons-faicon "cube" :height 0.8 :v-adjust -0.05 :face 'all-the-icons-purple))
-;;                 (Constructor . ,(all-the-icons-faicon "cube" :height 0.8 :v-adjust -0.05 :face 'all-the-icons-purple))
-;;                 (Field . ,(all-the-icons-material "straighten" :height 0.8 :v-adjust -0.15 :face 'all-the-icons-blue))
-;;                 (Variable . ,(all-the-icons-material "straighten" :height 0.8 :v-adjust -0.15 :face 'all-the-icons-blue))
-;;                 (Class . ,(all-the-icons-material "settings_input_component" :height 0.8 :v-adjust -0.15 :face 'all-the-icons-orange))
-;;                 (Interface . ,(all-the-icons-material "share" :height 0.8 :v-adjust -0.15 :face 'all-the-icons-blue))
-;;                 (Module . ,(all-the-icons-material "view_module" :height 0.8 :v-adjust -0.15 :face 'all-the-icons-blue))
-;;                 (Property . ,(all-the-icons-faicon "wrench" :height 0.8 :v-adjust -0.05))
-;;                 (Unit . ,(all-the-icons-material "settings_system_daydream" :height 0.8 :v-adjust -0.15))
-;;                 (Value . ,(all-the-icons-material "format_align_right" :height 0.8 :v-adjust -0.15 :face 'all-the-icons-blue))
-;;                 (Enum . ,(all-the-icons-material "storage" :height 0.8 :v-adjust -0.15 :face 'all-the-icons-orange))
-;;                 (Keyword . ,(all-the-icons-material "filter_center_focus" :height 0.8 :v-adjust -0.15))
-;;                 (Snippet . ,(all-the-icons-material "format_align_center" :height 0.8 :v-adjust -0.15))
-;;                 (Color . ,(all-the-icons-material "palette" :height 0.8 :v-adjust -0.15))
-;;                 (File . ,(all-the-icons-faicon "file-o" :height 0.8 :v-adjust -0.05))
-;;                 (Reference . ,(all-the-icons-material "collections_bookmark" :height 0.8 :v-adjust -0.15))
-;;                 (Folder . ,(all-the-icons-faicon "folder-open" :height 0.8 :v-adjust -0.05))
-;;                 (EnumMember . ,(all-the-icons-material "format_align_right" :height 0.8 :v-adjust -0.15 :face 'all-the-icons-blueb))
-;;                 (Constant . ,(all-the-icons-faicon "square-o" :height 0.8 :v-adjust -0.05))
-;;                 (Struct . ,(all-the-icons-material "settings_input_component" :height 0.8 :v-adjust -0.15 :face 'all-the-icons-orange))
-;;                 (Event . ,(all-the-icons-faicon "bolt" :height 0.8 :v-adjust -0.05 :face 'all-the-icons-orange))
-;;                 (Operator . ,(all-the-icons-material "control_point" :height 0.8 :v-adjust -0.15))
-;;                 (TypeParameter . ,(all-the-icons-faicon "arrows" :height 0.8 :v-adjust -0.05))
-;;                 (Template . ,(all-the-icons-material "format_align_center" :height 0.8 :v-adjust -0.15)))))
-;;       ))
-
-;;   ;; Popup documentation for completion candidates
-;;   (when (and (not emacs/>=26p) (display-graphic-p))
-;;     (use-package company-quickhelp
-;;       :defines company-quickhelp-delay
-;;       :bind (:map company-active-map
-;;                   ("M-h" . company-quickhelp-manual-begin))
-;;       :hook (global-company-mode . company-quickhelp-mode)
-;;       :init (setq company-quickhelp-delay 0.8))))
-
-
-
-;; (use-package company
-;;   :ensure t
-;;   :diminish
-;;   :config
-;;   (add-hook 'after-init-hook 'global-company-mode)
-
-;;   (setq company-idle-delay t)
-
-;;   (use-package company-quickhelp
-;;     :after (company)
-;;     :ensure t
-;;     :config
-;;     (company-quickhelp-mode))
-
-;;   (use-package company-go
-;;     :ensure t
-;;     :config
-;;     (add-to-list 'company-backends 'company-go))
-
-;;   (use-package company-anaconda
-;;     :ensure t
-;;     :config
-;;     (add-to-list 'company-backends 'company-anaconda)))
-
-;; (setq company-dabbrev-downcase nil)
-#+END_SRC
 
 ** Crux
 
@@ -942,12 +616,15 @@ Collection of Ridiculously Useful eXtensions
 
 #+BEGIN_SRC emacs-lisp
 (use-package crux
-  :ensure t
   :bind (("C-c o o" . crux-open-with)
          ("C-c o u" . crux-view-url)
          ("C-a" . crux-move-beginning-of-line)
          ("C-x r" . crux-recentf-find-file)))
 #+END_SRC
+** Centered
+#+begin_src emacs-lisp
+(use-package centered-window )
+#+end_src
 ** Dash
 
 Integration with [[http://kapeli.com/dash][Dash, the API documentation browser on macOS]]. The
@@ -957,7 +634,6 @@ tools I use).
 
 #+begin_src emacs-lisp
 (use-package dash-at-point
-  :ensure t
   :defer t
   :bind (("s-D"     . dash-at-point)
          ("C-c e"   . dash-at-point-with-docset)))
@@ -966,46 +642,20 @@ tools I use).
 ** Dashboard
 #+BEGIN_SRC emacs-lisp
 (use-package dashboard
-  :ensure t
   :config
-  (dashboard-setup-startup-hook)
-  (setq dashboard-items '((recents  . 5)
-                          (projects . 5)
-                          (bookmarks . 5)
-                          (agenda . 5)
-                          (registers . 5))))
+  (dashboard-setup-startup-hook))
 #+END_SRC
-** Emmet
-
-According to [[http://emmet.io/][their website]], "Emmet — the essential toolkit for web-developers."
-
+** Dired Ranger
 #+begin_src emacs-lisp
-(use-package emmet-mode
-  :ensure t
-  :defer t
-  :commands emmet-mode
-  :config
-  (add-hook 'html-mode-hook 'emmet-mode)
-  (add-hook 'css-mode-hook 'emmet-mode))
+(use-package dired-ranger
+  :bind (:map dired-mode-map
+              ("W" . dired-ranger-copy)
+              ("X" . dired-ranger-move)
+              ("Y" . dired-ranger-paste)))
 #+end_src
-
-** Evil NC Commenter
-#+BEGIN_SRC emacs-lisp
-(use-package evil-nerd-commenter
-  :ensure t)
-
-;; Emacs key bindings
-(global-set-key (kbd "M-;") 'evilnc-comment-or-uncomment-lines)
-;; (global-set-key (kbd "C-c l") 'evilnc-quick-comment-or-uncomment-to-the-line)
-;; (global-set-key (kbd "C-c c") 'evilnc-copy-and-comment-lines)
-;; (global-set-key (kbd "C-c p") 'evilnc-comment-or-uncomment-paragraphs)
-
-#+END_SRC
-
 ** Expand Region
 #+BEGIN_SRC emacs-lisp
 (use-package expand-region
-  :ensure t
   :bind ("C-=" . er/expand-region))
 #+END_SRC
 ** Flycheck
@@ -1017,23 +667,21 @@ it.
 
 #+begin_src emacs-lisp
 (use-package flycheck
-  :ensure t
   :defer 10
   :bind (("C-c n" . 'flycheck-next-error)
          ;; ("C-c p" . 'flycheck-previous-error)
          )
-  :hook  (after-init . global-flycheck-mode)
-  :config
-  (setq flycheck-html-tidy-executable "tidy5")
-  ;;(add-hook 'flycheck-mode-hook 'shan/use-eslint-from-node-modules)
+  ;; :config
+  ;; (add-hook 'prog-mood-hook 'flycheck-mode)
+  ;; (setq flycheck-html-tidy-executable "tidy5")
+  ;; ;;(add-hook 'flycheck-mode-hook 'shan/use-eslint-from-node-modules)
   ;; (setq-default flycheck-disabled-checkers '(ruby-reek ruby-rubylint))
   ;; (add-hook 'ruby-mode-hook
   ;;           (lambda ()
-  ;;             (flycheck-disable-checker 'ruby-reek)))
+  ;;            (flycheck-disable-checker 'ruby-reek)))
   )
 
 (use-package flycheck-posframe
-  :ensure t
   :after flycheck
   :init
   :config (add-hook 'flycheck-mode-hook #'flycheck-posframe-mode)
@@ -1042,24 +690,13 @@ it.
   (set-face-attribute 'flycheck-posframe-info-face nil :inherit 'info :height 120)
   )
 #+end_src
-** Format All
-#+begin_src emacs-lisp
-(use-package format-all
-  :ensure t
-  :defer t
-  :diminish
-  :hook (prog-mode . format-all-mode))
-#+end_src
-
 ** Highlight Indent Guides
 #+BEGIN_SRC emacs-lisp
 (use-package highlight-indent-guides
-  :ensure t
   :defer t
-  :diminish
-  :hook (prog-mode . highlight-indent-guides-mode)
   :init
   (setq highlight-indent-guides-method 'character)
+  ;; (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
   )
 
 #+END_SRC
@@ -1068,7 +705,6 @@ it.
 #+begin_src emacs-lisp
 (use-package hl-todo
   :defer t
-  :diminish
   :custom-face (hl-todo ((t (:box t :inherit))))
   :bind (:map hl-todo-mode-map
               ([C-f3] . hl-todo-occur)
@@ -1076,31 +712,6 @@ it.
               ("C-c t n" . hl-todo-next)
               ("C-c t o" . hl-todo-occur))
   :hook (after-init . global-hl-todo-mode))
-#+end_src
-
-** Highlight Symbols
-#+begin_src emacs-lisp
-;; Highlight symbols
-(use-package symbol-overlay
-  :defer t
-  :diminish
-  :defines iedit-mode
-  :commands (symbol-overlay-get-symbol
-             symbol-overlay-assoc
-             symbol-overlay-get-list
-             symbol-overlay-jump-call)
-  :bind (("M-i" . symbol-overlay-put)
-         ("M-n" . symbol-overlay-jump-next)
-         ("M-p" . symbol-overlay-jump-prev)
-         ("M-N" . symbol-overlay-switch-forward)
-         ("M-P" . symbol-overlay-switch-backward)
-         ("M-C" . symbol-overlay-remove-all)
-         ([M-f3] . symbol-overlay-remove-all))
-  :hook (
-         ;; (prog-mode . symbol-overlay-mode)
-         (iedit-mode . (lambda () (symbol-overlay-mode -1)))
-         (iedit-mode-end . symbol-overlay-mode)))
-
 #+end_src
 ** Magit
 
@@ -1110,69 +721,58 @@ access magit.
 
 #+begin_src emacs-lisp
 (use-package magit
-  :ensure t
   :defer t
-  :bind ("C-c g" . magit-status)
-  :config
-  (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
+  :bind ("C-x g" . magit-status))
 
 ;; (use-package forge
 ;;   :after magit
 ;;   :defer t)
 
 (use-package git-gutter
-  :ensure t
   :config
   (global-git-gutter-mode 't)
   :diminish git-gutter-mode)
 
-(use-package git-timemachine
-  :ensure t
-  :defer t)
+;; (use-package git-timemachine)
 
 ;; (use-package git-modes
-;;   :ensure t
 ;;   :defer t)
 
 (use-package git-link
-  :ensure t
   :defer t)
 
 (use-package git-messenger
-  :ensure t
   :defer t
   :bind ("C-x v p" . 'git-messenger:popup-message))
 #+end_src
 
-*** Fullscreen magit
-
-#+BEGIN_QUOTE
-The following code makes magit-status run alone in the frame, and then
-restores the old window configuration when you quit out of magit.
-
-No more juggling windows after commiting. It's magit bliss.
-#+END_QUOTE
-[[http://whattheemacsd.com/setup-magit.el-01.html][Source: Magnar Sveen]]
+** Markdown mode
 
 #+begin_src emacs-lisp
-;; full screen magit-status
-(defadvice magit-status (around magit-fullscreen activate)
-  (window-configuration-to-register :magit-fullscreen)
-  ad-do-it
-  (delete-other-windows))
+(use-package markdown-mode
+  :defer t
+  :mode (("\\.markdown\\'" . markdown-mode)
+         ("\\.md\\'"       . markdown-mode)))
+#+end_src
 
-(defun magit-quit-session ()
-  "Restores the previous window configuration and kills the magit buffer"
-  (interactive)
-  (kill-buffer)
-  (jump-to-register :magit-fullscreen))
+** Multiple cursors
+
+We'll also need to ~(require 'multiple-cusors)~ because of [[https://github.com/magnars/multiple-cursors.el/issues/105][an autoload issue]].
+
+#+begin_src emacs-lisp
+(use-package multiple-cursors
+  :defer t
+  :bind (("C-S-c C-S-c" . mc/edit-lines)
+         ("C->"         . mc/mark-next-like-this)
+         ("C-<"         . mc/mark-previous-like-this)
+         ("C-c C-<"     . mc/mark-all-like-this)
+         ("C-!"         . mc/mark-next-symbol-like-this)
+         ("s-d"         . mc/mark-all-dwim)))
 #+end_src
 
 ** Neotree
-#+BEGIN_SRC emacs-lisp
-;; sidebar and dired in one
+#+begin_src emacs-lisp
 (use-package neotree
-  :ensure t
   :defer t
   :bind
   ("<f8>" . neotree-toggle)
@@ -1188,10 +788,10 @@ No more juggling windows after commiting. It's magit bliss.
   ;; Every time when the neotree window is opened, let it find current
   ;; file and jump to node.
   (setq neo-smart-open t)
+  (setq neo-window-width 20)
 
   ;; track ‘projectile-switch-project’ (C-c p p),
   (setq projectile-switch-project-action 'neotree-projectile-action))
-
 
 ;; Use monospaced font faces in current buffer
 (defun my-small-font-face ()
@@ -1201,105 +801,29 @@ No more juggling windows after commiting. It's magit bliss.
   (buffer-face-mode))
 
 (add-hook 'neotree-mode-hook 'my-small-font-face)
+
 (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'my-small-font-face)))
-
-#+END_SRC
-** Keychords
-#+BEGIN_SRC emacs-lisp
-(use-package use-package-chords
-  :ensure t
-  :config
-  (key-chord-mode 1))
-
-(defun shan/switch-to-previous-buffer ()
-  "Switch to previously open buffer.
-  Repeated invocations toggle between the two most recently open buffers."
-  (interactive)
-  (switch-to-buffer (other-buffer (current-buffer) 1)))
-
-(key-chord-define-global "JJ" 'shan/switch-to-previous-buffer)
-#+END_SRC
-
-** Markdown mode
-
-#+begin_src emacs-lisp
-(use-package markdown-mode
-  :defer t
-  :ensure t
-  :mode (("\\.markdown\\'" . markdown-mode)
-         ("\\.md\\'"       . markdown-mode)))
-#+end_src
-
-** Multiple cursors
-
-We'll also need to ~(require 'multiple-cusors)~ because of [[https://github.com/magnars/multiple-cursors.el/issues/105][an autoload issue]].
-
-#+begin_src emacs-lisp
-(use-package multiple-cursors
-  :ensure t
-  :defer t
-  :bind (("C-S-c C-S-c" . mc/edit-lines)
-         ("C->"         . mc/mark-next-like-this)
-         ("C-<"         . mc/mark-previous-like-this)
-         ("C-c C-<"     . mc/mark-all-like-this)
-         ("C-!"         . mc/mark-next-symbol-like-this)
-         ("s-d"         . mc/mark-all-dwim)))
-#+end_src
-
-** Projectile
-#+BEGIN_QUOTE
-Project navigation and management library for Emacs.
-#+END_QUOTE
-http://projectile.mx
-
-#+begin_src emacs-lisp
-(use-package projectile
-  :ensure t
-  :diminish projectile-mode
-  :commands (projectile-mode projectile-switch-project)
-  :init
-  ;; (setq projectile-completion-system 'vertico)
-  (setq projectile-indexing-method 'alien)
-  (setq projectile-enable-caching t)
-  (global-set-key (kbd "C-c p p") 'projectile-switch-project)
-  (setq projectile-switch-project-action #'projectile-find-dir)
-  :config
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (projectile-mode +1))
 
 #+end_src
 
 ** Rainbow mode + delimiters
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-delimiters
-  :ensure t
-  :diminish
+  :diminish rainbow-delimiters-mode
   :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package rainbow-mode
-  :ensure t
-  :diminish
+  :diminish rainbow-mode
   :hook (prog-mode . rainbow-mode)
   :config
   (setq rainbow-x-colors nil))
 
 #+END_SRC
 
-** Smoothscrolling
-
-This makes it so ~C-n~-ing and ~C-p~-ing won't make the buffer jump
-around so much.
-
-#+begin_src emacs-lisp
-(use-package smooth-scrolling
-  :ensure t)
-#+end_src
-
 ** Webmode
 
 #+begin_src emacs-lisp :tangle no
 (use-package web-mode
-  :ensure t
   :defer t
   :mode ("\\.html\\'")
   :config
@@ -1322,7 +846,6 @@ and have also modified them and added my own.
 
 #+begin_src emacs-lisp :tangle no
 (use-package yasnippet
-  :ensure t
   :diminish yas-minor-mode
   :defert t
   :config
@@ -1341,210 +864,106 @@ creating a buffer to do some scratch work or reusing the initial
 
 #+begin_src emacs-lisp
 (use-package scratch
-  :ensure t
   :commands scratch)
 
 (use-package persistent-scratch
-  :ensure t
+
   :init
   (persistent-scratch-setup-default))
 #+end_src
 
-** Transparency
-#+begin_src emacs-lisp
-(use-package seethru
-:ensure t
-:defer t
-:init
-(seethru 95)
-(seethru-recommended-keybinds)
-)
-#+end_src emacs-lisp
 ** Smartparens
 #+BEGIN_SRC emacs-lisp
 (use-package smartparens
-  :ensure t
-  :defer t
+
   :diminish smartparens-mode
-  :hook (prog-mode . smartparens-mode))
+  :config
+  (add-hook 'prog-mode-hook 'smartparens-mode))
 #+END_SRC
 
 ** Super Save
 #+BEGIN_SRC emacs-lisp
 (use-package super-save
-  :ensure t
+
   :defer t
   :config
   ;; (super-save-mode +1)
   )
 #+END_SRC
+** Transparency
+#+begin_src emacs-lisp
+(use-package seethru
+
+;; :defer t
+:config
+(seethru 90)
+(seethru-recommended-keybinds)
+)
+#+end_src emacs-lisp
 ** Undo Tree
 
 #+BEGIN_SRC emacs-lisp
 (use-package undo-tree
-  :ensure t
-  :defer t
-  :diminish
+
+  :diminish undo-tree-mode
+  :config
+  ;; (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+  (setq undo-tree-auto-save-history nil)
   :init
   (global-undo-tree-mode))
 #+END_SRC
+
+** Vterm
+#+begin_src emacs-lisp
+(use-package vterm
+
+  :commands vterm
+  :config
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
+  ;;(setq vterm-shell "zsh")
+  (setq vterm-max-scrollback 10000))
+
+(use-package multi-vterm
+
+  ;; :config
+  ;; (add-hook 'vterm-mode-hook
+  ;;           (lambda ()
+  ;;             (setq-local evil-insert-state-cursor 'box)
+  ;;             (evil-insert-state)))
+  ;; (define-key vterm-mode-map [return]                      #'vterm-send-return)
+
+  ;; (setq vterm-keymap-exceptions nil)
+  )
+
+#+end_src
+
 ** Which Key
 # TODO: Needs configuration
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
-  :ensure t
-  :defer t
+
   :diminish which-key-mode
-  :hook (after-init . which-key-mode))
+  :config
+  :hook (after-init-hook . which-key-mode))
 
 #+END_SRC
-* Computer-specific settings
-
-Load some computer-specific settings, such as the name and and email
-address. The way the settings are loaded is based off of [[https://github.com/magnars/.emacs.d][Magnar
-Sveen's]] config.
-
-In my case, the computers I use usually use the same username (my
-name, go figure), so instead of basing the specific settings from the
-username, I use the hostname. The shell command ~hostname -s~ gets the
-hostname for the computer without any "domain information," such as
-the ".local" suffix.
-
-#+begin_src emacs-lisp
-;; (require 'subr-x) ;; #'string-trim
-;; (defvar mai/user-settings-dir nil
-;;   "The directory with user-specific Emacs settings for this
-;;   user.")
-
-;; ;; Settings for currently logged in user
-;; (setq shan/user-settings-dir
-;;       (concat user-emacs-directory
-;;               "users/"
-;;               (string-trim (shell-command-to-string "hostname -s"))))
-;; (add-to-list 'load-path mai/user-settings-dir)
-
-;; ;; Load settings specific for the current user
-;; (when (file-exists-p mai/user-settings-dir)
-;;   (mapc 'load (directory-files mai/user-settings-dir nil "^[^#].*el$")))
-#+end_src
 
 * Languages
-** Language Servers
-#+BEGIN_SRC emacs-lisp
-;; (use-package eglot
-;;   :hook (prog-mode . eglot-ensure)
-;;   :config (add-to-list 'eglot-server-programs '(ruby-mode . ("solargraph" "socket"))
-;;                        ))
-#+END_SRC
-** C/Java
-
-I don't like the default way that Emacs handles indentation. For instance,
-
-#+begin_src C
-int main(int argc, char *argv[])
-{
-  /* What's with the brace alignment? */
-  if (check)
-  {
-  }
-  return 0;
-}
-#+end_src
-
-#+begin_src java
-switch (number)
-{
-  case 1:
-    doStuff();
-    break;
-  case 2:
-    doStuff();
-    break;
-  default:
-    break;
-}
-#+end_src
-
-Luckily, I can modify the way Emacs formats code with this configuration.
-
-#+begin_src emacs-lisp
-(defun my-c-mode-hook ()
-  (setq c-basic-offset 2)
-  (c-set-offset 'substatement-open 0)   ; Curly braces alignment
-  (c-set-offset 'case-label 2))         ; Switch case statements alignment
-
-(add-hook 'c-mode-hook 'my-c-mode-hook)
-(add-hook 'java-mode-hook 'my-c-mode-hook)
-
-#+end_src
-
-** Javascript
-#+BEGIN_SRC emacs-lisp
-(setq-default js-indent-level 2)
-
-(use-package js2-mode
-  :ensure t
-  :mode "\\.js\\'"
-  :config
-  (setq-default js2-ignored-warnings '("msg.extra.trailing.comma")))
-
-(use-package prettier-js
-  :ensure t
-  :config
-  (setq prettier-js-args '(
-                           "--trailing-comma" "es5"
-                           "--single-quote" "false"
-                           "--print-width" "100"
-                           ))
-  (add-hook 'js2-mode-hook 'prettier-js-mode))
-
-(defun shan/use-eslint-from-node-modules ()
-  "Set local eslint if available."
-  (let* ((root (locate-dominating-file
-                (or (buffer-file-name) default-directory)
-                "node_modules"))
-         (eslint (and root
-                      (expand-file-name "node_modules/eslint/bin/eslint.js"
-                                        root))))
-    (when (and eslint (file-executable-p eslint))
-      (setq-local flycheck-javascript-eslint-executable eslint))))
-
-(defun shan/switch-to-previous-buffer ()
-  "Switch to previously open buffer.
-  Repeated invocations toggle between the two most recently open buffers."
-  (interactive)
-  (switch-to-buffer (other-buffer (current-buffer) 1)))
-
-(key-chord-define-global "JJ" 'shan/switch-to-previous-buffer)
-
-;; json-mode: Major mode for editing JSON files with emacs
-;; https://github.com/joshwnj/json-mode
-(use-package json-mode
-  :mode "\\.js\\(?:on\\|[hl]int\\(rc\\)?\\)\\'"
-  :config
-  (add-hook 'json-mode-hook #'prettier-js-mode)
-  (setq json-reformat:indent-width 2)
-  (setq json-reformat:pretty-string? t)
-  (setq js-indent-level 2))
-
-#+END_SRC
 ** JSON
 Install json-mode and make its reformat keybinding match the global default.
 
 #+BEGIN_SRC emacs-lisp
 (use-package json-mode
-:ensure t
-:defer t
-:commands json-mode
-:config
-(bind-keys :map json-mode-map
-           ("C-c <tab>" . json-mode-beautify)))
+  :commands json-mode
+  :config
+  (bind-keys :map json-mode-map
+             ("C-c <tab>" . json-mode-beautify)))
 
 #+END_SRC
 ** Ruby
 #+BEGIN_SRC emacs-lisp
 (use-package ruby-mode
-  :ensure t
+
   :mode "\\.rb\\'"
   :mode "Rakefile\\'"
   :mode "Gemfile\\'"
@@ -1558,7 +977,6 @@ Install json-mode and make its reformat keybinding match the global default.
   (setq ruby-indent-level 2
         ruby-indent-tabs-mode nil)
   (add-hook 'ruby-mode 'subword-mode)
-  ;; (add-hook 'ruby-mode 'lsp-mode)
 
   :bind
   (([(meta down)] . ruby-forward-sexp)
@@ -1567,7 +985,7 @@ Install json-mode and make its reformat keybinding match the global default.
 
 ;; Rbenv
 (use-package rbenv
-  :ensure t
+
   :defer t
   :init (setq rbenv-show-active-ruby-in-modeline nil)
   :config (progn
@@ -1577,24 +995,23 @@ Install json-mode and make its reformat keybinding match the global default.
 
 ;; Rubocop
 (use-package rubocop
-  :ensure t
+
+  :diminish rubocop-mode
   :defer t
-  :diminish
-  :hook (ruby-mode . rubocop-mode)
-  )
+  :init
+  (add-hook 'ruby-mode-hook 'rubocop-mode))
 
 ;; InfRuby to change ruby
 (use-package inf-ruby
-  :ensure t
-  :diminish inf-ruby
+
   :init
   (add-hook 'ruby-mode-hook 'inf-ruby-minor-mode))
 
 ;; Robe
 (use-package robe
-  :ensure t
+
   :bind ("C-M-." . robe-jump)
-  ;; :hook (ruby-mode . robe-mode)
+  :hook (ruby-mode . robe-mode)
   :config
   (defadvice inf-ruby-console-auto
       (before activate-rbenv-for-robe activate)
@@ -1603,38 +1020,35 @@ Install json-mode and make its reformat keybinding match the global default.
 
 ;; in buffer interpreter
 (use-package seeing-is-believing
-  :ensure t
+
+  :delight
   :diminish seeing-is-believing
-  :hook (ruby-mode . seeing-is-believing)
+  ;; :hook (ruby-mode . seeing-is-believing)
   :config
   (setq seeing-is-believing-max-length 150
         seeing-is-believing-max-results 10
         seeing-is-believing-timeout 10.5
         seeing-is-believing-alignment 'file))
 
-;; Rufo Code formatter
-;; (use-package rufo
-;;   :ensure t
-;;   :defer t
-;;   :init
-;;   (add-hook 'ruby-mode-hook 'rufo-minor-mode))
-
 ;; Ruby Tools
 (use-package ruby-tools
-  :ensure t
-  :diminish
+
+  :diminish ruby-tools-mode
+  :delight
   :defer t
-  :hook (ruby-mode . ruby-tools-mode))
+  :init
+  (add-hook 'ruby-mode-hook 'ruby-tools-mode))
 
 ;; RSpec
 (use-package rspec-mode
-  :ensure t
-  :hook (ruby-mode . rspec-mode)
-  :diminish
+
+  :diminish rspec-mode
   :init
   (setq rspec-use-rake-when-possible nil)
   (setq rspec-spec-command "rspec")
   (setq rspec-use-spring-when-possible nil)
+  (add-hook 'ruby-mode-hook 'rspec-mode)
+
   :config
   (defadvice rspec-compile (around rspec-compile-around)
 
@@ -1653,47 +1067,44 @@ Install json-mode and make its reformat keybinding match the global default.
   ;;            ("M-p a" . rspec-verify-all))
   (ad-activate 'rspec-compile))
 
-;; Ruby Refactor
-
-(use-package ruby-refactor
-  :ensure t
-  :defer t
-  :diminish
-  :hook (ruby-mode . ruby-refactor-mode-launch))
-
 ;; YAML
 (use-package yaml-mode
-  :ensure t
-  :defer t
+
   :mode ("\\.ya?ml\\'" . yaml-mode))
 
 #+END_SRC
+** Clojure
+#+begin_src emacs-lisp
+(use-package clojure-mode
+
+  :mode "\\.clj$"
+  :init
+  (setq clojure-align-forms-automatically t))
+
+(use-package cider
+
+  :hook (clojure-mode . cider-mode)
+  :init
+  (setq nrepl-hide-special-buffers t)
+  (setq nrepl-sync-request-timeout nil)
+  (setq cider-repl-display-help-banner nil))
+
+(use-package org
+  :config
+  (require 'ob-clojure)
+  (setq org-babel-clojure-backend 'cider))
+#+end_src
+
 * Misc
-
 ** Non-ELPA packages
-
-Some packages aren't in ELPA, so they're stored in the [[file:site-lisp][site-lisp]]
-directory and loaded here.
-
-*** Titlecase
-
-As in the titlecase package instructions, the titlecase command needs to be in the $PATH for this to work.
-
-#+BEGIN_SRC emacs-lisp
-(use-package titlecase
-  :load-path "~/.emacs.d/site-lisp")
-#+END_SRC
-
 *** HideShow Vis
 #+BEGIN_SRC emacs-lisp
-
-;; (use-package hideshowvis
-;;   :load-path "~/.emacs.d/github/hideshowvis"
-;;   :diminish
-;;   :hook (prog-mode . hideshowvis-enable)
-;;   :config
-;;   (hideshowvis-symbols)
-;;   )
+(use-package hideshowvis
+  :load-path "~/.emacs.d/github/hideshowvis"
+  :diminish hideshowvis-enable
+  :config
+  (add-hook 'prog-mode-hook 'hideshowvis-minor-mode)
+  (hideshowvis-symbols))
 #+END_SRC
 ** Display Time
 
@@ -1713,25 +1124,23 @@ characters.
 (setq battery-mode-line-format "[%b%p%% %t]")
 #+end_src
 
-** Docview keybindings
-
-Convenience bindings to use doc-view with the arrow keys.
-
+** Proced
 #+begin_src emacs-lisp
-(use-package doc-view
-  :commands doc-view-mode
+(use-package proced
+  :ensure nil
+  :commands proced
+  :bind (("C-s-p" . proced))
   :config
-  (define-key doc-view-mode-map (kbd "<right>") 'doc-view-next-page)
-  (define-key doc-view-mode-map (kbd "<left>") 'doc-view-previous-page))
+  (setq-default proced-auto-update-flag t)
+  (setq proced-auto-update-interval 1
+        proced-goal-attribute nil
+        proced-enable-color-flag t)
+  (add-to-list
+   'proced-format-alist
+   '(custom user pid ppid sess tree pcpu pmem rss start time state (args comm)))
+  (setq-default proced-format 'custom))
+
 #+end_src
-
-** OS X scrolling
-
-#+begin_src emacs-lisp
-(diminish 'eldoc-mode)
-(setq mouse-wheel-scroll-amount (quote (0.01)))
-#+end_src
-
 * Completions
 
 ** Vertico + Marginalia
@@ -1755,11 +1164,10 @@ Convenience bindings to use doc-view with the arrow keys.
 ;;   ;; :demand t
 ;;   :config (marginalia-mode 1))
 
-(use-package savehist
-  :ensure t
-  :init
-  (setq history-length 25)
-  (savehist-mode))
+;; (use-package savehist
+;;   :init
+;;   (setq history-length 25)
+;;   (savehist-mode))
 
 (use-package vertico
   :ensure t
@@ -1781,7 +1189,7 @@ Convenience bindings to use doc-view with the arrow keys.
                   vertico-multiform-commands '((tmm-menubar flat)
                                                (tmm-shortcut flat)))))
 
-(use-package vertico-directory
+(use-pakage vertico-directory
   :after vertico
   :ensure nil
   ;; More convenient directory navigation commands
@@ -1828,8 +1236,7 @@ Convenience bindings to use doc-view with the arrow keys.
 #+begin_src emacs-lisp
 ;; ;; Example configuration for Consult
 ;; (use-package consult
-
-;;   :ensure t
+;;
 ;;   ;; Replace bindings. Lazily loaded due by `use-package'.
 ;;   :bind (;; C-c bindings (mode-specific-map)
 ;;          ("C-c h" . consult-history)
@@ -1859,27 +1266,26 @@ Convenience bindings to use doc-view with the arrow keys.
 ;;          ("M-g i" . consult-imenu)
 ;;          ("M-g I" . consult-imenu-multi)
 ;;          ;; M-s bindings (search-map)
-;;          ;; ("M-s d" . consult-find)
-;;          ;; ("M-s D" . consult-locate)
-;;          ;; ("M-s g" . consult-grep)
-;;          ;; ("M-s G" . consult-git-grep)
-;;          ;; ("M-s r" . consult-ripgrep)
-;;          ;; ("M-s l" . consult-line)
-;;          ;; ("M-s L" . consult-line-multi)
-;;          ;; ("M-s k" . consult-keep-lines)
-;;          ;; ("M-s u" . consult-focus-lines)
-;;          ;; ;; Isearch integration
-;;          ;; ("M-s e" . consult-isearch-history)
-;;          ;; :map isearch-mode-map
-;;          ;; ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-;;          ;; ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-;;          ;; ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-;;          ;; ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-;;          ;; ;; Minibuffer history
-;;          ;; :map minibuffer-local-map
-;;          ;; ("C-M-s" . consult-history)                 ;; orig. next-matching-history-element
-;;          ;; ("M-r" . consult-history)
-;;          )                ;; orig. previous-matching-history-element
+;;          ("M-s d" . consult-find)
+;;          ("M-s D" . consult-locate)
+;;          ("M-s g" . consult-grep)
+;;          ("M-s G" . consult-git-grep)
+;;          ("M-s r" . consult-ripgrep)
+;;          ("M-s l" . consult-line)
+;;          ("M-s L" . consult-line-multi)
+;;          ("M-s k" . consult-keep-lines)
+;;          ("M-s u" . consult-focus-lines)
+;;          ;; Isearch integration
+;;          ("M-s e" . consult-isearch-history)
+;;          :map isearch-mode-map
+;;          ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+;;          ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+;;          ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+;;          ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+;;          ;; Minibuffer history
+;;          :map minibuffer-local-map
+;;          ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+;;          ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
 ;;   ;; Enable automatic preview at point in the *Completions* buffer. This is
 ;;   ;; relevant when you use the default completion UI.
@@ -1915,42 +1321,237 @@ Convenience bindings to use doc-view with the arrow keys.
 #+end_src
 ** Corfu
 #+begin_src emacs-lisp
-
 (use-package corfu
-  :ensure t
-  ;; Optional customizations
+
+  :hook (lsp-completion-mode . kb/corfu-setup-lsp) ; Use corfu for lsp completion
+  :general
+  (:keymaps 'corfu-map
+            :states 'insert
+            "C-n" #'corfu-next
+            "C-p" #'corfu-previous
+            "<escape>" #'corfu-quit
+            "<return>" #'corfu-insert
+            "H-SPC" #'corfu-insert-separator
+            ;; "SPC" #'corfu-insert-separator ; Use when `corfu-quit-at-boundary' is non-nil
+            "M-d" #'corfu-show-documentation
+            "C-g" #'corfu-quit
+            "M-l" #'corfu-show-location)
   :custom
-  ;; (corfu-auto t)                 ;; Enable auto completion
-  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  ;; Works with `indent-for-tab-command'. Make sure tab doesn't indent when you
+  ;; want to perform completion
+  (tab-always-indent 'complete)
+  (completion-cycle-threshold nil)      ; Always show candidates in menu
 
-  ;; (corfu-separator ?\s)          ;; Orderless field separator
-  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  (corfu-preselect 'prompt)      ;; Preselect the prompt
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+  (corfu-auto nil)
+  (corfu-auto-prefix 2)
+  (corfu-auto-delay 0.25)
 
-  ;; Enable Corfu only for certain modes.
-  ;; :hook ((prog-mode . corfu-mode)
-  ;;        (shell-mode . corfu-mode)
-  ;;        (eshell-mode . corfu-mode))
+  (corfu-min-width 80)
+  (corfu-max-width corfu-min-width)     ; Always have the same width
+  (corfu-count 14)
+  (corfu-scroll-margin 4)
+  (corfu-cycle nil)
 
-  ;; Recommended: Enable Corfu globally.
-  ;; This is recommended since Dabbrev can be used globally (M-/).
-  ;; See also `corfu-excluded-modes'.
-  :bind
-  (:map corfu-map
-        ("TAB" . corfu-next)
-        ([tab] . corfu-next)
-        ("S-TAB" . corfu-previous)
-        ([backtab] . corfu-previous))
+  ;; `nil' means to ignore `corfu-separator' behavior, that is, use the older
+  ;; `corfu-quit-at-boundary' = nil behavior. Set this to separator if using
+  ;; `corfu-auto' = `t' workflow (in that case, make sure you also set up
+  ;; `corfu-separator' and a keybind for `corfu-insert-separator', which my
+  ;; configuration already has pre-prepared). Necessary for manual corfu usage with
+  ;; orderless, otherwise first component is ignored, unless `corfu-separator'
+  ;; is inserted.
+  (corfu-quit-at-boundary nil)
+  (corfu-separator ?\s)            ; Use space
+  (corfu-quit-no-match 'separator) ; Don't quit if there is `corfu-separator' inserted
+  (corfu-preview-current 'insert)  ; Preview first candidate. Insert on input if only one
+  (corfu-preselect-first t)        ; Preselect first candidate?
+
+  ;; Other
+  (corfu-echo-documentation nil)        ; Already use corfu-doc
+  (lsp-completion-provider :none)       ; Use corfu instead for lsp completions
   :init
-;;   (global-corfu-mode)
+  (global-corfu-mode)
   :config
-  (setq-local corfu-auto t
-              corfu-auto-delay 0
-              corfu-auto-prefix 2
-              )
-  )
+
+  ;; Enable Corfu more generally for every minibuffer, as long as no other
+  ;; completion UI is active. If you use Mct or Vertico as your main minibuffer
+  ;; completion UI. From
+  ;; https://github.com/minad/corfu#completing-with-corfu-in-the-minibuffer
+  (defun corfu-enable-always-in-minibuffer ()
+    "Enable Corfu in the minibuffer if Vertico/Mct are not active."
+    (unless (or (bound-and-true-p mct--active) ; Useful if I ever use MCT
+                (bound-and-true-p vertico--input))
+      (setq-local corfu-auto nil)       ; Ensure auto completion is disabled
+      (corfu-mode 1)))
+  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
+
+  ;; Setup lsp to use corfu for lsp completion
+  (defun kb/corfu-setup-lsp ()
+    "Use orderless completion style with lsp-capf instead of the
+default lsp-passthrough."
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless))))
+
+#+end_src
+** Orderless
+#+begin_src emacs-lisp
+(use-package orderless
+
+  :ensure t
+  :after vertico
+  :config (progn
+            (setq orderless-matching-styles '(orderless-regexp
+                                              orderless-initialism
+                                              orderless-prefixes)
+                  orderless-component-separator #'orderless-escapable-split-on-space)
+
+            ;; Use the built-in "partial-completion" style to complete
+            ;; file inputs such as "/e/ni/co.nix" into
+            ;; "/etc/nixos/configuration.nix".  The "basic" style is
+            ;; needed to support the hostname completion in the TRAMP
+            ;; inputs such as "/sshx:HOSTNAME".
+            (setq completion-category-defaults nil
+                  completion-category-overrides '((file (styles basic partial-completion))))
+            (setq completion-styles '(orderless basic))))
+
+#+end_src
+* Mail
+#+begin_src emacs-lisp
+(use-package mu4e
+  :load-path  "/opt/homebrew/Cellar/mu/1.8.13/share/emacs/site-lisp/mu/mu4e/"
+  :config
+  (setq mu4e-mu-binary (executable-find "mu"))
+  ;; This is set to 't' to avoid mail syncing issues when using mbsync
+  (setq mu4e-change-filenames-when-moving t)
+
+  ;; Refresh mail using isync every 10 minutes
+  (setq mu4e-update-interval (* 10 60))
+  (setq mu4e-get-mail-command "mbsync -a")
+  (setq mu4e-maildir "~/Mail")
+
+  (setq mu4e-contexts
+        (list
+         ;; Addval account
+         (make-mu4e-context
+          :name "Addval"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Addval" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "shan@addvalsolutions.com")
+                  (user-full-name    . "Shantanu Bhardwaj")
+                  (smtpmail-smtp-server  . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 465)
+                  (smtpmail-stream-type  . ssl)
+                  (mu4e-drafts-folder  . "/Addval/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Addval/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Addval/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Addval/[Gmail]/Trash")))
+
+         ;; Kulcare account
+         (make-mu4e-context
+          :name "Kulcare"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Kulcare" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "shantanu@kulcare.com")
+                  (user-full-name    . "Shantanu Bhardwaj")
+                  (smtpmail-smtp-server  . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 465)
+                  (smtpmail-stream-type  . ssl)
+                  (mu4e-drafts-folder  . "/Kulcare/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Kulcare/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Kulcare/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Kulcare/[Gmail]/Trash")))
+
+         ;; Codetiger account
+         (make-mu4e-context
+          :name "Codetiger"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Codetiger" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "shan@codetiger.com")
+                  (user-full-name    . "Shan Bhardwaj")
+                  (smtpmail-smtp-server  . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 465)
+                  (smtpmail-stream-type  . ssl)
+                  (mu4e-drafts-folder  . "/Codetiger/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Codetiger/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Codetiger/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Codetiger/[Gmail]/Trash")))
+
+         ;; Gmail account
+         (make-mu4e-context
+          :name "Gmail"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Gmail" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "bhardwaj.10@gmail.com")
+                  (user-full-name    . "Shantanu Bhardwaj")
+                  (smtpmail-smtp-server  . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 465)
+                  (smtpmail-stream-type  . ssl)
+                  (mu4e-drafts-folder  . "/Gmail/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Gmail/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Gmail/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Gmail/[Gmail]/Trash")))))
+
+  ;; sending email
+  ;; --------------
+
+  ;; Make sure plain text mails flow correctly for recipients
+  (setq mu4e-compose-format-flowed t)
+
+  ;; Only ask if a context hasn't been previously picked
+  (setq mu4e-compose-context-policy 'ask-if-none)
+
+  ;; don't keep message compose buffers around after sending:
+  (setq message-kill-buffer-on-exit t)
+
+  ;; send function:
+  (setq send-mail-function 'sendmail-send-it
+        message-send-mail-function 'sendmail-send-it)
+
+  ;; send program:
+  ;; this is exeranal. remember we installed it before.
+  (setq sendmail-program (executable-find "msmtp"))
+
+  ;; select the right sender email from the context.
+  (setq message-sendmail-envelope-from 'header)
+
+
+  (setq mu4e-maildir-shortcuts
+        '(("/Kulcare/Inbox"             . ?k)
+          ("/Addval/Inbox"              . ?a)
+          ("/Gmail/Inbox"               . ?g)
+          ("/Codetiger/Inbox"           . ?c)
+          ("/Kulcare/[Gmail]/Sent Mail" . ?s)
+          ("/Kulcare/[Gmail]/Trash"     . ?t)
+          ("/Kulcare/[Gmail]/Drafts"    . ?d)
+          ("/Kulcare/[Gmail]/All Mail"  . ?l))))
+
+;; (use-package mu4e-thread-fast-folding
+;;   :load-path "~/.emacs.d/github/mu4e-tff/")
+;; (mu4e-thread-folding-mode 1)
+
+(use-package mu4e-alert
+
+  :hook (after-init-hook . mu4e-alert-enable-mode-line-display)
+  :config
+  (setq mu4e-alert-email-notification-types '(count)))
+
+(use-package mu4e-column-faces
+   )
+
+;; (use-package mu4e-dashboard
+;;    )
+
+
+#+end_src
+** SVG Lib
+#+begin_src emacs-lisp
+(use-package svg-lib
+   )
 #+end_src
