@@ -188,6 +188,25 @@ the emacs-ac-emoji package.]]
   (set-fontset-font t 'unicode font nil 'prepend))
 #+END_SRC
 
+And here's how we tell Emacs to use the font we want to use.
+
+#+begin_src emacs-lisp
+(add-to-list 'default-frame-alist
+             ;; '(font . "-*-Operator Mono-medium-normal-normal-*-14-*-*-*-m-0-iso10646-1")
+             ;; '(font . "Monaco for Powerline-12")
+             '(font . "Iosevka Comfy 12")
+             ;; '(font . "Monaco-12")
+             )
+
+#+end_src
+
+** Enable Ligatures
+#+begin_src emacs-lisp
+(if (fboundp 'mac-auto-operator-composition-mode)
+    (mac-auto-operator-composition-mode))
+
+#+end_src
+
 ** Custom Mode faces
 
 *** Echo Area
