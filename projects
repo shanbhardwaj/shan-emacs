@@ -1,4 +1,10 @@
 ;;; -*- lisp-data -*-
-(("~/projects/work/taskify/")
+(("/Users/shantanu/projects/work/kulcare/fe-cms-web-new/")
+ ("/Users/shan/projects/work/iAllo/chrome-extension-dialer/")
+ ("/Users/shan/projects/all-emacs/shan-emacs/")
+ ("/Users/shan/projects/work/kulcare/kulcare-api-backend/")
+ ("~/projects/all-emacs/shan-emacs/")
  ("~/projects/work/kulcare/kulcare-api-backend/")
+ ("/Users/shan/projects/all-emacs/shan-emacs/elpa/indent-bars/")
+ ("~/projects/work/taskify/")
  ("~/.emacs.d/"))

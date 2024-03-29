@@ -1,0 +1,4 @@
+(1 (name . "Ruby") (slug . "ruby~3.3") (type . "rdoc") (links (home . "https://www.ruby-lang.org/") (code . "https://github.com/ruby/ruby")) (version . "3.3") (release . "3.3.0") (mtime . 1704480839) (db_size . 12979893) (attribution . "Ruby Core &copy; 1993&ndash;2022 Yukihiro Matsumoto<br>
+      Licensed under the Ruby License.<br>
+      Ruby Standard Library &copy; contributors<br>
+      Licensed under their own licenses."))

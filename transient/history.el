@@ -1,4 +1,5 @@
-((magit-blame
+((forge-dispatch nil)
+ (magit-blame
   ("-w"))
  (magit-branch nil)
  (magit-commit nil)

@@ -18,25 +18,25 @@ Set up the customize file to its own separate file, instead of saving
 customize settings in [[file:init.el][init.el]].
 
 #+begin_src emacs-lisp
-(setq max-lisp-eval-depth 10000)
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(load custom-file)
-;; 
+  (setq max-lisp-eval-depth 10000)
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file)
+  ;; 
 
-;; (load-theme 'doom-snazzy)
+  ;; (load-theme 'doom-snazzy)
 
 
-;; (use-package doom-modeline
-;;   :hook (after-init . doom-modeline-mode)
-;;   :config
-;;   (setq doom-modeline-buffer-file-name-style 'truncate-all)
-;;   ;; (setq doom-modeline-icon t)
-;;   ;; (setq doom-modeline-major-mode-icon t)
-;;   (setq doom-modeline-checker-simple-format nil)
-;;   ;; (set-face-attribute 'mode-line nil :height 0.9)
-;;   ;; (set-face-attribute 'mode-line-inactive nil :height 0.9)
-;;   (setq doom-modeline-height 12)
-;;   )
+  (use-package doom-modeline
+    :hook (after-init . doom-modeline-mode)
+    :config
+    (setq doom-modeline-buffer-file-name-style 'truncate-all)
+    (setq doom-modeline-icon t)
+    (setq doom-modeline-major-mode-icon t)
+    (setq doom-modeline-checker-simple-format nil)
+    ;; (set-face-attribute 'mode-line nil :height 0.9)
+    ;; (set-face-attribute 'mode-line-inactive nil :height 0.9)
+    (setq doom-modeline-height 12)
+    )
 
 #+END_SRC
 ** Convenient theme functions
@@ -1145,90 +1145,90 @@ characters.
 
 ** Vertico + Marginalia
 #+begin_src emacs-lisp
-;; (use-package vertico
-;;
-;;   :bind (:map vertico-map
-;;               ("C-j" . vertico-next)
-;;               ("C-k" . vertico-previous)
-;;               ("C-f" . vertico-exit)
-;;               :map minibuffer-local-map
-;;               ("M-h" . backward-kill-word))
-;;   :custom
-;;   (vertico-cycle t)
-;;   :init
-;;   (vertico-mode))
+  ;; (use-package vertico
+  ;;
+  ;;   :bind (:map vertico-map
+  ;;               ("C-j" . vertico-next)
+  ;;               ("C-k" . vertico-previous)
+  ;;               ("C-f" . vertico-exit)
+  ;;               :map minibuffer-local-map
+  ;;               ("M-h" . backward-kill-word))
+  ;;   :custom
+  ;;   (vertico-cycle t)
+  ;;   :init
+  ;;   (vertico-mode))
 
-;; (use-package marginalia
-;;   :ensure t
-;;   :after vertico
-;;   ;; :demand t
-;;   :config (marginalia-mode 1))
+  ;; (use-package marginalia
+  ;;   :ensure t
+  ;;   :after vertico
+  ;;   ;; :demand t
+  ;;   :config (marginalia-mode 1))
 
-;; (use-package savehist
-;;   :init
-;;   (setq history-length 25)
-;;   (savehist-mode))
+  ;; (use-package savehist
+  ;;   :init
+  ;;   (setq history-length 25)
+  ;;   (savehist-mode))
 
-(use-package vertico
-  :ensure t
-  :bind (("C-x M-r" . vertico-repeat)
-         :map vertico-map
-         ;; M- keys for changing view:
-         ("M-v"     . vertico-multiform-vertical)
-         ("M-g"     . vertico-multiform-grid)
-         ("M-f"     . vertico-multiform-flat)
-         ("M-r"     . vertico-multiform-reverse)
-         ("M-u"     . vertico-multiform-unobtrusive))
-  :init (vertico-mode 1)
-  :config (progn
-            (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
-            (vertico-mouse-mode 1)
-            (vertico-multiform-mode 1)
-            (setq vertico-count 20) ;; number of candidates and also size of minibuffer
-            (setq vertico-multiform-categories '((consult-grep buffer))
-                  vertico-multiform-commands '((tmm-menubar flat)
-                                               (tmm-shortcut flat)))))
+  (use-package vertico
+    :ensure t
+    :bind (("C-x M-r" . vertico-repeat)
+           :map vertico-map
+           ;; M- keys for changing view:
+           ("M-v"     . vertico-multiform-vertical)
+           ("M-g"     . vertico-multiform-grid)
+           ("M-f"     . vertico-multiform-flat)
+           ("M-r"     . vertico-multiform-reverse)
+           ("M-u"     . vertico-multiform-unobtrusive))
+    :init (vertico-mode 1)
+    :config (progn
+              (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
+              (vertico-mouse-mode 1)
+              (vertico-multiform-mode 1)
+              (setq vertico-count 20) ;; number of candidates and also size of minibuffer
+              (setq vertico-multiform-categories '((consult-grep buffer))
+                    vertico-multiform-commands '((tmm-menubar flat)
+                                                 (tmm-shortcut flat)))))
 
-(use-pakage vertico-directory
-  :after vertico
-  :ensure nil
-  ;; More convenient directory navigation commands
-  :bind (:map vertico-map
-              ;; left/right arrows for changing directory:
-              ("<right>"   . vertico-directory-enter)
-              ("<left>"    . vertico-directory-delete-word)
-              ("M-<left>"  . vertico-directory-delete-char))
-  ;; Tidy shadowed file names
-  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
-
-
-
-;; https://github.com/oantolin/orderless
-(use-package orderless
-  :ensure t
-  :after vertico
-  :config (progn
-            (setq orderless-matching-styles '(orderless-regexp
-                                              orderless-initialism
-                                              orderless-prefixes)
-                  orderless-component-separator #'orderless-escapable-split-on-space)
-
-            ;; Use the built-in "partial-completion" style to complete
-            ;; file inputs such as "/e/ni/co.nix" into
-            ;; "/etc/nixos/configuration.nix".  The "basic" style is
-            ;; needed to support the hostname completion in the TRAMP
-            ;; inputs such as "/sshx:HOSTNAME".
-            (setq completion-category-defaults nil
-                  completion-category-overrides '((file (styles basic partial-completion))))
-            (setq completion-styles '(orderless basic))))
+  (use-pakage vertico-directory
+    :after vertico
+    :ensure nil
+    ;; More convenient directory navigation commands
+    :bind (:map vertico-map
+                ;; left/right arrows for changing directory:
+                ("<right>"   . vertico-directory-enter)
+                ("<left>"    . vertico-directory-delete-word)
+                ("M-<left>"  . vertico-directory-delete-char))
+    ;; Tidy shadowed file names
+    :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
 
-;; https://github.com/minad/marginalia
-(use-package marginalia
-  :ensure t
-  :after vertico
-  ;; :demand t
-  :config (marginalia-mode 1))
+
+  ;; https://github.com/oantolin/orderless
+  (use-package orderless
+    :ensure t
+    :after vertico
+    :config (progn
+              (setq orderless-matching-styles '(orderless-regexp
+                                                orderless-initialism
+                                                orderless-prefixes)
+                    orderless-component-separator #'orderless-escapable-split-on-space)
+
+              ;; Use the built-in "partial-completion" style to complete
+              ;; file inputs such as "/e/ni/co.nix" into
+              ;; "/etc/nixos/configuration.nix".  The "basic" style is
+              ;; needed to support the hostname completion in the TRAMP
+              ;; inputs such as "/sshx:HOSTNAME".
+              (setq completion-category-defaults nil
+                    completion-category-overrides '((file (styles basic partial-completion))))
+              (setq completion-styles '(orderless basic))))
+
+
+  ;; https://github.com/minad/marginalia
+  (use-package marginalia
+    :ensure t
+    :after vertico
+    ;; :demand t
+    :config (marginalia-mode 1))
 
 #+end_src
 
@@ -1440,7 +1440,7 @@ default lsp-passthrough."
           :vars '((user-mail-address . "shan@addvalsolutions.com")
                   (user-full-name    . "Shantanu Bhardwaj")
                   (smtpmail-smtp-server  . "smtp.gmail.com")
-                  (smtpmail-smtp-service . 465)
+                  (smtpmail-smtp-service . 465)y
                   (smtpmail-stream-type  . ssl)
                   (mu4e-drafts-folder  . "/Addval/[Gmail]/Drafts")
                   (mu4e-sent-folder  . "/Addval/[Gmail]/Sent Mail")

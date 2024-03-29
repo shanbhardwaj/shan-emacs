@@ -1,0 +1,161 @@
+(["*scratch*" "
+
+  (with-eval-after-load 'eglot
+ (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) \"ruby-lsp\")))
+
+  (use-package vertico
+  :ensure t
+  :demand
+  :config
+  (setq vertico-cycle t)
+  ;; currently requires melpa version of vertico
+  (setq vertico-preselect 'directory)
+  :init
+  (vertico-mode)
+  (defun my/vertico-insert ()
+    (interactive)
+    (let* ((mb (minibuffer-contents-no-properties))
+           (lc (if (string= mb \"\") mb (substring mb -1))))
+      (cond ((string-match-p \"^[/~:]\" lc) (self-insert-command 1 ?/))
+            ((file-directory-p (vertico--candidate)) (vertico-insert))
+            (t (self-insert-command 1 ?/)))))
+  :bind (:map vertico-map
+              (\"/\" . #'my/vertico-insert)))
+
+;; Configure directory extension.
+(use-package vertico-directory
+  :after vertico
+  :ensure t
+  :demand
+  ;; More convenient directory navigation commands
+  :bind (:map vertico-map
+              (\"RET\"   . vertico-directory-enter)
+              (\"DEL\"   . vertico-directory-delete-char)
+              (\"M-DEL\" . vertico-directory-delete-word))
+  ;; Tidy shadowed file names
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
+  (use-package treesit-auto
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
+
+
+  (setq
+    indent-bars-color '(highlight :face-bg t :blend 0.15)
+    indent-bars-pattern \".\"
+    indent-bars-width-frac 0.1
+    indent-bars-pad-frac 0.1
+    indent-bars-zigzag nil
+    indent-bars-color-by-depth '(:regexp \"outline-\\\\([0-9]+\\\\)\" :blend 1) ; blend=1: blend with BG only
+    indent-bars-highlight-current-depth '(:blend 0.5) ; pump up the BG blend on current
+    indent-bars-display-on-blank-lines t)
+
+  
+
+  Ai workloads are fundamentally different from edge and cloud workload and more similar to high performance compute. Ai is going to increase / accelerate data center demand as technology companies offer everything from GPU-as-a-service to Models-as-a-service to completely Ai-driven applications.
+
+The immediate hardware impact of this is data center operators will have to provision server clusters and infrastructure to support the new Ai Requirements. The primary of these being higher power density cluster to support the high performance compute nodes which in some cases can be as 100kW per rack.
+
+Hardware needs for an Ai datacenter
+  - High power density racks and cabinets with specialized cooling
+  - Gpu hardware compute (they also have higher power and cooling requirements)
+  - Data storage: Ai is highly data driven and applications have high storage requirements with low latency (only disadvantage from mining datacenter)
+  - Low latency, non-blocking, high bandwidth networking
+
+  These requirements will necessiatate a change in the current paradigm of the traditional data center from the design of power system to networking and compute. This is where we are well placed with our experince in mining data center yada yada ...
+
+I'm sure everyones seen this report of size of the current Ai market at $150 billion and growing at a CAGR of 38%. This will need new compute, storage and networking. https://www.marketsandmarkets.com/Market-Reports/artificial-intelligence-market-74851580.html
+
+
+
+
+- software spec
+- software design
+- develop code
+- review code
+- engineering management
+
+  
+----------  
+  <You have atleast 3 generations of people who were brought up on concepts of
+- Liberty
+- Equality
+- Fraternity
+- Fairness  
+- Elagitarianism
+- Their opinion matters, strong sense of self
+
+They look at this things and make their judgement, which looks like anti-Isl.
+
+Also another good question to ask if one believes in these universal values/principles is *Why is Anti-Isl a think and Anti-Plaestine not?*
+
+  ----    
+Social Media Package:
+- buy a pack of 1000 credits = Rupees 5000
+- this buys you 10 social posts / month
+- invoice is generated on a package basis and credit appears in the account
+- max period to spend the credits (90 days), elapse after
+- x credits per social post / interaction
+
+Managed Marketing Service:
+- we do social posting through their login
+- minimum 10k or 10% of marketing spend
+- using kulcare portal
+
+Patient Leads Package:
+- buy a pack of 20000 credits (go with top docs)
+- 10 OPD patients / teleconsults
+- 5 surgical patients / month 
+- TBD: reimburse x% if no leads
+- surgery commission is on a per doctor basis
+
+Outreach Package:
+
+
+-------------------
+- Initialize jssip
+- Configure the 
+
+-------------------
+- [ ] Try 
+
+  (use-package keycast
+                :commands keycast-mode
+                :config
+                (define-minor-mode keycast-mode
+                  \"Show current command and its key binding in the mode line.\"
+                  :global t
+                  (if keycast-mode
+                      (progn
+                        (add-hook 'pre-command-hook 'keycast-mode-line-update t)
+                        (add-to-list 'global-mode-string '(\"\" mode-line-keycast \" \"))
+                        )
+                    (remove-hook 'pre-command-hook 'keycast-mode-line-update)
+                    (setq global-mode-string (remove '(\"\" mode-line-keycast \" \") global-mode-string)))))
+
+------------------
+- github actions to build secrets
+- github actions to deploy infrastructure changes  
+- terraform files
+- ansible files
+- dockerfile
+- run docker image locally
+- github actions to build docker
+------------------
+
+
+------------------
+- more intuition around scheduling for dentists 
+- time block per type of appointment 
+- dev team metrics 
+------------------
+Shutthefuckup18* 
+(global-set-key (kbd \"C-c ;\") 'comment-line)
+(global-set-key (kbd \"s-o\") 'other-window)
+
+  ;; 
+sudo find / -name '*' -size +10M -exec ls -lh \"{}\" \\;
+" (1732 . 1318) fundamental-mode nil nil])
