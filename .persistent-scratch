@@ -158,4 +158,4 @@ Shutthefuckup18*
 
   ;; 
 sudo find / -name '*' -size +10M -exec ls -lh \"{}\" \\;
-" (1732 . 1318) fundamental-mode nil nil])
+" (1 . 1318) fundamental-mode nil nil])

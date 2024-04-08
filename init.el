@@ -10,7 +10,7 @@
 
 ;; (custom-set-faces
 ;;  '(font-lock-comment-face ((t (:font "Iosevka Comfy" :italic t :height 1.0)))))
-(set-face-attribute 'default nil :font "AnonymicePro Nerd Font" :height 160 :weight 'semi-bold )
+(set-face-attribute 'default nil :font "AnonymicePro Nerd Font" :height 160 :weight 'normal)
 ;; (set-face-attribute 'fixed-pitch nil :font "Monaco" :height 140 :weight 'thin)
 ;; (set-face-attribute 'variable-pitch nil :font "Monaco" :height 140 :weight 'light)
 
@@ -161,8 +161,8 @@
 
 (use-package autothemer
   :config
-  ;; (load-theme 'klere t)
-  (load-theme 'catppuccin-latte t)
+  (load-theme 'moe-dark t)
+  ;; (load-theme 'catppuccin-latte t)
   ;; (load-theme 'gruvbox-dark-hard t)
   ;; (load-theme 'wombat t)
   ;; (load-theme 'catppuccin-frappe t)
