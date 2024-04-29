@@ -348,24 +348,24 @@
 ;;   ;; Tidy shadowed file names
 ;;   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
-(use-package vertico-posframe
-  :after vertico
-  :init
-  (vertico-posframe-mode 1)
-  (vertico-posframe-cleanup)
-  :config
-  (setq vertico-posframe-parameters
-        '((left-fringe . 0)
-          (right-fringe . 0)))
-  (setq ;; vertico-posframe-poshandler #'posframe-poshandler-frame-top-left-corner
-   ;; vertico-posframe-poshandler #'posframe-poshandler-frame-top-center
-   ;; vertico-posframe-poshandler #'posframe-poshandler-frame-bottom-center
-   vertico-posframe-poshandler #'posframe-poshandler-frame-center ;
-   vertico-posframe-truncate-lines t
-   vertico-posframe-min-width 120
-   vertico-posframe-width 155
-   vertico-posframe-min-height 2
-   vertico-posframe-border-width 2))
+;; (use-package vertico-posframe
+;;   :after vertico
+;;   :init
+;;   (vertico-posframe-mode 1)
+;;   (vertico-posframe-cleanup)
+;;   :config
+;;   (setq vertico-posframe-parameters
+;;         '((left-fringe . 0)
+;;           (right-fringe . 0)))
+;;   (setq ;; vertico-posframe-poshandler #'posframe-poshandler-frame-top-left-corner
+;;    ;; vertico-posframe-poshandler #'posframe-poshandler-frame-top-center
+;;    ;; vertico-posframe-poshandler #'posframe-poshandler-frame-bottom-center
+;;    vertico-posframe-poshandler #'posframe-poshandler-frame-center ;
+;;    vertico-posframe-truncate-lines t
+;;    vertico-posframe-min-width 120
+;;    vertico-posframe-width 155
+;;    vertico-posframe-min-height 2
+;;    vertico-posframe-border-width 2))
 
 
 (use-package nerd-icons
@@ -416,6 +416,7 @@
 ;; (use-package consult-project-extra
 ;;   :after consult
 ;;   :bind
+
 ;;   ("C-<tab>" . #'consult-projectile-switch-to-buffer))
 
 ;; (use-package consult-ls-git
@@ -484,7 +485,6 @@
          ("C-c p h" . cape-history)
          ("C-c p f" . cape-file)
          ("C-c p k" . cape-keyword)
-         ("C-c p s" . cape-symbol)
          ("C-c p a" . cape-abbrev)
          ("C-c p i" . cape-ispell)
          ("C-c p l" . cape-line)
@@ -495,7 +495,6 @@
         cape-dabbrev-min-length 4)
   :init
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-symbol)
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-keyword))
 
