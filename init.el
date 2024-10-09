@@ -1,30 +1,56 @@
 ;;; Init.el --- -*- lexical-binding: t -*-
 ;;; Code:
 
-(eval-when-compile (defvar display-time-24hr-format t))
+;; (eval-when-compile (defvar display-time-24hr-format t))
 (eval-when-compile (defvar display-time-default-load-average nil))
 
-;; (set-face-attribute 'default nil :font "Iosevka Comfy" :height 160 :weight 'thin) 
-;; (set-face-attribute 'fixed-pitch nil :font "Iosevka Comfy" :height 140 :weight 'thin)
-;; (set-face-attribute 'variable-pitch nil :font "Iosevka Comfy" :height 140 :weight 'light)
+;; Install and configure packages
+(require 'package)
 
-;; (custom-set-faces
-;;  '(font-lock-comment-face ((t (:font "Iosevka Comfy" :italic t :height 1.0)))))
-(set-face-attribute 'default nil :font "AnonymicePro Nerd Font" :height 160 :weight 'normal)
-;; (set-face-attribute 'fixed-pitch nil :font "Monaco" :height 140 :weight 'thin)
-;; (set-face-attribute 'variable-pitch nil :font "Monaco" :height 140 :weight 'light)
+;; Add only the MELPA archive
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
 
-;; (custom-set-faces
-;;  '(font-lock-comment-face ((t (:font "Monaco" :italic t :height 1.0)))))
+(package-initialize)
+
+(require 'use-package)
+
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
+
+;; Configure a package
+(use-package org
+  :ensure t
+  :config
+  (setq org-log-done 'time))
+
+(use-package auto-package-update
+  :defer t
+  :custom
+  (setq auto-package-update-interval 7
+        auto-package-update-prompt-before-update t
+        auto-package-update-hide-results nil))
+
 
 (display-battery-mode t)        ;; Show battery.
 (display-time-mode t)           ;; Show time.
 (fset 'yes-or-no-p 'y-or-n-p)   ;; Set yes or no to y/n
-(global-auto-revert-mode)       ;; refresh a bufFer if changed on disk
+(global-auto-revert-mode)       ;; Refresh a buffer if changed on disk
 (global-hl-line-mode 1)         ;; Highlight current line
-(blink-cursor-mode -1)          ;; disable blingking cursor
+(blink-cursor-mode -1)          ;; Disable blingking cursor
+(recentf-mode t)                ;; Turn on recent files mode
 
 ;; (pixel-scroll-precision-mode 1)
+;; Enable pixel-based scrolling
+;; (require 'pixel-scroll)
+;; (pixel-scroll-mode 1)
+
+;; Customize pixel-based scrolling
+;; (setq pixel-scroll-precision-large-scroll-height 10)
+;; (setq pixel-scroll-precision-interpolate-page t)
+;; (setq pixel-scroll-precision-use-momentum t)
 
 (setq ad-redefinition-action            'accept
       global-auto-revert-non-file-buffers t
@@ -36,7 +62,6 @@
       confirm-kill-processes            nil
       create-lockfiles                  nil
       echo-keystrokes                   0.2
-      confirm-kill-emacs                'y-or-n-p
       column-number-mode                t
       find-file-visit-truename          t
       font-lock-maximum-decoration      t
@@ -67,8 +92,6 @@
               history-length                100
               uniquify-buffer-name-style    'forward)
 
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-
 (let* ((dir (expand-file-name (concat user-emacs-directory "local-packages")))
        (default-directory dir))
   (when (file-directory-p dir)
@@ -76,9 +99,9 @@
     (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
         (normal-top-level-add-subdirs-to-load-path))))
 
-(add-to-list 'custom-theme-load-path (concat user-emacs-directory "themes/"))
+;; (add-to-list 'custom-theme-load-path (concat user-emacs-directory "themes/"))
 
-                                        ; On macos use our custom settings ---------------------
+;; On macos use our custom settings ---------------------
 (when (eq system-type 'darwin)
   ;; (set-fontset-font t nil "SF Pro Display" nil 'append)
   ;; (set-fontset-font t nil "SF Mono" nil 'append)
@@ -88,8 +111,8 @@
         mac-option-modifier 'super
         dired-use-ls-dired nil)
   ;; typical mac bindings
-  (global-set-key (kbd "M-s") 'save-buffer)
-  (global-set-key (kbd "M-z") 'undo)
+  ;; (global-set-key (kbd "M-s") 'save-buffer)
+  ;; (global-set-key (kbd "M-z") 'undo)
 
   ;; Use Command-` to switch between Emacs windows (not frames)
   (bind-key "A-`" 'other-window)
@@ -106,13 +129,20 @@
 
   ;; buffer switching
   (bind-key "s-[" 'previous-buffer)
-  (bind-key "s-]" 'next-buffer))
+  (bind-key "s-]" 'next-buffer)
+
+  (bind-key "M-C-w" 'restart-emacs)
+  )
+
+;; Bind C-c i to open init.el
+(global-set-key (kbd "C-c e") (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
 
 (defun vsplit-other-window ()
   "Splits the window vertically and switches to that window."
   (interactive)
   (split-window-vertically)
   (other-window 1 nil))
+
 (defun hsplit-other-window ()
   "Splits the window horizontally and switches to that window."
   (interactive)
@@ -122,84 +152,10 @@
 (bind-key "C-x 2" 'vsplit-other-window)
 (bind-key "C-x 3" 'hsplit-other-window)
 
-(put 'narrow-to-page 'disabled nil)
+;; ========= Fonts & Themes============
 
-;; Dont leave #file autosaves everywhere I go
-(defvar my-auto-save-folder (concat user-emacs-directory "var/auto-save/"))
-(setq auto-save-list-file-prefix (concat my-auto-save-folder ".saves-")
-      auto-save-file-name-transforms `((".*", my-auto-save-folder t))
-      custom-file (concat user-emacs-directory "var/custom.el"))
-
-;; Initialize package sources
-(require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")
-                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
-(package-initialize)
-
-;; Initialize use-package on non-Linux platforms
-(unless (package-installed-p 'use-package)
-  (unless package-archive-contents
-    (package-refresh-contents))
-  (package-install 'use-package))
-
-(require 'use-package)
-
-(use-package use-package
-  :ensure nil
-  :config
-  (setq use-package-verbose t
-        use-package-expand-minimally t
-        use-package-always-ensure t
-        use-package-compute-statistics t
-        use-package-minimum-reported-time 0.1
-        debug-on-error nil))
-
-(use-package gcmh
-  :diminish
-  :hook (after-init . gcmh-mode))
-
-(use-package autothemer
-  :config
-  (load-theme 'moe-dark t)
-  ;; (load-theme 'catppuccin-latte t)
-  ;; (load-theme 'gruvbox-dark-hard t)
-  ;; (load-theme 'wombat t)
-  ;; (load-theme 'catppuccin-frappe t)
-  ;; (load-theme 'catppuccin-macchiato t)
-  ;; (load-theme 'catppuccin-mocha t)
-  ;; (load-theme 'rose-pine t)
-  ;; (load-theme 'oxocarbon t)
-  ;; (load-theme 'oxographite t)
-  ;; (load-theme 'kman t)
-  ;; (load-theme 'kanagawa t)
-  )
-
-(use-package doom-modeline
-  :hook (after-init . doom-modeline-mode)
-  :config
-  (setq doom-modeline-buffer-file-name-style 'truncate-all)
-  (setq doom-modeline-icon t)
-  (setq doom-modeline-major-mode-icon t)
-  (setq doom-modeline-checker-simple-format nil)
-  ;; (set-face-attribute 'mode-line nil :height 0.9)
-  ;; (set-face-attribute 'mode-line-inactive nil :height 0.9)
-  ;; (setq doom-modeline-height 12)
-  )
-
-(defun switch-theme (theme)
-  "Disables any currently active themes and loads THEME."
-  ;; This interactive call is taken from `load-theme'
-  (interactive
-   (list
-    (intern (completing-read "Load custom theme: "
-                             (mapc 'symbol-name
-                                   (custom-available-themes))))))
-  (let ((enabled-themes custom-enabled-themes))
-    (mapc #'disable-theme custom-enabled-themes)
-    (load-theme theme t)
-    (reset-modeline)
-    ))
+(set-face-attribute 'default nil :font "Iosevka Comfy" :height 140 :weight 'regular) 
+;; (set-face-attribute 'default nil :font "AnonymicePro Nerd Font" :height 160 :weight 'normal)
 
 (defun disable-active-themes ()
   "Disables any currently active themes listed in `custom-enabled-themes'."
@@ -209,37 +165,22 @@
 (bind-key "s-<f12>" 'consult-theme)
 (bind-key "s-<f11>" 'disable-active-themes)
 
-(use-package ace-jump-mode
+(use-package no-littering
   :ensure t
-  :diminish ace-jump-mode
-  :commands ace-jump-mode
-  :bind ("C-S-s" . ace-jump-mode))
+  :config
+  (require 'recentf)
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory)))
 
-(use-package saveplace
-  :ensure nil
-  :hook (after-init . save-place-mode))
-
-(use-package auto-package-update
-  :custom
-  (setq auto-package-update-interval 7
-        auto-package-update-prompt-before-update t
-        auto-package-update-hide-results nil))
-
+;; =========== Undo/Redo ============
 (use-package undo-fu
+  :ensure t
   :config
   (setq undo-fu-allow-undo-in-region t)
   (global-unset-key (kbd "M-z"))
   (global-set-key (kbd "M-z")   'undo-fu-only-undo)
   (global-set-key (kbd "M-S-z") 'undo-fu-only-redo))
 
-(use-package svg-tag-mode
-  :hook (prog-mode . svg-tag-mode)
-  :config
-  (plist-put svg-lib-style-default :font-family "Monaco Nerd Font Mono")
-  (plist-put svg-lib-style-default :font-size 14)
-  ;; (require 'periphery)
-  ;; (setq svg-tag-tags (periphery-svg-tags))
-  )
+(global-unset-key (kbd "C-z"))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -248,15 +189,6 @@
 (use-package rainbow-mode
   :diminish
   :hook (prog-mode . rainbow-mode))
-
-;; (use-package tree-sitter
-;;   :hook (swift-mode . tree-sitter-mode)
-;;   :config
-;;   (setq tsc-dyn-get-from nil)
-;;   (setq tree-sitter-hl-use-font-lock-keywords t
-;;         tree-sitter-hl-enable-query-region-extension nil)
-;;   :config
-;;   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
 (use-package smooth-scrolling
   :ensure t)
@@ -277,200 +209,366 @@
   :hook (prog-mode . smartparens-mode))
 
 (use-package helpful
+  :ensure t
   :commands (helpful-callable helpful-variable helpful-command helpful-key)
-  :bind
-  ;; ("C-x C-c" . describe-char)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-key] . helpful-key))
+  :bind (("C-h f" . helpful-callable)
+         ("C-h v" . helpful-variable)
+         ("C-h k" . helpful-key)
+         ("C-h x" . helpful-command)
+         ("C-c C-d" . helpful-at-point)
+         ("C-c F" . helpful-function)))
+
+;; ======= Use git ========
+(use-package magit
+  :ensure t
+  :commands (magit-status magit-ediff-show-working-tree)
+  :bind ("C-c C-d" . magit-ediff-show-working-tree)
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+(use-package magit-todos
+  :ensure t
+  :commands (magit-todos-mode)
+  :hook (magit-mode . magit-todos-mode)
+  :config
+  (setq magit-todos-recursive t
+        magit-todos-depth 10
+        magit-todos-exclude-globs '("*Pods*" ".git/" "*elpa*" "*var/lsp/*"))
+  (custom-set-variables
+   '(magit-todos-keywords (list "TODO" "FIXME" "HACK"))))
+
+(use-package blamer
+  :ensure t
+  :commands (blamer-mode)
+  :config
+  (setq blamer-view 'overlay-right
+        blamer-type 'visual
+        blamer-max-commit-message-length 70
+        blamer-force-truncate-long-line nil
+        blamer-author-formatter " ✎ %s "
+        blamer-commit-formatter "● \'%s\' ● ")
+  :custom
+  (blamer-idle-time 1.0)
+  :custom-face
+  (blamer-face ((t :foreground "#E46876"
+                   :height 130
+                   :bold t
+                   :italic t))))
+
+(use-package forge
+  :ensure t
+  :after magit
+  :defer t)
+
+(use-package orgit-forge
+  :ensure t
+  :after forge)
+
+(use-package git-timemachine
+  :ensure t
+  :defer t
+  )
+
+(use-package git-link
+  :ensure t
+  :defer t)
+
+(use-package git-gutter
+  :ensure t
+  :defer t
+  :hook (prog-mode . git-gutter-mode)
+  :diminish git-gutter-mode
+  :config
+  (setq git-gutter:update-interval 1))
+
+(use-package git-gutter-fringe
+  :after git-gutter
+  :config
+  (setq git-gutter-fr:side 'left-fringe)
+  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:deleted [224] nil nil '(center repeated)))
+
+(use-package hl-todo
+  :ensure t
+  :defer t
+  :custom-face (hl-todo ((t (:box t :inherit))))
+  :bind (:map hl-todo-mode-map
+              ([C-f3] . hl-todo-occur)
+              ("C-c t p" . hl-todo-previous)
+              ("C-c t n" . hl-todo-next)
+              ("C-c t o" . hl-todo-occur))
+  :hook (after-init . global-hl-todo-mode))
+
+(use-package indent-bars
+  :ensure nil
+  :custom
+  (indent-bars-treesit-support t)
+  (indent-bars-no-descend-string t)
+  (indent-bars-treesit-ignore-blank-lines-types '("module"))
+  (indent-bars-treesit-wrap '((python argument_list parameters ; for python, as an example
+				                              list list_comprehension
+				                              dictionary dictionary_comprehension
+				                              parenthesized_expression subscript)))
+  :hook (prog-mode . indent-bars-mode))
+
+;; (use-package svg-tag-mode
+;;   :hook (prog-mode . svg-tag-mode)
+;;   :config
+;;   (plist-put svg-lib-style-default :font-family "Monaco Nerd Font Mono")
+;;   (plist-put svg-lib-style-default :font-size 14)
+;;   ;; (require 'periphery)
+;;   ;; (setq svg-tag-tags (periphery-svg-tags))
+;;   )
+
+(use-package expand-region
+  :bind ("C-=" . er/expand-region))
+
+(use-package toml)
+(use-package gcmh
+  :diminish
+  :hook (after-init . gcmh-mode))
+(use-package diminish
+  :ensure t)
+
+(use-package spacious-padding
+  :ensure t
+  :config
+  ;; (setq spacious-padding-widths
+  ;;       '( :internal-border-width 15
+  ;;          :header-line-width 4
+  ;;          :mode-line-width 6
+  ;;          :tab-width 4
+  ;;          :right-divider-width 30
+  ;;          :scroll-bar-width 8))
+  (spacious-padding-mode 1)
+  )
+
+;; Install and configure modus-themes
+(use-package ef-themes
+  :ensure t
+  :config
+  (load-theme 'ef-spring t)
+  )
+
+(use-package auto-dark
+  :ensure t
+  :custom
+  (auto-dark-themes '((ef-dream) (ef-spring)))
+  (auto-dark-polling-interval-seconds 300)
+  (auto-dark-allow-osascript t)
+  (auto-dark-allow-powershell nil)
+  ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
+  :hook
+  (auto-dark-dark-mode
+   . (lambda ()
+       ;; something to execute when dark mode is detected
+       ))
+  (auto-dark-light-mode
+   . (lambda ()
+       ;; something to execute when light mode is detected
+       ))
+  :init (auto-dark-mode))
+
+(use-package nerd-icons
+  :ensure t)
+
+(use-package nerd-icons-completion
+  :ensure t
+  :after marginalia
+  ;; FIXME 2024-09-01: For some reason this stopped working because it
+  ;; macroexpands to `marginalia-mode' instead of
+  ;; `marginalia-mode-hook'.  What is more puzzling is that this does
+  ;; not happen in the next :hook...
+  ;; :hook (marginalia-mode . nerd-icons-completion-marginalia-setup))
+  :config
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package nerd-icons-dired
+  :hook (dired-mode . nerd-icons-dired-mode))
+
+(use-package nerd-icons-corfu
+  :ensure t
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+  ;; Optionally:
+  (setq nerd-icons-corfu-mapping
+        '((array :style "cod" :icon "symbol_array" :face font-lock-type-face)
+          (boolean :style "cod" :icon "symbol_boolean" :face font-lock-builtin-face)
+          ;; ...
+          (t :style "cod" :icon "code" :face font-lock-warning-face)))
+  ;; Remember to add an entry for `t', the library uses that as default.
+  )
 
 
+(use-package yasnippet
+  :ensure t
+  :diminish
+  :defer t
+  :config
+  (setq yas-snippet-dirs (concat user-emacs-directory "snippets"))
+  (setq yas-indent-line 'fixed)
+  (yas-global-mode)
+  (global-set-key (kbd "M-/") 'company-yasnippet))
+
+(use-package vundo
+  :ensure t
+  :bind ("C-M-z" . vundo))
+
+;; (set-face-attribute 'mode-line nil
+;;                     :background "LightSteelBlue1"
+;;                     :foreground "black"
+;;                     :box "SkyBlue2")
+
+;; Enable display-line-numbers-mode for prog-mode
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
+;; Enable flymake-mode for prog-mode
+(add-hook 'prog-mode-hook 'flymake-mode)
+
+;; Customize line number display
+(setq display-line-numbers-type 'relative) ; Use relative line numbers
+
+;; Customize flymake-mode
+(setq flymake-no-changes-timeout 0.5) ; Set the timeout for flymake to 0.5 seconds
+
+
+;;========== Completions ==========
+;; The `vertico' package applies a vertical layout to the minibuffer.
+;; It also pops up the minibuffer eagerly so we can see the available
+;; options without further interactions.  This package is very fast
+;; and "just works", though it also is highly customisable in case we
+;; need to modify its behaviour.
+;;
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:cff33514-d3ac-4c16-a889-ea39d7346dc5
 (use-package vertico
   :ensure t
-  :demand
   :config
   (setq vertico-cycle t)
-  ;; currently requires melpa version of vertico
-  (setq vertico-preselect 'directory)
-  :init
-  (vertico-mode)
-  (defun my/vertico-insert ()
-    (interactive)
-    (let* ((mb (minibuffer-contents-no-properties))
-           (lc (if (string= mb "") mb (substring mb -1))))
-      (cond ((string-match-p "^[/~:]" lc) (self-insert-command 1 ?/))
-            ((file-directory-p (vertico--candidate)) (vertico-insert))
-            (t (self-insert-command 1 ?/)))))
-  :bind (:map vertico-map
-              ("/" . #'my/vertico-insert)))
+  (setq vertico-resize nil)
+  (vertico-mode 1))
 
 ;; Configure directory extension.
 (use-package vertico-directory
   :after vertico
   :ensure nil
-  ;; :demand
   ;; More convenient directory navigation commands
   :bind (:map vertico-map
-              ("RET"   . vertico-directory-enter)
-              ("DEL"   . vertico-directory-delete-char)
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
               ("M-DEL" . vertico-directory-delete-word))
   ;; Tidy shadowed file names
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
-;; (use-package vertico
-;;   :hook (after-init . vertico-mode)
-;;   :bind
-;;   (:map vertico-map
-;;         ("C-j" . vertico-next)
-;;         ("C-k" . vertico-previous)
-;;         ("C-d" . vertico-scroll-down)
-;;         ("C-u" . vertico-scroll-up))
-;;   :custom
-;;   (vertico-buffer-display-action '(display-buffer-reuse-window))
-;;   :config
-;;   (vertico-multiform-mode)
-;;   (setq vertico-resize t
-;;         vertico-count 8
-;;         vertico-multiline nil
-;;         vertico-scroll-margin 4
-;;         vertico-cycle t
-;;         read-file-name-completion-ignore-case t
-;;         read-buffer-completion-ignore-case t
-;;         completion-ignore-case t))
-
-;; ;; Configure directory extension.
-;; (use-package vertico-directory
-;;   :commands (find-file)
-;;   :ensure nil
-;;   :bind (:map vertico-map
-;;               ("<tab>" . vertico-directory-enter)
-;;               ("DEL" . vertico-directory-delete-char)
-;;               ("M-DEL" . vertico-directory-delete-word))
-;;   ;; Tidy shadowed file names
-;;   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
-
-;; (use-package vertico-posframe
-;;   :after vertico
-;;   :init
-;;   (vertico-posframe-mode 1)
-;;   (vertico-posframe-cleanup)
-;;   :config
-;;   (setq vertico-posframe-parameters
-;;         '((left-fringe . 0)
-;;           (right-fringe . 0)))
-;;   (setq ;; vertico-posframe-poshandler #'posframe-poshandler-frame-top-left-corner
-;;    ;; vertico-posframe-poshandler #'posframe-poshandler-frame-top-center
-;;    ;; vertico-posframe-poshandler #'posframe-poshandler-frame-bottom-center
-;;    vertico-posframe-poshandler #'posframe-poshandler-frame-center ;
-;;    vertico-posframe-truncate-lines t
-;;    vertico-posframe-min-width 120
-;;    vertico-posframe-width 155
-;;    vertico-posframe-min-height 2
-;;    vertico-posframe-border-width 2))
-
-
-(use-package nerd-icons
-  :defer t
-  :custom
-  (nerd-icons-font-family "Symbols Nerd Font Mono"))
-
-(use-package nerd-icons-dired
-  :hook (dired-mode . nerd-icons-dired-mode))
-
-(use-package orderless
-  :after vertico
-  :init
-  (setq completion-styles '(orderless basic)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles flex))
-                                        (eglot (styles . (orderless flex))))))
-
+;; The `marginalia' package provides helpful annotations next to
+;; completion candidates in the minibuffer.  The information on
+;; display depends on the type of content.  If it is about files, it
+;; shows file permissions and the last modified date.  If it is a
+;; buffer, it shows the buffer's size, major mode, and the like.
+;;
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:bd3f7a1d-a53d-4d3e-860e-25c5b35d8e7e
 (use-package marginalia
-  :after (vertico)
-  :config (marginalia-mode))
-
-(use-package consult
-  :hook (completion-list-mode . consult-preview-at-point-mode)
-  :bind
-  ;; ("C-s" . (lambda () (interactive) (consult-line (thing-at-point 'symbol))))
-  ("M-l" . consult-goto-line)
-  ("<backtab>" . consult-buffer)
-  ("C-c C-a" . consult-apropos)
-  ("C-c m m" . consult-imenu-multi)
-  ("M-O" . consult-ls-git)
-  ("M-g" . consult-line))
-
-(use-package embark-consult
-  :after (embark consult))
-``
-(use-package consult-projctile
-  :after projectile)
-
-(use-package recentf
-  :hook (after-init . recentf-mode))
-
-;; ------------------ SEARCHING -------------------
-(use-package rg
-  :defer t)
-
-;; ------------------ EDITING -------------------
-;; (use-package consult-project-extra
-;;   :after consult
-;;   :bind
-
-;;   ("C-<tab>" . #'consult-projectile-switch-to-buffer))
-
-;; (use-package consult-ls-git
-;;   :after consult)
-
-(use-package google-this
-  :commands (google-this)
-  :bind ("C-x C-g" . google-this))
-
-(use-package corfu
-  :hook ((prog-mode . corfu-mode)
-         (localizeable-mode . corfu-mode)
-         (corfu-mode . corfu-popupinfo-mode))
-  :bind
-  (:map corfu-map
-        ("SPC" . corfu-insert-separator)
-        ("<escape>" . corfu-quit)
-        ("C-j" . corfu-next)
-        ("C-k" . corfu-previous))
-  :custom
-  (corfu-auto t)
-  (completion-styles '(flex orderless))
-  :init
-  (setq corfu-bar-width 2
-        corfu-scroll-margin 2
-        corfu-auto-prefix 1
-        corfu-min-width 40
-        corfu-max-width 130
-        corfu-left-margin-width 0.9
-        corfu-right-margin-width 0.9
-        corfu-bar-width 0.2
-        corfu-count 14
-        corfu-auto-delay 0.5
-        corfu-quit-no-match 'separator
-        corfu-popupinfo-delay 0.5
-        corfu-popupinfo-resize t
-        corfu-popupinfo-hide nil
-        corfu-popupinfo-direction '(force-horizontal)
-        corfu-popupinfo-resize t
-        corfu-popupinfo-min-width corfu-min-width
-        corfu-popupinfo-max-width corfu-max-width
-        tab-always-indent 'complete))
-
-;; (use-package corfu-history
-;;   :ensure nil
-;;   :after (corfu savehist)
-;;   :config
-;;   (corfu-history-mode 1)
-;;   (add-to-list 'savehist-additional-variables 'corfu-history))
-
-(use-package savehist
-  :ensure nil
+  :ensure t
   :config
-  (savehist-mode t))
+  (marginalia-mode 1))
+
+;; The `orderless' package lets the minibuffer use an out-of-order
+;; pattern matching algorithm.  It matches space-separated words or
+;; regular expressions in any order.  In its simplest form, something
+;; like "ins pac" matches `package-menu-mark-install' as well as
+;; `package-install'.  This is a powerful tool because we no longer
+;; need to remember exactly how something is named.
+;;
+;; Note that Emacs has lots of "completion styles" (pattern matching
+;; algorithms), but let us keep things simple.
+;;
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:7cc77fd0-8f98-4fc0-80be-48a758fcb6e2
+(use-package orderless
+  :ensure t
+  :config
+  (setq completion-styles '(orderless basic)))
+
+;; The `consult' package provides lots of commands that are enhanced
+;; variants of basic, built-in functionality.  One of the headline
+;; features of `consult' is its preview facility, where it shows in
+;; another Emacs window the context of what is currently matched in
+;; the minibuffer.  Here I define key bindings for some commands you
+;; may find useful.  The mnemonic for their prefix is "alternative
+;; search" (as opposed to the basic C-s or C-r keys).
+;;
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:22e97b4c-d88d-4deb-9ab3-f80631f9ff1d
+(use-package consult
+  :ensure t
+  :bind (;; A recursive grep
+         ("M-s M-g" . consult-grep)
+         ;; Search for files names recursively
+         ("M-s M-f" . consult-find)
+         ;; Search through the outline (headings) of the file
+         ("M-s M-o" . consult-outline)
+         ;; Search the current buffer
+         ("M-s M-l" . consult-line)
+         ;; Switch to another buffer, or bookmarked file, or recently
+         ;; opened file.
+         ("M-s M-b" . consult-buffer)))
+
+(use-package consult-project-extra
+  :defer t
+  :bind
+  (("C-c p f" . consult-project-extra-find)
+   ("C-c p o" . consult-project-extra-find-other-window)))
+
+(use-package consult-todo
+  :demand t)
+
+;; The `embark' package lets you target the thing or context at point
+;; and select an action to perform on it.  Use the `embark-act'
+;; command while over something to find relevant commands.
+;;
+;; When inside the minibuffer, `embark' can collect/export the
+;; contents to a fully fledged Emacs buffer.  The `embark-collect'
+;; command retains the original behaviour of the minibuffer, meaning
+;; that if you navigate over the candidate at hit RET, it will do what
+;; the minibuffer would have done.  In contrast, the `embark-export'
+;; command reads the metadata to figure out what category this is and
+;; places them in a buffer whose major mode is specialised for that
+;; type of content.  For example, when we are completing against
+;; files, the export will take us to a `dired-mode' buffer; when we
+;; preview the results of a grep, the export will put us in a
+;; `grep-mode' buffer.
+;;
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:61863da4-8739-42ae-a30f-6e9d686e1995
+(use-package embark
+  :ensure t
+  :bind (("C-." . embark-act)
+         :map minibuffer-local-map
+         ("C-c C-c" . embark-collect)
+         ("C-c C-e" . embark-export)))
+
+;; The `embark-consult' package is glue code to tie together `embark'
+;; and `consult'.
+(use-package embark-consult
+  :ensure t)
+
+;; The `wgrep' packages lets us edit the results of a grep search
+;; while inside a `grep-mode' buffer.  All we need is to toggle the
+;; editable mode, make the changes, and then type C-c C-c to confirm
+;; or C-c C-k to abort.
+;;
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:9a3581df-ab18-4266-815e-2edd7f7e4852
+(use-package wgrep
+  :ensure t
+  :bind ( :map grep-mode-map
+          ("e" . wgrep-change-to-wgrep-mode)
+          ("C-x C-q" . wgrep-change-to-wgrep-mode)
+          ("C-c C-c" . wgrep-finish-edit)))
+
+;; The built-in `savehist-mode' saves minibuffer histories.  Vertico
+;; can then use that information to put recently selected options at
+;; the top.
+;;
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:25765797-27a5-431e-8aa4-cc890a6a913a
+(savehist-mode 1)
 
 (use-package dabbrev
   :ensure nil
@@ -498,108 +596,27 @@
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-keyword))
 
-(use-package projectile
-  :diminish
-  :hook (prog-mode . projectile-mode)
-  :bind
-  ("C-M-r" . projectile-replace)
-  :custom
-  (setq projectile-completion-system 'auto
-        projectile-enable-caching t
-        projectile-sort-order 'default
-        projectile-indexing-method 'hybrid
-        projectile-verbose nil
-        projectile-switch-project-action #'projectile-commander
-        projectile-ignored-files '(".orig$" ".yml$"))
-  :config
-  (add-to-list 'projectile-globally-ignored-directories "build")
-  (setq projectile-globally-ignored-directories
-        '(".git"
-          "swiftpm"
-          "pods"
-          "xcodeproj"
-          ".build")))
-
-
-;; Use git
-(use-package magit
-  :commands (magit-status magit-ediff-show-working-tree)
-  :bind ("C-c C-d" . magit-ediff-show-working-tree)
-  :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
-(use-package magit-todos
-  :commands (magit-todos-mode)
-  :hook (magit-mode . magit-todos-mode)
-  :config
-  (setq magit-todos-recursive t
-        magit-todos-depth 10
-        magit-todos-exclude-globs '("*Pods*" ".git/" "*elpa*" "*var/lsp/*"))
-  (custom-set-variables
-   '(magit-todos-keywords (list "TODO" "FIXME" "HACK"))))
-
-(use-package blamer
-  :commands (blamer-mode)
-  :config
-  (setq blamer-view 'overlay-right
-        blamer-type 'visual
-        blamer-max-commit-message-length 70
-        blamer-force-truncate-long-line nil
-        blamer-author-formatter " ✎ %s "
-        blamer-commit-formatter "● \'%s\' ● ")
-  :custom
-  (blamer-idle-time 1.0)
-  :custom-face
-  (blamer-face ((t :foreground "#E46876"
-                   :height 130
-                   :bold t
-                   :italic t))))
-
-(use-package forge
-  :after magit
-  :defer t)
-
-(use-package orgit-forge
-  :after forge)
-
-(use-package git-timemachine)
-
-(use-package git-link
-  :defer t)
-
-(use-package git-gutter
-  :hook (prog-mode . git-gutter-mode)
-  :diminish git-gutter-mode
-  :config
-  (setq git-gutter:update-interval 1))
-
-(use-package git-gutter-fringe
-  :after git-gutter
-  :config
-  (setq git-gutter-fr:side 'left-fringe)
-  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
-  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
-  (define-fringe-bitmap 'git-gutter-fr:deleted [224] nil nil '(center repeated)))
-
-(use-package hl-todo
-  :defer t
-  :custom-face (hl-todo ((t (:box t :inherit))))
-  :bind (:map hl-todo-mode-map
-              ([C-f3] . hl-todo-occur)
-              ("C-c t p" . hl-todo-previous)
-              ("C-c t n" . hl-todo-next)
-              ("C-c t o" . hl-todo-occur))
-  :hook (after-init . global-hl-todo-mode))
-
-
-(use-package crux
+;;; Corfu (in-buffer completion popup)
+(use-package corfu
   :ensure t
-  :bind (("C-c o o" . crux-open-with)
-         ("C-c o u" . crux-view-url)
-         ("C-a" . crux-move-beginning-of-line)
-         ("C-c f" . crux-recentf-find-file)))
+  :hook (after-init . global-corfu-mode)
+  ;; I also have (setq tab-always-indent 'complete) for TAB to complete
+  ;; when it does not need to perform an indentation change.
+  :bind (:map corfu-map ("<tab>" . corfu-complete))
+  :config
+  (setq corfu-preview-current nil)
+  (setq corfu-min-width 20)
+
+  (setq corfu-popupinfo-delay '(1.25 . 0.5))
+  (corfu-popupinfo-mode 1) ; shows documentation after `corfu-popupinfo-delay'
+
+  ;; Sort by input history (no need to modify `corfu-sort-function').
+  (with-eval-after-load 'savehist
+    (corfu-history-mode 1)
+    (add-to-list 'savehist-additional-variables 'corfu-history)))
 
 (use-package treemacs
+  :ensure t
   :commands (treemacs treemacs-select-window)
   :hook (treemacs-mode . treemacs-project-follow-mode)
   :bind ("M-J" . treemacs-find-file)
@@ -641,8 +658,10 @@
 (use-package treemacs-magit
   :after treemacs magit)
 
-(use-package treemacs-projectile
-  :after (treemacs projectile))
+(use-package project-treemacs
+  :demand t
+  :after treemacs
+  )
 
 (use-package treemacs-nerd-icons
   :after treemacs
@@ -658,91 +677,244 @@
   (setq flyspell-issue-message-flag nil
         ispell-local-dictionary "sv-SE"
         ispell-program-name "aspell"))
-(provide 'init)
 
-(use-package indent-bars
-  :ensure nil
-  :custom
-  (indent-bars-treesit-support t)
-  (indent-bars-no-descend-string t)
-  (indent-bars-treesit-ignore-blank-lines-types '("module"))
-  (indent-bars-treesit-wrap '((python argument_list parameters ; for python, as an example
-				                              list list_comprehension
-				                              dictionary dictionary_comprehension
-				                              parenthesized_expression subscript)))
-  :hook (prog-mode . indent-bars-mode))
+;; ========== js settings ========
 
-(use-package vterm
-  :commands vterm
-  :config
-  (add-hook 'vterm-mode-hook (lambda () (setq-local global-hl-line-mode nil)))
-  (setq vterm-timer-delay nil))
+(use-package treesit
+  :mode (("\\.tsx\\'" . tsx-ts-mode)
+         ("\\.js\\'"  . typescript-ts-mode)
+         ("\\.mjs\\'" . typescript-ts-mode)
+         ("\\.mts\\'" . typescript-ts-mode)
+         ("\\.cjs\\'" . typescript-ts-mode)
+         ("\\.ts\\'"  . typescript-ts-mode)
+         ("\\.jsx\\'" . tsx-ts-mode)
+         ("\\.json\\'" .  json-ts-mode)
+         ("\\.Dockerfile\\'" . dockerfile-ts-mode)
+         ("\\.prisma\\'" . prisma-ts-mode)
+         ;; More modes defined here...
+         )
+  :preface
+  (defun os/setup-install-grammars ()
+    "Install Tree-sitter grammars if they are absent."
+    (interactive)
+    (dolist (grammar
+             '((css . ("https://github.com/tree-sitter/tree-sitter-css" "v0.20.0"))
+               (bash "https://github.com/tree-sitter/tree-sitter-bash")
+               (html . ("https://github.com/tree-sitter/tree-sitter-html" "v0.20.1"))
+               (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript" "v0.21.2" "src"))
+               (json . ("https://github.com/tree-sitter/tree-sitter-json" "v0.20.2"))
+               (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.20.4"))
+               (go "https://github.com/tree-sitter/tree-sitter-go" "v0.20.0")
+               (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+               (make "https://github.com/alemuller/tree-sitter-make")
+               (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+               (cmake "https://github.com/uyha/tree-sitter-cmake")
+               (c "https://github.com/tree-sitter/tree-sitter-c")
+               (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+               (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
+               (toml "https://github.com/tree-sitter/tree-sitter-toml")
+               (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src"))
+               (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "typescript/src"))
+               (yaml . ("https://github.com/ikatyang/tree-sitter-yaml" "v0.5.0"))
+               (prisma "https://github.com/victorhqc/tree-sitter-prisma")))
+      (add-to-list 'treesit-language-source-alist grammar)
+      ;; Only install `grammar' if we don't already have it
+      ;; installed. However, if you want to *update* a grammar then
+      ;; this obviously prevents that from happening.
+      (unless (treesit-language-available-p (car grammar))
+        (treesit-install-language-grammar (car grammar)))))
 
-(use-package web-mode
-  :ensure t
-  :mode (("\\.ts\\'" . web-mode)
-         ("\\.js\\'" . web-mode)
-         ("\\.mjs\\'" . web-mode)
-         ("\\.tsx\\'" . web-mode)
-         ("\\.jsx\\'" . web-mode))
-  :hook (web-mode . eglot-ensure)
-  :config
-  (setq web-mode-content-types-alist
-        '(("jsx" . "\\.js[x]?\\'"))))
-
-;; --- Debugging
-(use-package dape
-  ;; By default dape shares the same keybinding prefix as `gud'
-  ;; If you do not want to use any prefix, set it to nil.
-  ;; :preface
-  ;; (setq dape-key-prefix "\C-x\C-a")
+  ;; Optional, but recommended. Tree-sitter enabled major modes are
+  ;; distinct from their ordinary counterparts.
   ;;
-  ;; May also need to set/change gud (gdb-mi) key prefix
-  ;; (setq gud-key-prefix "\C-x\C-a")
+  ;; You can remap major modes with `major-mode-remap-alist'. Note
+  ;; that this does *not* extend to hooks! Make sure you migrate them
+  ;; also
+  (dolist (mapping
+           '((python-mode . python-ts-mode)
+             (css-mode . css-ts-mode)
+             (typescript-mode . typescript-ts-mode)
+             (js-mode . typescript-ts-mode)
+             (js2-mode . typescript-ts-mode)
+             (c-mode . c-ts-mode)
+             (c++-mode . c++-ts-mode)
+             (c-or-c++-mode . c-or-c++-ts-mode)
+             (bash-mode . bash-ts-mode)
+             (css-mode . css-ts-mode)
+             (json-mode . json-ts-mode)
+             (js-json-mode . json-ts-mode)
+             (ruby-mode . ruby-ts-mode)
+             (sh-mode . bash-ts-mode)
+             (sh-base-mode . bash-ts-mode)))
+    (add-to-list 'major-mode-remap-alist mapping))
+  :config
+  (os/setup-install-grammars))
 
-  :hook
-  ;; Save breakpoints on quit
-  ((kill-emacs . dape-breakpoint-save)
-  ;; Load breakpoints on startup
-   (after-init . dape-breakpoint-load))
+
+;; ============= LSP ==============
+
+(use-package lsp-mode
+  :diminish "LSP"
+  :ensure t
+  :hook ((lsp-mode . lsp-diagnostics-mode)
+         (lsp-mode . lsp-enable-which-key-integration)
+         ((tsx-ts-mode
+           typescript-ts-mode
+           js-ts-mode
+           js-mode) . lsp-deferred))
+  :custom
+  (lsp-keymap-prefix "C-c l")           ; Prefix for LSP actions
+  (lsp-completion-provider :none)       ; Using Corfu as the provider
+  (lsp-diagnostics-provider :flymake)
+  (lsp-session-file (locate-user-emacs-file ".lsp-session"))
+  (lsp-log-io nil)                      ; IMPORTANT! Use only for debugging! Drastically affects performance
+  (lsp-keep-workspace-alive nil)        ; Close LSP server if all project buffers are closed
+  (lsp-idle-delay 0.5)                  ; Debounce timer for `after-change-function'
+  ;; core
+  (lsp-enable-xref t)                   ; Use xref to find references
+  (lsp-auto-configure t)                ; Used to decide between current active servers
+  (lsp-eldoc-enable-hover t)            ; Display signature information in the echo area
+  (lsp-enable-dap-auto-configure t)     ; Debug support
+  (lsp-enable-file-watchers nil)
+  (lsp-enable-folding nil)              ; I disable folding since I use origami
+  (lsp-enable-imenu t)
+  (lsp-enable-indentation nil)          ; I use prettier
+  (lsp-enable-links nil)                ; No need since we have `browse-url'
+  (lsp-enable-on-type-formatting nil)   ; Prettier handles this
+  (lsp-enable-suggest-server-download t) ; Useful prompt to download LSP providers
+  (lsp-enable-symbol-highlighting t)     ; Shows usages of symbol at point in the current buffer
+  (lsp-enable-text-document-color nil)   ; This is Treesitter's job
+
+  (lsp-ui-sideline-show-hover nil)      ; Sideline used only for diagnostics
+  (lsp-ui-sideline-diagnostic-max-lines 20) ; 20 lines since typescript errors can be quite big
+  ;; completion
+  (lsp-completion-enable t)
+  (lsp-completion-enable-additional-text-edit t) ; Ex: auto-insert an import for a completion candidate
+  (lsp-enable-snippet t)                         ; Important to provide full JSX completion
+  (lsp-completion-show-kind t)                   ; Optional
+  ;; headerline
+  (lsp-headerline-breadcrumb-enable t)  ; Optional, I like the breadcrumbs
+  (lsp-headerline-breadcrumb-enable-diagnostics nil) ; Don't make them red, too noisy
+  (lsp-headerline-breadcrumb-enable-symbol-numbers nil)
+  (lsp-headerline-breadcrumb-icons-enable nil)
+  ;; modeline
+  (lsp-modeline-code-actions-enable nil) ; Modeline should be relatively clean
+  (lsp-modeline-diagnostics-enable nil)  ; Already supported through `flycheck'
+  (lsp-modeline-workspace-status-enable nil) ; Modeline displays "LSP" when lsp-mode is enabled
+  (lsp-signature-doc-lines 1)                ; Don't raise the echo area. It's distracting
+  (lsp-ui-doc-use-childframe t)              ; Show docs for symbol at point
+  (lsp-eldoc-render-all nil)            ; This would be very useful if it would respect `lsp-signature-doc-lines', currently it's distracting
+  ;; lens
+  (lsp-lens-enable nil)                 ; Optional, I don't need it
+  ;; semantic
+  (lsp-semantic-tokens-enable nil)      ; Related to highlighting, and we defer to treesitter
 
   :init
-  ;; To use window configuration like gud (gdb-mi)
-  (setq dape-buffer-window-arrangement 'gud)
+  (setq lsp-use-plists t)
 
   :config
-  ;; Info buffers to the right
-  (setq dape-buffer-window-arrangement 'right)
+  ;; (lsp-register-client
+  ;;  (make-lsp-client :new-connection (lsp-stdio-connection '("typescript-language-server" "--stdio"))
+  ;;                   :major-modes '(typescript-ts-mode)
+  ;;                   :server-id 'ts-ls))
+  :preface
+  (defun lsp-booster--advice-json-parse (old-fn &rest args)
+    "Try to parse bytecode instead of json."
+    (or
+     (when (equal (following-char) ?#)
 
-  ;; To not display info and/or buffers on startup
-  ;; (remove-hook 'dape-on-start-hooks 'dape-info)
-  ;; (remove-hook 'dape-on-start-hooks 'dape-repl)
+       (let ((bytecode (read (current-buffer))))
+         (when (byte-code-function-p bytecode)
+           (funcall bytecode))))
+     (apply old-fn args)))
+  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+    "Prepend emacs-lsp-booster command to lsp CMD."
+    (let ((orig-result (funcall old-fn cmd test?)))
+      (if (and (not test?)                             ;; for check lsp-server-present?
+               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+               lsp-use-plists
+               (not (functionp 'json-rpc-connection))  ;; native json-rpc
+               (executable-find "emacs-lsp-booster"))
+          (progn
+            (message "Using emacs-lsp-booster for %s!" orig-result)
+            (cons "emacs-lsp-booster" orig-result))
+        orig-result)))
+  :init
+  (setq lsp-use-plists t)
+  ;; Initiate https://github.com/blahgeek/emacs-lsp-booster for performance
+  (advice-add (if (progn (require 'json)
+                         (fboundp 'json-parse-buffer))
+                  'json-parse-buffer
+                'json-read)
+              :around
+              #'lsp-booster--advice-json-parse)
+  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command))
 
-  ;; To display info and/or repl buffers on stopped
-  ;; (add-hook 'dape-on-stopped-hooks 'dape-info)
-  ;; (add-hook 'dape-on-stopped-hooks 'dape-repl)
+;; ====== end lsp-mode 
 
-  ;; Kill compile buffer on build success
-  ;; (add-hook 'dape-compile-compile-hooks 'kill-buffer)
-
-  ;; Save buffers on startup, useful for interpreted languages
-  (add-hook 'dape-on-start-hooks (lambda () (save-some-buffers t t)))
-
-  ;; Projectile users
-  (setq dape-cwd-fn 'projectile-project-root)
-  )
-
-;; --- JS dev
-
-(add-hook 'js-mode-hook 'eglot-ensure)
-(add-hook 'typescript-mode-hook 'eglot-ensure)
-
-;; --- Ruby dev 
-
-;; lsp 
-(with-eval-after-load 'eglot
- (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
+;; (use-package lsp-mode
+;;   :ensure t
+;;   :init
+;;   (setq lsp-keymap-prefix "C-c l")
+;;   :hook ((typescript-mode . lsp-deferred)
+;;          (typescript-ts-mode . lsp-deferred)
+;;          (js-mode . lsp-deferred)
+;;          (lsp-mode . lsp-enable-which-key-integration))
+;;   :config
+;;   (setq lsp-typescript-server 'typescript-javascript-server)
+;;   ;; Optional: Specify the path to the TypeScript language server
+;;   (setq lsp-typescript-server-path "/opt/homebrew/bin/typescript-language-server")
+;;   ;; Optional: Enable logging for troubleshooting
+;;   (setq lsp-log-level 'debug))
 
 
-;;; init.el ends here
-;; (put 'narrow-to-region 'disabled nil)
+(use-package lsp-ui
+  :ensure t
+  :commands
+  (lsp-ui-doc-show
+   lsp-ui-doc-glance)
+  :bind (:map lsp-mode-map
+              ("C-c C-d" . 'lsp-ui-doc-glance))
+  :after (lsp-mode evil)
+  :config (setq lsp-ui-doc-enable t
+                evil-lookup-func #'lsp-ui-doc-glance ; Makes K in evil-mode toggle the doc for symbol at point
+                lsp-ui-doc-show-with-cursor nil      ; Don't show doc when cursor is over symbol - too distracting
+                lsp-ui-doc-include-signature t       ; Show signature
+                lsp-ui-doc-position 'at-point))
+
+(use-package lsp-eslint
+  :demand t
+  :after lsp-mode
+  :config
+  (setq lsp-eslint-server-command '("eslint-lsp" "--stdio")))
+
+(use-package lsp-tailwindcss
+  :init (setq lsp-tailwindcss-add-on-mode t)
+  :config
+  (dolist (tw-major-mode
+           '(css-mode
+             css-ts-mode
+             typescript-mode
+             typescript-ts-mode
+             tsx-ts-mode
+             js2-mode
+             js-ts-mode
+             clojure-mode))
+    (add-to-list 'lsp-tailwindcss-major-modes tw-major-mode)))
+
+(use-package apheleia
+  :ensure t
+  :diminish ""
+  :defines
+  apheleia-formatters
+  apheleia-mode-alist
+  :functions
+  apheleia-global-mode
+  :config
+  (setf (alist-get 'prettier-json apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath))
+  (apheleia-global-mode +1))
+
+
+
+;;==== end of init ======

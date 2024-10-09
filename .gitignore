@@ -24,3 +24,5 @@
 /hackernews/
 /projectile.cache
 /tree-sitter/
+eshell/*
+eshell*

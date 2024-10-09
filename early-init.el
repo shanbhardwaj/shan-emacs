@@ -43,6 +43,8 @@ c/aarch64-apple-darwin23/13")
 (push '(vertical-scroll-bars . nil) default-frame-alist)
 ;;(push '(background-color . "#1e1e2e") default-frame-alist)
 
+(setenv "LSP_USE_PLISTS" "true") ;; in early-init.el
+
  (setq frame-inhibit-implied-resize t
       frame-resize-pixelwise t
       frame-title-format nil
