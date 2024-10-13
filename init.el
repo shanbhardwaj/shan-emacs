@@ -302,6 +302,12 @@
 
 (use-package indent-bars
   :ensure nil
+  :config
+  (setq
+   indent-bars-color '(highlight :face-bg t :blend 0.3)
+   indent-bars-pattern " . . . . ." ; play with the number of dots for your usual font size
+   indent-bars-width-frac 0.25
+   indent-bars-pad-frac 0.1)
   :custom
   (indent-bars-treesit-support t)
   (indent-bars-no-descend-string t)
@@ -678,6 +684,11 @@
         ispell-local-dictionary "sv-SE"
         ispell-program-name "aspell"))
 
+(use-package mise
+  :ensure t
+  :config
+  (add-hook 'after-init-hook #'global-mise-mode)) 
+
 ;; ========== js settings ========
 
 (use-package treesit
@@ -915,6 +926,148 @@
         '("prettier" "--stdin-filepath" filepath))
   (apheleia-global-mode +1))
 
+;; ==== Mu4e =====
+(use-package mu4e
+  :load-path  "/opt/homebrew/Cellar/mu/1.12.6/share/emacs/site-lisp/mu/mu4e/"
+  :config
+  (setq mu4e-maildir "~/Mail")
+  
+  (setq mu4e-mu-binary (executable-find "mu"))
+  ;; this command is called to sync imap servers:
+  (setq mu4e-get-mail-command (concat (executable-find "mbsync") " -a"))
+  ;; how often to call it in seconds:
+  (setq mu4e-update-interval 300)
+
+  ;; save attachment to desktop by default
+  (setq mu4e-attachment-dir "~/Downloads")
+
+  ;; rename files when moving - needed for mbsync:
+  (setq mu4e-change-filenames-when-moving t)
+
+  ;; list of your email adresses:
+  (setq mu4e-user-mail-address-list '("bhardwaj.10@gmail.com"
+                                      "shan@addvalsolutions.com"
+                                      "shantanu@kulcare.com")))
+
+(require 'mu4e)
+
+(setq mu4e-maildir-shortcuts
+      '(("/Kulcare/Inbox"             . ?k)
+        ("/Addval/Inbox"              . ?a)
+        ("/Gmail/Inbox"               . ?g)
+        ("/Kulcare/[Gmail]/Sent Mail" . ?s)
+        ("/Kulcare/[Gmail]/Trash"     . ?t)
+        ("/Kulcare/[Gmail]/Drafts"    . ?d)
+        ("/Kulcare/[Gmail]/All Mail"  . ?l)))
+
+;; the following is to show shortcuts in the main view.
+(add-to-list 'mu4e-bookmarks
+             '(:name "Inbox - Gmail"
+                     :query "maildir:/gmail/INBOX"
+                     :key ?g))
+(add-to-list 'mu4e-bookmarks
+             '(:name "Inbox - Addval"
+                     :query "maildir:/addval/INBOX"
+                     :key ?a))
+(add-to-list 'mu4e-bookmarks
+             '(:name "Inbox - Kulcare"
+                     :query "maildir:/kulcare/INBOX"
+                     :key ?k))
+
+(setq mu4e-contexts
+      '(,
+        ;; Addval account
+        (make-mu4e-context
+         :name "Addval"
+         :match-func
+         (lambda (msg)
+           (when msg
+             (string-prefix-p "/Addval" (mu4e-message-field msg :maildir))))
+         :vars '((user-mail-address . "shan@addvalsolutions.com")
+                 (user-full-name    . "Shantanu Bhardwaj")
+                 (smtpmail-smtp-server  . "smtp.gmail.com")
+                 (smtpmail-smtp-service . 465)
+                 (smtpmail-stream-type  . ssl)
+                 (mu4e-drafts-folder  . "/Addval/[Gmail]/Drafts")
+                 (mu4e-sent-folder  . "/Addval/[Gmail]/Sent Mail")
+                 (mu4e-refile-folder  . "/Addval/[Gmail]/All Mail")
+                 (mu4e-trash-folder  . "/Addval/[Gmail]/Trash")))
+
+        ;; Kulcare account
+        ,(make-mu4e-context
+          :name "Kulcare"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Kulcare" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "shantanu@kulcare.com")
+                  (user-full-name    . "Shantanu Bhardwaj")
+                  (smtpmail-smtp-server  . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 465)
+                  (smtpmail-stream-type  . ssl)
+                  (mu4e-drafts-folder  . "/Kulcare/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Kulcare/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Kulcare/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Kulcare/[Gmail]/Trash")))
+
+        ;; ;; Codetiger account
+        ;; ,(make-mu4e-context
+        ;;  :name "Codetiger"
+        ;;  :match-func
+        ;;  (lambda (msg)
+        ;;    (when msg
+        ;;      (string-prefix-p "/Codetiger" (mu4e-message-field msg :maildir))))
+        ;;  :vars '((user-mail-address . "shan@codetiger.com")
+        ;;          (user-full-name    . "Shan Bhardwaj")
+        ;;          (smtpmail-smtp-server  . "smtp.gmail.com")
+        ;;          (smtpmail-smtp-service . 465)
+        ;;          (smtpmail-stream-type  . ssl)
+        ;;          (mu4e-drafts-folder  . "/Codetiger/[Gmail]/Drafts")
+        ;;          (mu4e-sent-folder  . "/Codetiger/[Gmail]/Sent Mail")
+        ;;          (mu4e-refile-folder  . "/Codetiger/[Gmail]/All Mail")
+        ;;          (mu4e-trash-folder  . "/Codetiger/[Gmail]/Trash")))
+
+        ;; Gmail account
+        ,(make-mu4e-context
+          :name "Gmail"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Gmail" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "bhardwaj.10@gmail.com")
+                  (user-full-name    . "Shantanu Bhardwaj")
+                  (smtpmail-smtp-server  . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 465)
+                  (smtpmail-stream-type  . ssl)
+                  (mu4e-drafts-folder  . "/Gmail/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Gmail/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Gmail/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Gmail/[Gmail]/Trash")))
+        ))
+
+
+;; sending email
+;; --------------
+
+;; Make sure plain text mails flow correctly for recipients
+(setq mu4e-compose-format-flowed t)
+
+;; don't keep message compose buffers around after sending:
+(setq message-kill-buffer-on-exit t)
+
+;; Only ask if a context hasn't been previously picked
+(setq mu4e-compose-context-policy 'ask-if-none)
+
+;; send function:
+(setq send-mail-function 'sendmail-send-it
+      message-send-mail-function 'sendmail-send-it)
+
+;; send program:
+;; this is exeranal. remember we installed it before.
+(setq sendmail-program (executable-find "msmtp"))
+
+;; select the right sender email from the context.
+(setq message-sendmail-envelope-from 'header)
 
 
 ;;==== end of init ======
