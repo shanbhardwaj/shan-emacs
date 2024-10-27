@@ -26,3 +26,7 @@
 /tree-sitter/
 eshell/*
 eshell*
+etc/yasnippet/snippets
+local-packages
+*lsp*
+*custom*
