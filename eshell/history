@@ -41,3 +41,14 @@ exit
 createdb shan
 psql -U shan -l
 exit
+cd ~/Downloads/Ruby_test
+ls
+ruby ruby_script.rb 
+ls 
+ruby ruby_script.rb 
+ruby ruby_script.rb 
+ruby ruby_script.rb 
+ruby ruby_script.rb 
+ruby ruby_script.rb 
+ollama list 
+exit

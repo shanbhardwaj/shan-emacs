@@ -1,11 +1,5 @@
-;;; Init.el --- -*- lexical-binding: t -*-
-;;; Code:
-
-;; (eval-when-compile (defvar display-time-24hr-format t))
-(eval-when-compile (defvar display-time-default-load-average nil))
-
-;; Install and configure packages
-(require 'package)
+(setq user-full-name "Shantanu Bhardwaj"
+      user-mail-address "shan@addvalsolutions.com")
 
 ;; Add only the MELPA archive
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -14,17 +8,10 @@
 (package-initialize)
 
 (require 'use-package)
-
 (use-package exec-path-from-shell
   :ensure t
   :config
   (exec-path-from-shell-initialize))
-
-;; Configure a package
-(use-package org
-  :ensure t
-  :config
-  (setq org-log-done 'time))
 
 (use-package auto-package-update
   :defer t
@@ -33,65 +20,6 @@
         auto-package-update-prompt-before-update t
         auto-package-update-hide-results nil))
 
-
-(display-battery-mode t)        ;; Show battery.
-(display-time-mode t)           ;; Show time.
-(fset 'yes-or-no-p 'y-or-n-p)   ;; Set yes or no to y/n
-(global-auto-revert-mode)       ;; Refresh a buffer if changed on disk
-(global-hl-line-mode 1)         ;; Highlight current line
-(blink-cursor-mode -1)          ;; Disable blingking cursor
-(recentf-mode t)                ;; Turn on recent files mode
-
-;; (pixel-scroll-precision-mode 1)
-;; Enable pixel-based scrolling
-;; (require 'pixel-scroll)
-;; (pixel-scroll-mode 1)
-
-;; Customize pixel-based scrolling
-;; (setq pixel-scroll-precision-large-scroll-height 10)
-;; (setq pixel-scroll-precision-interpolate-page t)
-;; (setq pixel-scroll-precision-use-momentum t)
-
-(setq ad-redefinition-action            'accept
-      global-auto-revert-non-file-buffers t
-      auto-revert-check-vc-info         t
-      backup-by-copying                 t
-      backup-directory-alist            '(("." . "~/.emacs.d/backups"))
-      cursor-in-non-selected-windows    nil
-      byte-compile-warnings             '(ck-functions)
-      confirm-kill-processes            nil
-      create-lockfiles                  nil
-      echo-keystrokes                   0.2
-      column-number-mode                t
-      find-file-visit-truename          t
-      font-lock-maximum-decoration      t
-      highlight-nonselected-windows     t
-      fast-but-imprecise-scrolling      t
-      jit-lock-defer-time               nil
-      kill-buffer-query-functions       nil    ;; Dont ask for closing spawned processes
-      scroll-margin                     0   ;; scroll N to screen edge
-      load-prefer-newer                 t
-      use-dialog-box                    nil
-      visible-bell                      nil
-      word-wrap                         nil
-      auto-mode-case-fold               nil
-      truncate-lines                    t
-      truncate-string-ellipsis          ".."
-      undo-limit                        6710886400 ;; 64mb
-      undo-strong-limit                 100663296 ;; x 1.5 (96mb)
-      undo-outer-limit                  1006632960) ;; x 10 (960mb), (Emacs uses x100), but this seems too high.
-
-(setq-default display-line-numbers-width    3       ;; Set so we can display thousands of lines
-              c-basic-offset                2            ;; Set tab indent for c/c++ to 4 tabs
-              ediff-forward-word-function   'forward-char
-              ediff-split-window-function   'split-window-horizontally
-              tab-width                     2            ;: Use four tabs
-              indent-tabs-mode              nil			 ;; Never use tabs. Use spaces instead
-              truncate-lines                t
-              indent-line-function          'insert-tab  ;; Use function to insert tabs
-              history-length                100
-              uniquify-buffer-name-style    'forward)
-
 (let* ((dir (expand-file-name (concat user-emacs-directory "local-packages")))
        (default-directory dir))
   (when (file-directory-p dir)
@@ -99,29 +27,420 @@
     (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
         (normal-top-level-add-subdirs-to-load-path))))
 
-;; (add-to-list 'custom-theme-load-path (concat user-emacs-directory "themes/"))
+(use-package emacs
+  :ensure nil 
+  :custom                                         ;; Set custom variables to configure Emacs behavior.
+  (column-number-mode t)                          ;; Display the column number in the mode line.
+  (auto-save-default nil)                         ;; Disable automatic saving of buffers.
+  (create-lockfiles nil)                          ;; Prevent the creation of lock files when editing.
+  (delete-by-moving-to-trash t)                   ;; Move deleted files to the trash instead of permanently deleting them.
+  (delete-selection-mode 1)                       ;; Enable replacing selected text with typed text.
+  (display-line-numbers-type 'relative)           ;; Use relative line numbering in programming modes.
+  (global-auto-revert-non-file-buffers t)         ;; Automatically refresh non-file buffers.
+  (history-length 25)                             ;; Set the length of the command history.
+  (ispell-dictionary "en_US")                     ;; Set the default dictionary for spell checking.
+  (make-backup-files nil)                         ;; Disable creation of backup files.
+  (pixel-scroll-precision-mode t)                 ;; Enable precise pixel scrolling.
+  (pixel-scroll-precision-use-momentum nil)       ;; Disable momentum scrolling for pixel precision.
+  (ring-bell-function 'ignore)                    ;; Disable the audible bell.
+  (split-width-threshold 300)                     ;; Prevent automatic window splitting if the window width exceeds 300 pixels.
+  (switch-to-buffer-obey-display-actions t)       ;; Make buffer switching respect display actions.
+  (tab-always-indent 'complete)                   ;; Make the TAB key complete text instead of just indenting.
+  (tab-width 2)                                   ;; Set the tab width to 4 spaces.
+  (treesit-font-lock-level 4)                     ;; Use advanced font locking for Treesit mode.
+  (truncate-lines t)                              ;; Enable line truncation to avoid wrapping long lines.
+  (use-dialog-box nil)                            ;; Disable dialog boxes in favor of minibuffer prompts.
+  (use-short-answers t)                           ;; Use short answers in prompts for quicker responses (y instead of yes)
+  (warning-minimum-level :emergency)              ;; Set the minimum level of warnings to display.
+  (uniquify-buffer-name-style    'forward)
 
-;; On macos use our custom settings ---------------------
-(when (eq system-type 'darwin)
-  ;; (set-fontset-font t nil "SF Pro Display" nil 'append)
-  ;; (set-fontset-font t nil "SF Mono" nil 'append)
+  :hook                                           ;; Add hooks to enable specific features in certain modes.
+  (prog-mode . display-line-numbers-mode)         ;; Enable line numbers in programming modes.
+
+  :config
+  ;; By default emacs gives you access to a lot of *special* buffers, while navigating with [b and ]b,
+  ;; This settings make sure ]b and [b will always load a file buffer. 
+  (defun skip-these-buffers (_window buffer _bury-or-kill)
+    "Function for `switch-to-prev-buffer-skip'."
+    (string-match "\\*[^*]+\\*" (buffer-name buffer)))
+  (setq switch-to-prev-buffer-skip 'skip-these-buffers)
+
+  ;; Save manual customizations to a separate file instead of cluttering `init.el'.
+  (setq custom-file (locate-user-emacs-file "custom-vars.el")) ;; Specify the custom file path.
+  (load custom-file 'noerror 'nomessage)                       ;; Load the custom file quietly, ignoring errors.
+
+  ;; Makes Emacs vertical divisor the symbol │ instead of |.
+  (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+
+  :init                        ;; Initialization settings that apply before the package is loaded.
+  (tool-bar-mode -1)           ;; Disable the tool bar for a cleaner interface.
+  (menu-bar-mode -1)           ;; Disable the menu bar for a more streamlined look.
+
+  (when scroll-bar-mode
+    (scroll-bar-mode -1))      ;; Disable the scroll bar if it is active.
+
+  (global-hl-line-mode 1)      ;; Enable highlight of the current line 
+  (global-auto-revert-mode 1)  ;; Enable global auto-revert mode to keep buffers up to date with their corresponding files.
+  (indent-tabs-mode -1)        ;; Disable the use of tabs for indentation (use spaces instead).
+  (recentf-mode 1)             ;; Enable tracking of recently opened files.
+  (savehist-mode 1)            ;; Enable saving of command history.
+  (save-place-mode 1)          ;; Enable saving the place in files for easier return.
+  (winner-mode 1)              ;; Enable winner mode to easily undo window configuration changes.
+  (xterm-mouse-mode 1)         ;; Enable mouse support in terminal mode.
+  (file-name-shadow-mode 1)    ;; Enable shadowing of filenames for clarity.
+
+  ;; Set the default coding system for files to UTF-8.
+  (modify-coding-system-alist 'file "" 'utf-8)
+
+  ;; Add a hook to run code after Emacs has fully initialized.
+  (add-hook 'after-init-hook
+  					(lambda ()
+  						(message "Emacs has fully loaded. This code runs after startup.")
+
+  						;; Insert a welcome message in the *scratch* buffer displaying loading time and activated packages.
+  						(with-current-buffer (get-buffer-create "*scratch*")
+  							(insert (format
+  											 ";;    Welcome to Emacs!
+  ;;
+  ;;    Loading time : %s
+  ;;    Packages     : %s
+  "
+  											 (emacs-init-time)
+  											 (number-to-string (length package-activated-list))))))))
+
+(use-package window
+  :ensure nil       ;; This is built-in, no need to fetch it.
+  :custom
+  (display-buffer-alist
+   '(
+     ;; ("\\*.*e?shell\\*"
+     ;;  (display-buffer-in-side-window)
+     ;;  (window-height . 0.25)
+     ;;  (side . bottom)
+     ;;  (slot . -1))
+     
+     ("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|[Hh]elp\\|Messages\\|Bookmark List\\|Ibuffer\\|Occur\\|eldoc.*\\)\\*"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 0))
+
+     ;; Example configuration for the LSP help buffer,
+     ;; keeps it always on bottom using 25% of the available space:
+     ("\\*\\(lsp-help\\)\\*"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 0))
+     
+     ;; Configuration for displaying various diagnostic buffers on
+     ;; bottom 25%:
+     ("\\*\\(Flymake diagnostics\\|xref\\|ivy\\|Swiper\\|Completions\\)"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 1))
+     )))
+
+(use-package dired
+  :ensure nil                                                ;; This is built-in, no need to fetch it.
+  :custom
+  (dired-listing-switches "-lah --group-directories-first")  ;; Display files in a human-readable format and group directories first.
+  (dired-dwim-target t)                                      ;; Enable "do what I mean" for target directories.
+  (dired-guess-shell-alist-user
+   '(("\\.\\(png\\|jpe?g\\|tiff\\)" "feh" "xdg-open" "open") ;; Open image files with `feh' or the default viewer.
+     ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv" "xdg-open" "open") ;; Open audio and video files with `mpv'.
+     (".*" "open" "xdg-open")))                              ;; Default opening command for other files.
+  (dired-kill-when-opening-new-dired-buffer t)               ;; Close the previous buffer when opening a new `dired' instance.
+  :config
+  (when (eq system-type 'darwin)
+    (let ((gls (executable-find "gls")))                     ;; Use GNU ls on macOS if available.
+      (when gls
+        (setq insert-directory-program gls)))))
+
+;; (use-package dired-hacks
+;;   :after dired
+;;   :ensure nil)
+
+(use-package erc
+  :defer t ;; Load ERC when needed rather than at startup. (Load it with `M-x erc RET')
+  :custom
+  (erc-join-buffer 'window)                                        ;; Open a new window for joining channels.
+  (erc-hide-list '("JOIN" "PART" "QUIT"))                          ;; Hide messages for joins, parts, and quits to reduce clutter.
+  (erc-timestamp-format "[%H:%M]")                                 ;; Format for timestamps in messages.
+  (erc-autojoin-channels-alist '((".*\\.libera\\.chat" "#emacs"))));; Automatically join the #emacs channel on Libera.Chat.
+
+(use-package isearch
+  :ensure nil                                  ;; This is built-in, no need to fetch it.
+  :config
+  (setq isearch-lazy-count t)                  ;; Enable lazy counting to show current match information.
+  (setq lazy-count-prefix-format "(%s/%s) ")   ;; Format for displaying current match count.
+  (setq lazy-count-suffix-format nil)          ;; Disable suffix formatting for match count.
+  (setq search-whitespace-regexp ".*?")        ;; Allow searching across whitespace.
+  :bind (("C-s" . isearch-forward)             ;; Bind C-s to forward isearch.
+         ("C-r" . isearch-backward)))          ;; Bind C-r to backward isearch.
+
+(use-package vc
+  :ensure nil                        ;; This is built-in, no need to fetch it.
+  :defer t
+  :bind
+  (("C-x v d" . vc-dir)              ;; Open VC directory for version control status.
+   ("C-x v =" . vc-diff)             ;; Show differences for the current file.
+   ("C-x v D" . vc-root-diff)        ;; Show differences for the entire repository.
+   ("C-x v v" . vc-next-action))     ;; Perform the next version control action.
+  :config
+  ;; Better colors for <leader> g b  (blame file) 
+  (setq vc-annotate-color-map
+        '((20 . "#f5e0dc")
+          (40 . "#f2cdcd")
+          (60 . "#f5c2e7")
+          (80 . "#cba6f7")
+          (100 . "#f38ba8")
+          (120 . "#eba0ac")
+          (140 . "#fab387")
+          (160 . "#f9e2af")
+          (180 . "#a6e3a1")
+          (200 . "#94e2d5")
+          (220 . "#89dceb")
+          (240 . "#74c7ec")
+          (260 . "#89b4fa")
+          (280 . "#b4befe"))))
+
+(use-package smerge-mode
+  :ensure nil                                  ;; This is built-in, no need to fetch it.
+  :defer t
+  :bind (:map smerge-mode-map
+              ("C-c ^ u" . smerge-keep-upper)  ;; Keep the changes from the upper version.
+              ("C-c ^ l" . smerge-keep-lower)  ;; Keep the changes from the lower version.
+              ("C-c ^ n" . smerge-next)        ;; Move to the next conflict.
+              ("C-c ^ p" . smerge-previous)))  ;; Move to the previous conflict.
+
+(use-package eldoc
+  :ensure nil          ;; This is built-in, no need to fetch it.
+  :init
+  (global-eldoc-mode))
+
+;; TODO: add eldoc-box
+
+(use-package flymake
+  :ensure nil          ;; This is built-in, no need to fetch it.
+  :defer t
+  :hook (prog-mode . flymake-mode)
+  :custom
+  (flymake-margin-indicators-string
+   '((error "!»" compilation-error) (warning "»" compilation-warning)
+     (note "»" compilation-info))))
+
+(use-package which-key
+  :ensure nil     ;; This is built-in, no need to fetch it.
+  :defer t        ;; Defer loading Which-Key until after init.
+  :hook
+  (after-init . which-key-mode)) ;; Enable which-key mode after initialization.
+
+(defun align-values (start end)
+  "Vertically aligns region based on lengths of the first value of each line.
+    Example output:
+
+            foo        bar
+            foofoo     bar
+            foofoofoo  bar"
+  (interactive "r")
+  (align-regexp start end
+                "\\([a-z_]+: \\)"
+                -1 1 nil))
+
+;; (defun fontify-frame (frame)
+;;   (interactive)
+;;   (if sys/macp
+;;       (progn
+;;         (if (> (x-display-pixel-width) 4000)
+;;             (set-frame-parameter frame 'font "Monaco 14") ;; 5k Display
+;;           (set-frame-parameter frame 'font "Monaco 12")))))
+
+;; ;; Fontify current frame
+;; (fontify-frame nil)
+
+;; ;; Fontify any future frames
+;; (push 'fontify-frame after-make-frame-functions)
+
+(use-package nerd-icons
+  :ensure t)
+
+(use-package nerd-icons-completion
+  :ensure t
+  :after marginalia
+  ;; FIXME 2024-09-01: For some reason this stopped working because it
+  ;; macroexpands to `marginalia-mode' instead of
+  ;; `marginalia-mode-hook'.  What is more puzzling is that this does
+  ;; not happen in the next :hook...
+  ;; :hook (marginalia-mode . nerd-icons-completion-marginalia-setup))
+  :config
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package nerd-icons-dired
+  :hook (dired-mode . nerd-icons-dired-mode))
+
+(use-package nerd-icons-corfu
+  :ensure t
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+  ;; Optionally:
+  (setq nerd-icons-corfu-mapping
+        '((array :style "cod" :icon "symbol_array" :face font-lock-type-face)
+          (boolean :style "cod" :icon "symbol_boolean" :face font-lock-builtin-face)
+          ;; ...
+          (t :style "cod" :icon "code" :face font-lock-warning-face)))
+  ;; Remember to add an entry for `t', the library uses that as default.
+  )
+
+(use-package spacious-padding
+  :ensure t
+  :config
+  ;; (setq spacious-padding-widths
+  ;;       '( :internal-border-width 15
+  ;;          :header-line-width 4
+  ;;          :mode-line-width 6
+  ;;          :tab-width 4
+  ;;          :right-divider-width 30
+  ;;          :scroll-bar-width 8))
+  (spacious-padding-mode 1)
+  )
+
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+  			doom-themes-enable-italic t) ; if nil, italics is universally disabled
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  ;; (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  ;; (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
+
+;; Install and configure modus-themes
+(use-package ef-themes
+  :ensure nil)
+
+(use-package auto-dark
+  :ensure t
+  :custom
+  (auto-dark-themes '((doom-one) (doom-one-light)))
+  (auto-dark-polling-interval-seconds 300)
+  (auto-dark-allow-osascript t)
+  (auto-dark-allow-powershell nil)
+  ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
+  :hook
+  (auto-dark-dark-mode
+   . (lambda ()
+       ;; something to execute when dark mode is detected
+       ))
+  (auto-dark-light-mode
+   . (lambda ()
+       ;; something to execute when light mode is detected
+       ))
+  :init (auto-dark-mode))
+
+
+;; (defun reset-modeline()
+;;   "Reset the modeline to 12pt font"
+;;   (interactive)
+;;   (set-face-attribute 'mode-line nil :height 100)
+;;   (set-face-attribute 'mode-line-inactive nil :height 100)
+;;   (setq doom-modeline-height 12)
+;;   (set-face-attribute 'line-number nil :font "Monaco-10")
+;;   (set-face-attribute 'line-number-current-line nil :font "Monaco-10")
+;;   )
+
+;; (defun switch-theme (theme)
+;;   "Disables any currently active themes and loads THEME."
+;;   ;; This interactive call is taken from `load-theme'
+;;   (interactive
+;;    (list
+;;     (intern (completing-read "Load custom theme: "
+;;                              (mapc 'symbol-name
+;;                                    (custom-available-themes))))))
+;;   (let ((enabled-themes custom-enabled-themes))
+;;     (mapc #'disable-theme custom-enabled-themes)
+;;     (load-theme theme t)
+;;     (reset-modeline)
+;;     ))
+
+(defun disable-active-themes ()
+  "Disables any currently active themes listed in `custom-enabled-themes'."
+  (interactive)
+  (mapc #'disable-theme custom-enabled-themes))
+
+(bind-key "s-<f12>" 'consult-theme)
+(bind-key "s-<f11>" 'disable-active-themes)
+
+(use-package doom-modeline
+  :hook (after-init . doom-modeline-mode)
+  :custom    
+  (doom-modeline-height 20)
+  (doom-modeline-bar-width 1)
+  (doom-modeline-icon t)
+  (doom-modeline-major-mode-icon t)
+  (doom-modeline-major-mode-color-icon t)
+  (doom-modeline-time-analogue-clock nil)
+  (doom-modeline-buffer-file-name-style 'truncate-upto-project)
+  (doom-modeline-buffer-state-icon t)
+  (doom-modeline-buffer-modification-icon t)
+  (doom-modeline-minor-modes nil)
+  (doom-modeline-enable-word-count nil)
+  (doom-modeline-buffer-encoding t)
+  (doom-modeline-indent-info nil)
+  (doom-modeline-checker-simple-format t)
+  (doom-modeline-vcs-max-length 12)
+  (doom-modeline-env-version t)
+  (doom-modeline-irc-stylize 'identity)
+  (setq doom-modeline-github t)
+  (setq doom-modeline-battery-icon nil)
+  (setq doom-modeline-mu4e t)
+  (doom-modeline-github-timer nil)
+  (doom-modeline-gnus-timer nil))
+
+(set-face-attribute 'default nil :font "Iosevka Comfy" :height 140 :weight 'regular) 
+;; (set-face-attribute 'default nil :font "CaskaydiaMono Nerd Font" :height 140 :weight 'regular)
+
+(with-current-buffer " *Echo Area 0*" (face-remap-add-relative 'default '(:family "Monaco" :height 110)))
+
+;; Use monospaced font faces in current buffer
+(defun my-term-mode-face ()
+  "Sets a fixed width (monospace) font in current buffer"
+  (interactive)
+  (setq buffer-face-mode-face '(:family "Monaco" :height 100))
+  (buffer-face-mode))
+
+;; Don't count two spaces after a period as the end of a sentence.
+;; Just one space is needed.
+(setq sentence-end-double-space nil)
+
+;; -i gets alias definitions from .bash_profile
+(setq shell-command-switch "-ic")
+
+(global-unset-key (kbd "M-m"))
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+;; Bind C-c i to open init.el
+(global-set-key (kbd "C-c e") (lambda () (interactive) (find-file "~/.emacs.d/init.org")))
+
+(windmove-default-keybindings 'super)
+
+(when (string-equal system-type "darwin")
+
   (setq mac-option-key-is-meta nil
         mac-command-key-is-meta t
         mac-command-modifier 'meta
         mac-option-modifier 'super
+        mac-function-modifier 'hyper
         dired-use-ls-dired nil)
-  ;; typical mac bindings
-  ;; (global-set-key (kbd "M-s") 'save-buffer)
-  ;; (global-set-key (kbd "M-z") 'undo)
-
-  ;; Use Command-` to switch between Emacs windows (not frames)
-  (bind-key "A-`" 'other-window)
-
-  ;; Use Command-Shift-` to switch Emacs frames in reverse
-  (bind-key "s-~" (lambda() () (interactive) (other-window -1)))
-
-  ;; Because of the keybindings above, set one for `other-frame'
-  (bind-key "S-1" 'other-frame)
 
   ;; Fullscreen!
   (setq ns-use-native-fullscreen nil) ; Not Lion style
@@ -132,63 +451,123 @@
   (bind-key "s-]" 'next-buffer)
 
   (bind-key "M-C-w" 'restart-emacs)
-  )
 
-;; Bind C-c i to open init.el
-(global-set-key (kbd "C-c e") (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
 
-(defun vsplit-other-window ()
-  "Splits the window vertically and switches to that window."
-  (interactive)
-  (split-window-vertically)
-  (other-window 1 nil))
+  ;; delete files by moving them to the trash
+  (setq delete-by-moving-to-trash t)
+  (setq trash-directory "~/.Trash")
+  (setq ns-pop-up-frames nil)
 
-(defun hsplit-other-window ()
-  "Splits the window horizontally and switches to that window."
-  (interactive)
-  (split-window-horizontally)
-  (other-window 1 nil))
+  ;; Compiling
+  (bind-key "H-c" 'compile)
+  (bind-key "H-r" 'recompile)
+  (bind-key "H-s" (defun save-and-recompile () (interactive) (save-buffer) (recompile))))
 
-(bind-key "C-x 2" 'vsplit-other-window)
-(bind-key "C-x 3" 'hsplit-other-window)
+(use-package dabbrev
+  :ensure nil
+  :custom
+  (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
 
-;; ========= Fonts & Themes============
+(use-package expand-region
+  :bind ("C-=" . er/expand-region))
 
-(set-face-attribute 'default nil :font "Iosevka Comfy" :height 140 :weight 'regular) 
-;; (set-face-attribute 'default nil :font "AnonymicePro Nerd Font" :height 160 :weight 'normal)
+(use-package indent-guide
+  :defer t
+  :ensure t
+  :hook
+  (prog-mode . indent-guide-mode)  ;; Activate indent-guide in programming modes.
+  :config
+  (setq indent-guide-char "│"))    ;; Set the character used for the indent guide.
 
-(defun disable-active-themes ()
-  "Disables any currently active themes listed in `custom-enabled-themes'."
-  (interactive)
-  (mapc #'disable-theme custom-enabled-themes))
+;; (use-package svg-tag-mode
+;;   :hook (prog-mode . svg-tag-mode)
+;;   :config
+;;   (plist-put svg-lib-style-default :font-family "Monaco Nerd Font Mono")
+;;   (plist-put svg-lib-style-default :font-size 14)
+;;   ;; (require 'periphery)
+;;   ;; (setq svg-tag-tags (periphery-svg-tags))
+;;   )
 
-(bind-key "s-<f12>" 'consult-theme)
-(bind-key "s-<f11>" 'disable-active-themes)
+(use-package toml)
+(use-package gcmh
+  :diminish
+  :hook (after-init . gcmh-mode))
+(use-package diminish
+  :ensure t)
+
+(use-package neotree
+  :ensure t
+  :custom
+  (neo-show-hidden-files t)                ;; By default shows hidden files (toggle with H)
+  (neo-theme 'icons)                        ;; Set the default theme for Neotree to 'nerd' for a visually appealing look.
+  (neo-vc-integration '(face char))        ;; Enable VC integration to display file states with faces (color coding) and characters (icons).
+  :defer t)                                 ;; Load the package only when needed to improve startup time.
+
+(use-package helpful
+  :ensure t
+  :commands (helpful-callable helpful-variable helpful-command helpful-key)
+  :bind (("C-h f" . helpful-callable)
+         ("C-h v" . helpful-variable)
+         ("C-h k" . helpful-key)
+         ("C-h x" . helpful-command)
+         ("C-c C-d" . helpful-at-point)
+         ("C-c F" . helpful-function)))
+
+(use-package hl-todo
+  :ensure t
+  :defer t
+  :custom-face (hl-todo ((t (:box t :inherit))))
+  :bind (:map hl-todo-mode-map
+              ([C-f3] . hl-todo-occur)
+              ("C-c t p" . hl-todo-previous)
+              ("C-c t n" . hl-todo-next)
+              ("C-c t o" . hl-todo-occur))
+  :hook (after-init . global-hl-todo-mode))
 
 (use-package no-littering
   :ensure t
   :config
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   (require 'recentf)
-  (setq custom-file (expand-file-name "custom.el" user-emacs-directory)))
+  (add-to-list 'recentf-exclude
+               (recentf-expand-file-name no-littering-var-directory))
+  (add-to-list 'recentf-exclude
+               (recentf-expand-file-name no-littering-etc-directory))
+  )
 
-;; =========== Undo/Redo ============
-(use-package undo-fu
+(use-package multiple-cursors
   :ensure t
-  :config
-  (setq undo-fu-allow-undo-in-region t)
-  (global-unset-key (kbd "M-z"))
-  (global-set-key (kbd "M-z")   'undo-fu-only-undo)
-  (global-set-key (kbd "M-S-z") 'undo-fu-only-redo))
-
-(global-unset-key (kbd "C-z"))
+  :defer t
+  :bind (("C-S-c C-S-c" . mc/edit-lines)
+         ("C->"         . mc/mark-next-like-this)
+         ("C-<"         . mc/mark-previous-like-this)
+         ("C-c C-<"     . mc/mark-all-like-this)
+         ("C-!"         . mc/mark-next-symbol-like-this)
+         ("s-d"         . mc/mark-all-dwim)))
 
 (use-package rainbow-delimiters
+  :ensure t
+  :diminish
   :hook (prog-mode . rainbow-delimiters-mode))
 
-;; rainbow-mode show hex as colors         
 (use-package rainbow-mode
+  :ensure t
   :diminish
-  :hook (prog-mode . rainbow-mode))
+  :hook (prog-mode . rainbow-mode)
+  :config
+  (setq rainbow-x-colors nil))
+
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:25765797-27a5-431e-8aa4-cc890a6a913a
+  ;;;; `savehist' (minibuffer and related histories)
+(use-package savehist
+  :ensure nil
+  :hook (after-init . savehist-mode)
+  :config
+  (setq savehist-file (locate-user-emacs-file "savehist"))
+  (setq history-length 100)
+  (setq history-delete-duplicates t)
+  (setq savehist-save-minibuffer-history t)
+  (add-to-list 'savehist-additional-variables 'kill-ring))
 
 (use-package smooth-scrolling
   :ensure t)
@@ -208,17 +587,329 @@
   :diminish smartparens-mode
   :hook (prog-mode . smartparens-mode))
 
-(use-package helpful
+(use-package super-save
   :ensure t
-  :commands (helpful-callable helpful-variable helpful-command helpful-key)
-  :bind (("C-h f" . helpful-callable)
-         ("C-h v" . helpful-variable)
-         ("C-h k" . helpful-key)
-         ("C-h x" . helpful-command)
-         ("C-c C-d" . helpful-at-point)
-         ("C-c F" . helpful-function)))
+  :defer t
+  :config
+  ;; (super-save-mode +1)
+  )
 
-;; ======= Use git ========
+(use-package undo-fu
+  :ensure t
+  :config
+  (setq undo-fu-allow-undo-in-region t)
+  (global-unset-key (kbd "M-z"))
+  (global-set-key (kbd "M-z")   'undo-fu-only-undo)
+  (global-set-key (kbd "M-S-z") 'undo-fu-only-redo))
+
+(global-unset-key (kbd "C-z"))
+
+(use-package vundo
+  :ensure t
+  :bind ("C-M-z" . vundo))
+
+;; (set-face-attribute 'mode-line nil
+;;                     :background "LightSteelBlue1"
+;;                     :foreground "black"
+;;                     :box "SkyBlue2")
+
+;; (use-package undo-tree
+;;   :ensure t
+;;   :defer t
+;;   :diminish
+;;   :init
+;;   (global-undo-tree-mode))
+
+(use-package which-key
+  :ensure t
+  :defer t
+  :diminish which-key-mode
+  :hook (after-init . which-key-mode))
+
+;; The `wgrep' packages lets us edit the results of a grep search
+;; while inside a `grep-mode' buffer.  All we need is to toggle the
+;; editable mode, make the changes, and then type C-c C-c to confirm
+;; or C-c C-k to abort.
+;;
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:9a3581df-ab18-4266-815e-2edd7f7e4852
+(use-package wgrep
+  :ensure t
+  :bind ( :map grep-mode-map
+          ("e" . wgrep-change-to-wgrep-mode)
+          ("C-x C-q" . wgrep-change-to-wgrep-mode)
+          ("C-c C-c" . wgrep-finish-edit)))
+
+(use-package org
+  :config
+  (require 'org-tempo)
+  )
+
+(use-package org-auto-tangle
+  :defer t
+  :hook (org-mode . org-auto-tangle-mode)
+  :config
+  (setq org-auto-tangle-babel-safelist '(
+                                         "~/.emacs.d/init.org"
+                                         )))
+
+(bind-key "C-c l" 'org-store-link)
+(bind-key "C-c c" 'org-capture)
+(bind-key "C-c a" 'org-agenda)
+
+(setq org-agenda-files
+      (delq nil
+            (mapcar (lambda (x) (and (file-exists-p x) x))
+                    '("~/Documents/Agenda"))))
+
+(bind-key "C-c c" 'org-capture)
+(setq org-default-notes-file "~/Documents/Notes/notes.org")
+
+(setq org-use-speed-commands t)
+(setq org-image-actual-width 550)
+(setq org-highlight-latex-and-related '(latex script entities))
+
+(setq org-startup-indented 'f)
+(setq org-directory "~/Documents/Apps/Org")
+(setq org-special-ctrl-a/e 't)
+(setq org-default-notes-file (concat org-directory "/Notes.org"))
+(define-key global-map "\C-cc" 'org-capture)
+(setq org-mobile-directory "~/Documents/Apps/MobileOrg")
+(setq org-src-fontify-natively 't)
+(setq org-src-tab-acts-natively t)
+(setq org-src-window-setup 'current-window)
+
+(setq org-agenda-files (quote ("~/Documents/Apps/Org/Inbox.org"
+                               ;;                                "~/Documents/Apps/Org/Addval.org"
+                               ;;                                "~/Documents/Apps/Org/Brandbin.org"
+                               ;;                                "~/Documents/Apps/Org/Kulcare.org"
+                               )))
+
+(setq org-tags-column 45)
+
+(setq org-src-fontify-natively t
+      org-src-window-setup 'current-window
+      org-src-strip-leading-and-trailing-blank-lines t
+      org-src-preserve-indentation t
+      org-src-tab-acts-natively t)
+
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp" ))
+(add-to-list 'org-structure-template-alist '("rb" . "src ruby" ))
+(add-to-list 'org-structure-template-alist '("sh" . "src sh" ))
+(add-to-list 'org-structure-template-alist '("md" . "src markdown"))
+
+;; The `consult' package provides lots of commands that are enhanced
+;; variants of basic, built-in functionality.  One of the headline
+;; features of `consult' is its preview facility, where it shows in
+;; another Emacs window the context of what is currently matched in
+;; the minibuffer.  Here I define key bindings for some commands you
+;; may find useful.  The mnemonic for their prefix is "alternative
+;; search" (as opposed to the basic C-s or C-r keys).
+;;
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:22e97b4c-d88d-4deb-9ab3-f80631f9ff1d
+(use-package consult
+  :ensure t
+  :bind (;; A recursive grep
+         ("M-s M-g" . consult-grep)
+         ;; Search for files names recursively
+         ("M-s M-f" . consult-find)
+         ;; Search through the outline (headings) of the file
+         ("M-s M-o" . consult-outline)
+         ;; Search the current buffer
+         ("M-s M-l" . consult-line)
+         ;; Switch to another buffer, or bookmarked file, or recently
+         ;; opened file.
+         ("M-s M-b" . consult-buffer)))
+
+(use-package consult-project-extra
+  :defer t
+  :bind
+  (("C-c p f" . consult-project-extra-find)
+   ("C-c p o" . consult-project-extra-find-other-window)))
+
+(use-package consult-todo
+  :demand t)
+
+;; The `embark' package lets you target the thing or context at point
+;; and select an action to perform on it.  Use the `embark-act'
+;; command while over something to find relevant commands.
+;;
+;; When inside the minibuffer, `embark' can collect/export the
+;; contents to a fully fledged Emacs buffer.  The `embark-collect'
+;; command retains the original behaviour of the minibuffer, meaning
+;; that if you navigate over the candidate at hit RET, it will do what
+;; the minibuffer would have done.  In contrast, the `embark-export'
+;; command reads the metadata to figure out what category this is and
+;; places them in a buffer whose major mode is specialised for that
+;; type of content.  For example, when we are completing against
+;; files, the export will take us to a `dired-mode' buffer; when we
+;; preview the results of a grep, the export will put us in a
+;; `grep-mode' buffer.
+;;
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:61863da4-8739-42ae-a30f-6e9d686e1995
+(use-package embark
+  :ensure t
+  :bind (("C-." . embark-act)
+         :map minibuffer-local-map
+         ("C-c C-c" . embark-collect)
+         ("C-c C-e" . embark-export)))
+
+;; The `embark-consult' package is glue code to tie together `embark'
+;; and `consult'.
+(use-package embark-consult
+  :ensure t)
+
+(use-package vertico
+  :ensure t
+  :bind (("C-x M-r" . vertico-repeat)
+         :map vertico-map
+         ;; M- keys for changing view:
+         ("M-v"     . vertico-multiform-vertical)
+         ("M-g"     . vertico-multiform-grid)
+         ("M-f"     . vertico-multiform-flat)
+         ("M-r"     . vertico-multiform-reverse)
+         ("M-u"     . vertico-multiform-unobtrusive))
+  :init (vertico-mode 1)
+  :config (progn
+            (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
+            (vertico-mouse-mode 1)
+            (vertico-multiform-mode 1)
+            (setq vertico-count 20)
+            (setq vertico-cycle t)
+            (setq vertico-resize nil)))
+
+;; Configure directory extension.
+(use-package vertico-directory
+  :after vertico
+  :ensure nil
+  ;; More convenient directory navigation commands
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  ;; Tidy shadowed file names
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
+;; The `marginalia' package provides helpful annotations next to
+;; completion candidates in the minibuffer.  The information on
+;; display depends on the type of content.  If it is about files, it
+;; shows file permissions and the last modified date.  If it is a
+;; buffer, it shows the buffer's size, major mode, and the like.
+;;
+;; Further reading: https://protesilaos.com/emacs/dotemacs#h:bd3f7a1d-a53d-4d3e-860e-25c5b35d8e7e
+(use-package marginalia
+  :ensure t
+  :config
+  (marginalia-mode 1))
+
+;; https://github.com/oantolin/orderless
+(use-package orderless
+  :ensure t
+  :after vertico
+  :config (progn
+            (setq orderless-matching-styles '(orderless-regexp
+                                              orderless-initialism
+                                              orderless-prefixes)
+                  orderless-component-separator #'orderless-escapable-split-on-space)
+
+            ;; Use the built-in "partial-completion" style to complete
+            ;; file inputs such as "/e/ni/co.nix" into
+            ;; "/etc/nixos/configuration.nix".  The "basic" style is
+            ;; needed to support the hostname completion in the TRAMP
+            ;; inputs such as "/sshx:HOSTNAME".
+            (setq completion-category-defaults nil
+                  completion-category-overrides '((file (styles basic partial-completion))))
+            (setq completion-styles '(orderless basic))))
+
+;; Add extensions
+(use-package cape
+  :defer t
+  :bind (("C-c p p" . completion-at-point) ;; capf
+         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+         ("C-c p h" . cape-history)
+         ("C-c p f" . cape-file)
+         ("C-c p k" . cape-keyword)
+         ("C-c p a" . cape-abbrev)
+         ("C-c p i" . cape-ispell)
+         ("C-c p l" . cape-line)
+         ("C-c p w" . cape-dict)
+         ("C-c p r" . cape-rfc1345))
+  :custom
+  (setq cape-dabbrev-check-other-buffers t
+        cape-dabbrev-min-length 4)
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-keyword))
+
+
+
+  ;;; Corfu (in-buffer completion popup)
+(use-package corfu
+  :ensure t
+  :hook (after-init . global-corfu-mode)
+  ;; I also have (setq tab-always-indent 'complete) for TAB to complete
+  ;; when it does not need to perform an indentation change.
+  :bind (:map corfu-map ("<tab>" . corfu-complete))
+  :config
+  (setq corfu-preview-current nil)
+  (setq corfu-min-width 20)
+
+  (setq corfu-popupinfo-delay '(1.25 . 0.5))
+  (corfu-popupinfo-mode 1) ; shows documentation after `corfu-popupinfo-delay'
+
+  ;; Sort by input history (no need to modify `corfu-sort-function').
+  (with-eval-after-load 'savehist
+    (corfu-history-mode 1)
+    (add-to-list 'savehist-additional-variables 'corfu-history)))
+
+;; (use-package company
+;;   :defer t 
+;;   :ensure t
+;;   :custom
+;;   (company-tooltip-align-annotations t)      ;; Align annotations with completions.
+;;   (company-minimum-prefix-length 1)          ;; Trigger completion after typing 1 character
+;;   (company-idle-delay 0.2)                   ;; Delay before showing completion (adjust as needed)
+;;   (company-tooltip-maximum-width 50) 
+;;   :config
+
+;;   ;; While using C-p C-n to select a completion candidate
+;;   ;; C-y quickly shows help docs for the current candidate
+;;   (define-key company-active-map (kbd "C-y")
+;; 			  (lambda ()
+;; 				(interactive)
+;; 				(company-show-doc-buffer)))
+;;   (define-key company-active-map [tab] 'company-complete-selection)
+;;   (define-key company-active-map (kbd "TAB") 'company-complete-selection)
+;;   (define-key company-active-map [ret] 'company-complete-selection)
+;;   (define-key company-active-map (kbd "RET") 'company-complete-selection)
+;;   :hook
+;;   (after-init . global-company-mode)) ;; Enable Company Mode globally after initialization.
+
+(use-package apheleia
+  :ensure t
+  :diminish ""
+  :defines
+  apheleia-formatters
+  apheleia-mode-alist
+  :functions
+  apheleia-global-mode
+  :config
+  (setf (alist-get 'prettier-json apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath))
+  (apheleia-global-mode +1))
+
+;; Enable display-line-numbers-mode for prog-mode
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
+;; Enable flymake-mode for prog-mode
+(add-hook 'prog-mode-hook 'flymake-mode)
+
+;; Customize line number display
+(setq display-line-numbers-type 'relative) ; Use relative line numbers
+
+;; Customize flymake-mode
+(setq flymake-no-changes-timeout 0.5) ; Set the timeout for flymake to 0.5 seconds
+
 (use-package magit
   :ensure t
   :commands (magit-status magit-ediff-show-working-tree)
@@ -289,480 +980,19 @@
   (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
   (define-fringe-bitmap 'git-gutter-fr:deleted [224] nil nil '(center repeated)))
 
-(use-package hl-todo
-  :ensure t
-  :defer t
-  :custom-face (hl-todo ((t (:box t :inherit))))
-  :bind (:map hl-todo-mode-map
-              ([C-f3] . hl-todo-occur)
-              ("C-c t p" . hl-todo-previous)
-              ("C-c t n" . hl-todo-next)
-              ("C-c t o" . hl-todo-occur))
-  :hook (after-init . global-hl-todo-mode))
-
-(use-package indent-bars
-  :ensure nil
-  :config
-  (setq
-   indent-bars-color '(highlight :face-bg t :blend 0.3)
-   indent-bars-pattern " . . . . ." ; play with the number of dots for your usual font size
-   indent-bars-width-frac 0.25
-   indent-bars-pad-frac 0.1)
-  :custom
-  (indent-bars-treesit-support t)
-  (indent-bars-no-descend-string t)
-  (indent-bars-treesit-ignore-blank-lines-types '("module"))
-  (indent-bars-treesit-wrap '((python argument_list parameters ; for python, as an example
-				                              list list_comprehension
-				                              dictionary dictionary_comprehension
-				                              parenthesized_expression subscript)))
-  :hook (prog-mode . indent-bars-mode))
-
-;; (use-package svg-tag-mode
-;;   :hook (prog-mode . svg-tag-mode)
-;;   :config
-;;   (plist-put svg-lib-style-default :font-family "Monaco Nerd Font Mono")
-;;   (plist-put svg-lib-style-default :font-size 14)
-;;   ;; (require 'periphery)
-;;   ;; (setq svg-tag-tags (periphery-svg-tags))
-;;   )
-
-(use-package expand-region
-  :bind ("C-=" . er/expand-region))
-
-(use-package toml)
-(use-package gcmh
-  :diminish
-  :hook (after-init . gcmh-mode))
-(use-package diminish
-  :ensure t)
-
-(use-package spacious-padding
-  :ensure t
-  :config
-  ;; (setq spacious-padding-widths
-  ;;       '( :internal-border-width 15
-  ;;          :header-line-width 4
-  ;;          :mode-line-width 6
-  ;;          :tab-width 4
-  ;;          :right-divider-width 30
-  ;;          :scroll-bar-width 8))
-  (spacious-padding-mode 1)
-  )
-
-;; Install and configure modus-themes
-(use-package ef-themes
-  :ensure t
-  :config
-  (load-theme 'ef-spring t)
-  )
-
-(use-package auto-dark
-  :ensure t
-  :custom
-  (auto-dark-themes '((ef-dream) (ef-spring)))
-  (auto-dark-polling-interval-seconds 300)
-  (auto-dark-allow-osascript t)
-  (auto-dark-allow-powershell nil)
-  ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
-  :hook
-  (auto-dark-dark-mode
-   . (lambda ()
-       ;; something to execute when dark mode is detected
-       ))
-  (auto-dark-light-mode
-   . (lambda ()
-       ;; something to execute when light mode is detected
-       ))
-  :init (auto-dark-mode))
-
-(use-package nerd-icons
-  :ensure t)
-
-(use-package nerd-icons-completion
-  :ensure t
-  :after marginalia
-  ;; FIXME 2024-09-01: For some reason this stopped working because it
-  ;; macroexpands to `marginalia-mode' instead of
-  ;; `marginalia-mode-hook'.  What is more puzzling is that this does
-  ;; not happen in the next :hook...
-  ;; :hook (marginalia-mode . nerd-icons-completion-marginalia-setup))
-  :config
-  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
-
-(use-package nerd-icons-dired
-  :hook (dired-mode . nerd-icons-dired-mode))
-
-(use-package nerd-icons-corfu
-  :ensure t
-  :after corfu
-  :config
-  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
-  ;; Optionally:
-  (setq nerd-icons-corfu-mapping
-        '((array :style "cod" :icon "symbol_array" :face font-lock-type-face)
-          (boolean :style "cod" :icon "symbol_boolean" :face font-lock-builtin-face)
-          ;; ...
-          (t :style "cod" :icon "code" :face font-lock-warning-face)))
-  ;; Remember to add an entry for `t', the library uses that as default.
-  )
-
-
-(use-package yasnippet
-  :ensure t
-  :diminish
-  :defer t
-  :config
-  (setq yas-snippet-dirs (concat user-emacs-directory "snippets"))
-  (setq yas-indent-line 'fixed)
-  (yas-global-mode)
-  (global-set-key (kbd "M-/") 'company-yasnippet))
-
-(use-package vundo
-  :ensure t
-  :bind ("C-M-z" . vundo))
-
-;; (set-face-attribute 'mode-line nil
-;;                     :background "LightSteelBlue1"
-;;                     :foreground "black"
-;;                     :box "SkyBlue2")
-
-;; Enable display-line-numbers-mode for prog-mode
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)
-
-;; Enable flymake-mode for prog-mode
-(add-hook 'prog-mode-hook 'flymake-mode)
-
-;; Customize line number display
-(setq display-line-numbers-type 'relative) ; Use relative line numbers
-
-;; Customize flymake-mode
-(setq flymake-no-changes-timeout 0.5) ; Set the timeout for flymake to 0.5 seconds
-
-
-;;========== Completions ==========
-;; The `vertico' package applies a vertical layout to the minibuffer.
-;; It also pops up the minibuffer eagerly so we can see the available
-;; options without further interactions.  This package is very fast
-;; and "just works", though it also is highly customisable in case we
-;; need to modify its behaviour.
-;;
-;; Further reading: https://protesilaos.com/emacs/dotemacs#h:cff33514-d3ac-4c16-a889-ea39d7346dc5
-(use-package vertico
-  :ensure t
-  :config
-  (setq vertico-cycle t)
-  (setq vertico-resize nil)
-  (vertico-mode 1))
-
-;; Configure directory extension.
-(use-package vertico-directory
-  :after vertico
-  :ensure nil
-  ;; More convenient directory navigation commands
-  :bind (:map vertico-map
-              ("RET" . vertico-directory-enter)
-              ("DEL" . vertico-directory-delete-char)
-              ("M-DEL" . vertico-directory-delete-word))
-  ;; Tidy shadowed file names
-  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
-
-;; The `marginalia' package provides helpful annotations next to
-;; completion candidates in the minibuffer.  The information on
-;; display depends on the type of content.  If it is about files, it
-;; shows file permissions and the last modified date.  If it is a
-;; buffer, it shows the buffer's size, major mode, and the like.
-;;
-;; Further reading: https://protesilaos.com/emacs/dotemacs#h:bd3f7a1d-a53d-4d3e-860e-25c5b35d8e7e
-(use-package marginalia
-  :ensure t
-  :config
-  (marginalia-mode 1))
-
-;; The `orderless' package lets the minibuffer use an out-of-order
-;; pattern matching algorithm.  It matches space-separated words or
-;; regular expressions in any order.  In its simplest form, something
-;; like "ins pac" matches `package-menu-mark-install' as well as
-;; `package-install'.  This is a powerful tool because we no longer
-;; need to remember exactly how something is named.
-;;
-;; Note that Emacs has lots of "completion styles" (pattern matching
-;; algorithms), but let us keep things simple.
-;;
-;; Further reading: https://protesilaos.com/emacs/dotemacs#h:7cc77fd0-8f98-4fc0-80be-48a758fcb6e2
-(use-package orderless
-  :ensure t
-  :config
-  (setq completion-styles '(orderless basic)))
-
-;; The `consult' package provides lots of commands that are enhanced
-;; variants of basic, built-in functionality.  One of the headline
-;; features of `consult' is its preview facility, where it shows in
-;; another Emacs window the context of what is currently matched in
-;; the minibuffer.  Here I define key bindings for some commands you
-;; may find useful.  The mnemonic for their prefix is "alternative
-;; search" (as opposed to the basic C-s or C-r keys).
-;;
-;; Further reading: https://protesilaos.com/emacs/dotemacs#h:22e97b4c-d88d-4deb-9ab3-f80631f9ff1d
-(use-package consult
-  :ensure t
-  :bind (;; A recursive grep
-         ("M-s M-g" . consult-grep)
-         ;; Search for files names recursively
-         ("M-s M-f" . consult-find)
-         ;; Search through the outline (headings) of the file
-         ("M-s M-o" . consult-outline)
-         ;; Search the current buffer
-         ("M-s M-l" . consult-line)
-         ;; Switch to another buffer, or bookmarked file, or recently
-         ;; opened file.
-         ("M-s M-b" . consult-buffer)))
-
-(use-package consult-project-extra
-  :defer t
-  :bind
-  (("C-c p f" . consult-project-extra-find)
-   ("C-c p o" . consult-project-extra-find-other-window)))
-
-(use-package consult-todo
-  :demand t)
-
-;; The `embark' package lets you target the thing or context at point
-;; and select an action to perform on it.  Use the `embark-act'
-;; command while over something to find relevant commands.
-;;
-;; When inside the minibuffer, `embark' can collect/export the
-;; contents to a fully fledged Emacs buffer.  The `embark-collect'
-;; command retains the original behaviour of the minibuffer, meaning
-;; that if you navigate over the candidate at hit RET, it will do what
-;; the minibuffer would have done.  In contrast, the `embark-export'
-;; command reads the metadata to figure out what category this is and
-;; places them in a buffer whose major mode is specialised for that
-;; type of content.  For example, when we are completing against
-;; files, the export will take us to a `dired-mode' buffer; when we
-;; preview the results of a grep, the export will put us in a
-;; `grep-mode' buffer.
-;;
-;; Further reading: https://protesilaos.com/emacs/dotemacs#h:61863da4-8739-42ae-a30f-6e9d686e1995
-(use-package embark
-  :ensure t
-  :bind (("C-." . embark-act)
-         :map minibuffer-local-map
-         ("C-c C-c" . embark-collect)
-         ("C-c C-e" . embark-export)))
-
-;; The `embark-consult' package is glue code to tie together `embark'
-;; and `consult'.
-(use-package embark-consult
-  :ensure t)
-
-;; The `wgrep' packages lets us edit the results of a grep search
-;; while inside a `grep-mode' buffer.  All we need is to toggle the
-;; editable mode, make the changes, and then type C-c C-c to confirm
-;; or C-c C-k to abort.
-;;
-;; Further reading: https://protesilaos.com/emacs/dotemacs#h:9a3581df-ab18-4266-815e-2edd7f7e4852
-(use-package wgrep
-  :ensure t
-  :bind ( :map grep-mode-map
-          ("e" . wgrep-change-to-wgrep-mode)
-          ("C-x C-q" . wgrep-change-to-wgrep-mode)
-          ("C-c C-c" . wgrep-finish-edit)))
-
-;; The built-in `savehist-mode' saves minibuffer histories.  Vertico
-;; can then use that information to put recently selected options at
-;; the top.
-;;
-;; Further reading: https://protesilaos.com/emacs/dotemacs#h:25765797-27a5-431e-8aa4-cc890a6a913a
-(savehist-mode 1)
-
-(use-package dabbrev
-  :ensure nil
-  :custom
-  (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
-
-;; Add extensions
-(use-package cape
-  :defer t
-  :bind (("C-c p p" . completion-at-point) ;; capf
-         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
-         ("C-c p h" . cape-history)
-         ("C-c p f" . cape-file)
-         ("C-c p k" . cape-keyword)
-         ("C-c p a" . cape-abbrev)
-         ("C-c p i" . cape-ispell)
-         ("C-c p l" . cape-line)
-         ("C-c p w" . cape-dict)
-         ("C-c p r" . cape-rfc1345))
-  :custom
-  (setq cape-dabbrev-check-other-buffers t
-        cape-dabbrev-min-length 4)
-  :init
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-keyword))
-
-;;; Corfu (in-buffer completion popup)
-(use-package corfu
-  :ensure t
-  :hook (after-init . global-corfu-mode)
-  ;; I also have (setq tab-always-indent 'complete) for TAB to complete
-  ;; when it does not need to perform an indentation change.
-  :bind (:map corfu-map ("<tab>" . corfu-complete))
-  :config
-  (setq corfu-preview-current nil)
-  (setq corfu-min-width 20)
-
-  (setq corfu-popupinfo-delay '(1.25 . 0.5))
-  (corfu-popupinfo-mode 1) ; shows documentation after `corfu-popupinfo-delay'
-
-  ;; Sort by input history (no need to modify `corfu-sort-function').
-  (with-eval-after-load 'savehist
-    (corfu-history-mode 1)
-    (add-to-list 'savehist-additional-variables 'corfu-history)))
-
-(use-package treemacs
-  :ensure t
-  :commands (treemacs treemacs-select-window)
-  :hook (treemacs-mode . treemacs-project-follow-mode)
-  :bind ("M-J" . treemacs-find-file)
-  :custom-face
-  (doom-themes-treemacs-file-face ((t (:weight semi-bold))))
-  (treemacs-file-face ((t (:family "Monaco Nerd Font Mono"))))
-  (treemacs-root-face ((t (:family "Monaco Nerd Font Mono" :height 0.9))))
-  (treemacs-directory-face ((t (:family "Monaco Nerd Font Mono" :height 0.9))))
-  (treemacs-directory-collapsed-face ((t (:family "Monaco Nerd Font Mono" :height 0.9))))
-  (treemacs-git-ignored-face ((t (:family "Monaco Nerd Font Mono" :height 0.9))))
-  (treemacs-git-unmodified-face ((t (:family "Monaco Nerd Font Mono" :height 0.9))))
-  (treemacs-git-untracked-face ((t (:family "Monaco Nerd Font Mono" :height 0.9))))
-  (treemacs-git-added-face ((t (:family "Monaco Nerd Font Mono" :height 0.9))))
-  (treemacs-git-renamed-face ((t (:family "Monaco Nerd Font Mono" :height 0.9))))
-  (treemacs-git-modified-face ((t (:family "Monaco Nerd Font Mono" :height 0.9))))
-  (treemacs-tags-face ((t (:family "Monaco Nerd Font Mono" :height 0.9))))
-  :config
-  (setq doom-themes-treemacs-theme nil
-        treemacs-window-background-color '("#221F22" . "#423f42"))
-  (setq treemacs-follow-after-init t
-        treemacs-collapse-dirs 1
-        treemacs-directory-name-transformer #'identity
-        treemacs-file-name-transformer #'identity
-        treemacs-show-cursor nil
-        treemacs-display-current-project-exclusively t
-        treemacs-filewatch-mode t
-        treemacs-follow-mode nil
-        treemacs-hide-dot-git-directory t
-        treemacs-git-integration t
-        treemacs-space-between-root-nodes t
-        treemacs-hide-gitignored-files-mode t
-        treemacs-git-mode 'extended
-        treemacs-indentation 1
-        treemacs-is-never-other-window t
-        treemacs-silent-refresh	t
-        treemacs-sorting 'treemacs--sort-alphabetic-case-insensitive-asc
-        treemacs-width 30))
-
-(use-package treemacs-magit
-  :after treemacs magit)
-
-(use-package project-treemacs
-  :demand t
-  :after treemacs
-  )
-
-(use-package treemacs-nerd-icons
-  :after treemacs
-  :config
-  (treemacs-load-theme "nerd-icons"))
-
-(use-package restclient
-  :commands (restclient))
-
-(use-package flyspell
-  :ensure nil
-  :config
-  (setq flyspell-issue-message-flag nil
-        ispell-local-dictionary "sv-SE"
-        ispell-program-name "aspell"))
-
 (use-package mise
   :ensure t
   :config
-  (add-hook 'after-init-hook #'global-mise-mode)) 
+  (add-hook 'after-init-hook #'global-mise-mode))
 
-;; ========== js settings ========
-
-(use-package treesit
-  :mode (("\\.tsx\\'" . tsx-ts-mode)
-         ("\\.js\\'"  . typescript-ts-mode)
-         ("\\.mjs\\'" . typescript-ts-mode)
-         ("\\.mts\\'" . typescript-ts-mode)
-         ("\\.cjs\\'" . typescript-ts-mode)
-         ("\\.ts\\'"  . typescript-ts-mode)
-         ("\\.jsx\\'" . tsx-ts-mode)
-         ("\\.json\\'" .  json-ts-mode)
-         ("\\.Dockerfile\\'" . dockerfile-ts-mode)
-         ("\\.prisma\\'" . prisma-ts-mode)
-         ;; More modes defined here...
-         )
-  :preface
-  (defun os/setup-install-grammars ()
-    "Install Tree-sitter grammars if they are absent."
-    (interactive)
-    (dolist (grammar
-             '((css . ("https://github.com/tree-sitter/tree-sitter-css" "v0.20.0"))
-               (bash "https://github.com/tree-sitter/tree-sitter-bash")
-               (html . ("https://github.com/tree-sitter/tree-sitter-html" "v0.20.1"))
-               (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript" "v0.21.2" "src"))
-               (json . ("https://github.com/tree-sitter/tree-sitter-json" "v0.20.2"))
-               (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.20.4"))
-               (go "https://github.com/tree-sitter/tree-sitter-go" "v0.20.0")
-               (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-               (make "https://github.com/alemuller/tree-sitter-make")
-               (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-               (cmake "https://github.com/uyha/tree-sitter-cmake")
-               (c "https://github.com/tree-sitter/tree-sitter-c")
-               (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-               (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
-               (toml "https://github.com/tree-sitter/tree-sitter-toml")
-               (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src"))
-               (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "typescript/src"))
-               (yaml . ("https://github.com/ikatyang/tree-sitter-yaml" "v0.5.0"))
-               (prisma "https://github.com/victorhqc/tree-sitter-prisma")))
-      (add-to-list 'treesit-language-source-alist grammar)
-      ;; Only install `grammar' if we don't already have it
-      ;; installed. However, if you want to *update* a grammar then
-      ;; this obviously prevents that from happening.
-      (unless (treesit-language-available-p (car grammar))
-        (treesit-install-language-grammar (car grammar)))))
-
-  ;; Optional, but recommended. Tree-sitter enabled major modes are
-  ;; distinct from their ordinary counterparts.
-  ;;
-  ;; You can remap major modes with `major-mode-remap-alist'. Note
-  ;; that this does *not* extend to hooks! Make sure you migrate them
-  ;; also
-  (dolist (mapping
-           '((python-mode . python-ts-mode)
-             (css-mode . css-ts-mode)
-             (typescript-mode . typescript-ts-mode)
-             (js-mode . typescript-ts-mode)
-             (js2-mode . typescript-ts-mode)
-             (c-mode . c-ts-mode)
-             (c++-mode . c++-ts-mode)
-             (c-or-c++-mode . c-or-c++-ts-mode)
-             (bash-mode . bash-ts-mode)
-             (css-mode . css-ts-mode)
-             (json-mode . json-ts-mode)
-             (js-json-mode . json-ts-mode)
-             (ruby-mode . ruby-ts-mode)
-             (sh-mode . bash-ts-mode)
-             (sh-base-mode . bash-ts-mode)))
-    (add-to-list 'major-mode-remap-alist mapping))
+(use-package treesit-auto
+  :ensure t
+  :after emacs
+  :custom
+  (treesit-auto-install 'prompt)
   :config
-  (os/setup-install-grammars))
-
-
-;; ============= LSP ==============
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode t))
 
 (use-package lsp-mode
   :diminish "LSP"
@@ -770,7 +1000,7 @@
   :hook ((lsp-mode . lsp-diagnostics-mode)
          (lsp-mode . lsp-enable-which-key-integration)
          ((tsx-ts-mode
-           typescript-ts-mode
+           js-ts-mode
            js-ts-mode
            js-mode) . lsp-deferred))
   :custom
@@ -826,7 +1056,7 @@
   :config
   ;; (lsp-register-client
   ;;  (make-lsp-client :new-connection (lsp-stdio-connection '("typescript-language-server" "--stdio"))
-  ;;                   :major-modes '(typescript-ts-mode)
+  ;;                   :major-modes '(js-ts-mode)
   ;;                   :server-id 'ts-ls))
   :preface
   (defun lsp-booster--advice-json-parse (old-fn &rest args)
@@ -863,36 +1093,6 @@
 
 ;; ====== end lsp-mode 
 
-;; (use-package lsp-mode
-;;   :ensure t
-;;   :init
-;;   (setq lsp-keymap-prefix "C-c l")
-;;   :hook ((typescript-mode . lsp-deferred)
-;;          (typescript-ts-mode . lsp-deferred)
-;;          (js-mode . lsp-deferred)
-;;          (lsp-mode . lsp-enable-which-key-integration))
-;;   :config
-;;   (setq lsp-typescript-server 'typescript-javascript-server)
-;;   ;; Optional: Specify the path to the TypeScript language server
-;;   (setq lsp-typescript-server-path "/opt/homebrew/bin/typescript-language-server")
-;;   ;; Optional: Enable logging for troubleshooting
-;;   (setq lsp-log-level 'debug))
-
-
-(use-package lsp-ui
-  :ensure t
-  :commands
-  (lsp-ui-doc-show
-   lsp-ui-doc-glance)
-  :bind (:map lsp-mode-map
-              ("C-c C-d" . 'lsp-ui-doc-glance))
-  :after (lsp-mode evil)
-  :config (setq lsp-ui-doc-enable t
-                evil-lookup-func #'lsp-ui-doc-glance ; Makes K in evil-mode toggle the doc for symbol at point
-                lsp-ui-doc-show-with-cursor nil      ; Don't show doc when cursor is over symbol - too distracting
-                lsp-ui-doc-include-signature t       ; Show signature
-                lsp-ui-doc-position 'at-point))
-
 (use-package lsp-eslint
   :demand t
   :after lsp-mode
@@ -900,50 +1100,78 @@
   (setq lsp-eslint-server-command '("eslint-lsp" "--stdio")))
 
 (use-package lsp-tailwindcss
-  :init (setq lsp-tailwindcss-add-on-mode t)
-  :config
-  (dolist (tw-major-mode
-           '(css-mode
-             css-ts-mode
-             typescript-mode
-             typescript-ts-mode
-             tsx-ts-mode
-             js2-mode
-             js-ts-mode
-             clojure-mode))
-    (add-to-list 'lsp-tailwindcss-major-modes tw-major-mode)))
-
-(use-package apheleia
   :ensure t
-  :diminish ""
-  :defines
-  apheleia-formatters
-  apheleia-mode-alist
-  :functions
-  apheleia-global-mode
+  :defer t
   :config
-  (setf (alist-get 'prettier-json apheleia-formatters)
-        '("prettier" "--stdin-filepath" filepath))
-  (apheleia-global-mode +1))
+  (add-to-list 'lsp-language-id-configuration '(".*\\.erb$" . "html")) ;; Associate ERB files with HTML.
+  :init
+  (setq lsp-tailwindcss-add-on-mode t))
 
-;; ==== Mu4e =====
+
+
+(use-package restclient
+  :commands (restclient))
+
+(use-package yasnippet
+  :ensure t
+  :diminish
+  :defer t
+  :config
+  (setq yas-snippet-dirs (concat user-emacs-directory "snippets"))
+  (setq yas-indent-line 'fixed)
+  (yas-global-mode)
+  (global-set-key (kbd "M-/") 'company-yasnippet))
+
 (use-package mu4e
   :load-path  "/opt/homebrew/Cellar/mu/1.12.6/share/emacs/site-lisp/mu/mu4e/"
-  :config
-  (setq mu4e-maildir "~/Mail")
-  
-  (setq mu4e-mu-binary (executable-find "mu"))
-  ;; this command is called to sync imap servers:
-  (setq mu4e-get-mail-command (concat (executable-find "mbsync") " -a"))
-  ;; how often to call it in seconds:
-  (setq mu4e-update-interval 300)
-
-  ;; save attachment to desktop by default
-  (setq mu4e-attachment-dir "~/Downloads")
-
-  ;; rename files when moving - needed for mbsync:
-  (setq mu4e-change-filenames-when-moving t)
-
+  :custom
+  (mu4e-use-fancy-chars nil)
+  (mu4e-mu-binary (executable-find "mu"))
+  (mu4e-get-command (concat (executable-find "mbsync") " -a"))
+  (mu4e-update-interval 300)
+  (mu4e-maildir "~/Mail")
+  (mu4e-attachment-dir "~/Downloads")
+  (mu4e-change-filenames-when-moving t)
+  ;; === send email ===
+  (mu4e-compose-format-flowed t)
+  (message-kill-buffer-on-exit t)
+  (mu4e-compose-context-policy 'ask-if-none)
+  (send-mail-function 'sendmail-send-it
+                      message-send-mail-function 'sendmail-send-it)
+  (sendmail-program (executable-find "msmtp"))
+  (message-sendmail-envelope-from 'header)
+  :hook
+  ((mu4e-view-mode . visual-line-mode)
+   (mu4e-compose-mode . (lambda ()
+                          (use-hard-newlines -1)
+                          (flyspell-mode)))
+   (mu4e-headers-mode . (lambda ()
+                          (interactive)
+                          (setq mu4e-headers-fields
+                                `((:human-date . 25) ;; alternatively, use :date
+                                  (:flags . 6)
+                                  (:from . 25)
+                                  (:thread-subject . ,(- (window-body-width) 75)) ;; alternatively, use :subject
+                                  (:size . 7))))))
+  :init
+  (use-package mu4e-thread-folding
+    :load-path (lambda () (expand-file-name "site-elisp/mu4e-thread-folding/" user-emacs-directory))
+    :after mu4e
+    :bind
+    ((:map mu4e-headers-mode-map
+           ("TAB" . mu4e-headers-toggle-at-point)
+           ("C-<tab>" . mu4e-headers-toggle-fold-all))
+     (:map mu4e-search-minor-mode-map
+           ("S" . mu4e-kill-update-mail)))
+    :custom
+    (mu4e-thread-folding-default-view `folded)
+    (mu4e-headers-fields '((:empty         .    2)
+                           (:human-date    .   12)
+                           (:flags         .    6)
+                           (:mailing-list  .   10)
+                           (:from          .   25)
+                           (:subject       .   nil))))
+  :config  
   ;; list of your email adresses:
   (setq mu4e-user-mail-address-list '("bhardwaj.10@gmail.com"
                                       "shan@addvalsolutions.com"
@@ -974,8 +1202,31 @@
                      :query "maildir:/kulcare/INBOX"
                      :key ?k))
 
+(setq mu4e-maildir-shortcuts
+      '(("/Kulcare/Inbox"             . ?k)
+        ("/Addval/Inbox"              . ?a)
+        ("/Gmail/Inbox"               . ?g)
+        ("/Kulcare/[Gmail]/Sent Mail" . ?s)
+        ("/Kulcare/[Gmail]/Trash"     . ?t)
+        ("/Kulcare/[Gmail]/Drafts"    . ?d)
+        ("/Kulcare/[Gmail]/All Mail"  . ?l)))
+
+;; the following is to show shortcuts in the main view.
+(add-to-list 'mu4e-bookmarks
+             '(:name "Inbox - Gmail"
+                     :query "maildir:/gmail/INBOX"
+                     :key ?g))
+(add-to-list 'mu4e-bookmarks
+             '(:name "Inbox - Addval"
+                     :query "maildir:/addval/INBOX"
+                     :key ?a))
+(add-to-list 'mu4e-bookmarks
+             '(:name "Inbox - Kulcare"
+                     :query "maildir:/kulcare/INBOX"
+                     :key ?k))
+
 (setq mu4e-contexts
-      '(,
+      `(,
         ;; Addval account
         (make-mu4e-context
          :name "Addval"
@@ -1010,22 +1261,22 @@
                   (mu4e-refile-folder  . "/Kulcare/[Gmail]/All Mail")
                   (mu4e-trash-folder  . "/Kulcare/[Gmail]/Trash")))
 
-        ;; ;; Codetiger account
-        ;; ,(make-mu4e-context
-        ;;  :name "Codetiger"
-        ;;  :match-func
-        ;;  (lambda (msg)
-        ;;    (when msg
-        ;;      (string-prefix-p "/Codetiger" (mu4e-message-field msg :maildir))))
-        ;;  :vars '((user-mail-address . "shan@codetiger.com")
-        ;;          (user-full-name    . "Shan Bhardwaj")
-        ;;          (smtpmail-smtp-server  . "smtp.gmail.com")
-        ;;          (smtpmail-smtp-service . 465)
-        ;;          (smtpmail-stream-type  . ssl)
-        ;;          (mu4e-drafts-folder  . "/Codetiger/[Gmail]/Drafts")
-        ;;          (mu4e-sent-folder  . "/Codetiger/[Gmail]/Sent Mail")
-        ;;          (mu4e-refile-folder  . "/Codetiger/[Gmail]/All Mail")
-        ;;          (mu4e-trash-folder  . "/Codetiger/[Gmail]/Trash")))
+        ;; Codetiger account
+        ,(make-mu4e-context
+          :name "Codetiger"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Codetiger" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "shan@codetiger.com")
+                  (user-full-name    . "Shan Bhardwaj")
+                  (smtpmail-smtp-server  . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 465)
+                  (smtpmail-stream-type  . ssl)
+                  (mu4e-drafts-folder  . "/Codetiger/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Codetiger/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Codetiger/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Codetiger/[Gmail]/Trash")))
 
         ;; Gmail account
         ,(make-mu4e-context
@@ -1046,28 +1297,19 @@
         ))
 
 
-;; sending email
-;; --------------
 
-;; Make sure plain text mails flow correctly for recipients
-(setq mu4e-compose-format-flowed t)
+(use-package mu4e-alert
+  :hook (after-init-hook . mu4e-alert-enable-mode-line-display)
+  :config
+  (setq mu4e-alert-email-notification-types '(count)))
 
-;; don't keep message compose buffers around after sending:
-(setq message-kill-buffer-on-exit t)
+(use-package mu4e-marker-icons)
+(use-package mu4e-column-faces
+  :after mu4e
+  :config (mu4e-column-faces-mode))
 
-;; Only ask if a context hasn't been previously picked
-(setq mu4e-compose-context-policy 'ask-if-none)
+;; (use-package mu4e-dashboard
+;;    )
 
-;; send function:
-(setq send-mail-function 'sendmail-send-it
-      message-send-mail-function 'sendmail-send-it)
-
-;; send program:
-;; this is exeranal. remember we installed it before.
-(setq sendmail-program (executable-find "msmtp"))
-
-;; select the right sender email from the context.
-(setq message-sendmail-envelope-from 'header)
-
-
-;;==== end of init ======
+(use-package mu4e-views
+  :after mu4e)

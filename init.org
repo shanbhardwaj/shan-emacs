@@ -83,8 +83,8 @@ customize settings in [[file:init.el][init.el]].
   ;; By default emacs gives you access to a lot of *special* buffers, while navigating with [b and ]b,
   ;; This settings make sure ]b and [b will always load a file buffer. 
   (defun skip-these-buffers (_window buffer _bury-or-kill)
-	"Function for `switch-to-prev-buffer-skip'."
-	(string-match "\\*[^*]+\\*" (buffer-name buffer)))
+    "Function for `switch-to-prev-buffer-skip'."
+    (string-match "\\*[^*]+\\*" (buffer-name buffer)))
   (setq switch-to-prev-buffer-skip 'skip-these-buffers)
 
   ;; Save manual customizations to a separate file instead of cluttering `init.el'.
@@ -116,19 +116,19 @@ customize settings in [[file:init.el][init.el]].
 
   ;; Add a hook to run code after Emacs has fully initialized.
   (add-hook 'after-init-hook
-    (lambda ()
-      (message "Emacs has fully loaded. This code runs after startup.")
+  					(lambda ()
+  						(message "Emacs has fully loaded. This code runs after startup.")
 
-      ;; Insert a welcome message in the *scratch* buffer displaying loading time and activated packages.
-      (with-current-buffer (get-buffer-create "*scratch*")
-        (insert (format
-                 ";;    Welcome to Emacs!
-;;
-;;    Loading time : %s
-;;    Packages     : %s
-"
-                  (emacs-init-time)
-                  (number-to-string (length package-activated-list))))))))
+  						;; Insert a welcome message in the *scratch* buffer displaying loading time and activated packages.
+  						(with-current-buffer (get-buffer-create "*scratch*")
+  							(insert (format
+  											 ";;    Welcome to Emacs!
+  ;;
+  ;;    Loading time : %s
+  ;;    Packages     : %s
+  "
+  											 (emacs-init-time)
+  											 (number-to-string (length package-activated-list))))))))
 
 #+end_src
 
@@ -141,12 +141,12 @@ customize settings in [[file:init.el][init.el]].
   :custom
   (display-buffer-alist
    '(
-	 ;; ("\\*.*e?shell\\*"
+     ;; ("\\*.*e?shell\\*"
      ;;  (display-buffer-in-side-window)
      ;;  (window-height . 0.25)
      ;;  (side . bottom)
      ;;  (slot . -1))
-	 
+     
      ("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|[Hh]elp\\|Messages\\|Bookmark List\\|Ibuffer\\|Occur\\|eldoc.*\\)\\*"
       (display-buffer-in-side-window)
       (window-height . 0.25)
@@ -168,7 +168,7 @@ customize settings in [[file:init.el][init.el]].
       (window-height . 0.25)
       (side . bottom)
       (slot . 1))
-   )))
+     )))
 
 #+end_src
 
@@ -193,9 +193,9 @@ customize settings in [[file:init.el][init.el]].
       (when gls
         (setq insert-directory-program gls)))))
 
-(use-package dired-hacks
-  :after dired
-  :ensure nil)
+;; (use-package dired-hacks
+;;   :after dired
+;;   :ensure nil)
 
 #+end_src
 
@@ -210,7 +210,7 @@ customize settings in [[file:init.el][init.el]].
   (erc-timestamp-format "[%H:%M]")                                 ;; Format for timestamps in messages.
   (erc-autojoin-channels-alist '((".*\\.libera\\.chat" "#emacs"))));; Automatically join the #emacs channel on Libera.Chat.
 
-  #+end_src
+#+end_src
 
 ** iSearch
 #+begin_src emacs-lisp
@@ -288,7 +288,7 @@ customize settings in [[file:init.el][init.el]].
   :custom
   (flymake-margin-indicators-string
    '((error "!»" compilation-error) (warning "»" compilation-warning)
-	 (note "»" compilation-info))))
+     (note "»" compilation-info))))
 
 #+end_src
 
@@ -308,11 +308,11 @@ customize settings in [[file:init.el][init.el]].
 #+begin_src emacs-lisp
 (defun align-values (start end)
   "Vertically aligns region based on lengths of the first value of each line.
-  Example output:
+    Example output:
 
-          foo        bar
-          foofoo     bar
-          foofoofoo  bar"
+            foo        bar
+            foofoo     bar
+            foofoofoo  bar"
   (interactive "r")
   (align-regexp start end
                 "\\([a-z_]+: \\)"
@@ -338,45 +338,6 @@ customize settings in [[file:init.el][init.el]].
 * UI + Theme
 ** Icons
 #+begin_src emacs-lisp
-(use-package spacious-padding
-  :ensure t
-  :config
-  ;; (setq spacious-padding-widths
-  ;;       '( :internal-border-width 15
-  ;;          :header-line-width 4
-  ;;          :mode-line-width 6
-  ;;          :tab-width 4
-  ;;          :right-divider-width 30
-  ;;          :scroll-bar-width 8))
-  (spacious-padding-mode 1)
-  )
-
-;; Install and configure modus-themes
-(use-package ef-themes
-  :ensure t
-  :config
-  (load-theme 'ef-spring t)
-  )
-
-(use-package auto-dark
-  :ensure t
-  :custom
-  (auto-dark-themes '((doom-one) (doom-one-light)))
-  (auto-dark-polling-interval-seconds 300)
-  (auto-dark-allow-osascript t)
-  (auto-dark-allow-powershell nil)
-  ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
-  :hook
-  (auto-dark-dark-mode
-   . (lambda ()
-       ;; something to execute when dark mode is detected
-       ))
-  (auto-dark-light-mode
-   . (lambda ()
-       ;; something to execute when light mode is detected
-       ))
-  :init (auto-dark-mode))
-
 (use-package nerd-icons
   :ensure t)
 
@@ -409,35 +370,86 @@ customize settings in [[file:init.el][init.el]].
   )
 
 #+end_src
-** Convenient theme functions
+** Theme settings
 
 #+begin_src emacs-lisp
-
-;;  (load-theme 'gruvbox-dark-hard t)
-
-(defun reset-modeline()
-  "Reset the modeline to 12pt font"
-  (interactive)
-  (set-face-attribute 'mode-line nil :height 100)
-  (set-face-attribute 'mode-line-inactive nil :height 100)
-  (setq doom-modeline-height 12)
-  (set-face-attribute 'line-number nil :font "Monaco-10")
-  (set-face-attribute 'line-number-current-line nil :font "Monaco-10")
+(use-package spacious-padding
+  :ensure t
+  :config
+  ;; (setq spacious-padding-widths
+  ;;       '( :internal-border-width 15
+  ;;          :header-line-width 4
+  ;;          :mode-line-width 6
+  ;;          :tab-width 4
+  ;;          :right-divider-width 30
+  ;;          :scroll-bar-width 8))
+  (spacious-padding-mode 1)
   )
 
-(defun switch-theme (theme)
-  "Disables any currently active themes and loads THEME."
-  ;; This interactive call is taken from `load-theme'
-  (interactive
-   (list
-    (intern (completing-read "Load custom theme: "
-                             (mapc 'symbol-name
-                                   (custom-available-themes))))))
-  (let ((enabled-themes custom-enabled-themes))
-    (mapc #'disable-theme custom-enabled-themes)
-    (load-theme theme t)
-    (reset-modeline)
-    ))
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+  			doom-themes-enable-italic t) ; if nil, italics is universally disabled
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  ;; (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  ;; (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
+
+;; Install and configure modus-themes
+(use-package ef-themes
+  :ensure nil)
+
+(use-package auto-dark
+  :ensure t
+  :custom
+  (auto-dark-themes '((doom-one) (doom-one-light)))
+  (auto-dark-polling-interval-seconds 300)
+  (auto-dark-allow-osascript t)
+  (auto-dark-allow-powershell nil)
+  ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
+  :hook
+  (auto-dark-dark-mode
+   . (lambda ()
+       ;; something to execute when dark mode is detected
+       ))
+  (auto-dark-light-mode
+   . (lambda ()
+       ;; something to execute when light mode is detected
+       ))
+  :init (auto-dark-mode))
+
+
+;; (defun reset-modeline()
+;;   "Reset the modeline to 12pt font"
+;;   (interactive)
+;;   (set-face-attribute 'mode-line nil :height 100)
+;;   (set-face-attribute 'mode-line-inactive nil :height 100)
+;;   (setq doom-modeline-height 12)
+;;   (set-face-attribute 'line-number nil :font "Monaco-10")
+;;   (set-face-attribute 'line-number-current-line nil :font "Monaco-10")
+;;   )
+
+;; (defun switch-theme (theme)
+;;   "Disables any currently active themes and loads THEME."
+;;   ;; This interactive call is taken from `load-theme'
+;;   (interactive
+;;    (list
+;;     (intern (completing-read "Load custom theme: "
+;;                              (mapc 'symbol-name
+;;                                    (custom-available-themes))))))
+;;   (let ((enabled-themes custom-enabled-themes))
+;;     (mapc #'disable-theme custom-enabled-themes)
+;;     (load-theme theme t)
+;;     (reset-modeline)
+;;     ))
 
 (defun disable-active-themes ()
   "Disables any currently active themes listed in `custom-enabled-themes'."
@@ -512,18 +524,13 @@ Note: To view all fonts that are available to use, run the following:
 #+end_src
 
 
-* key bindings
+* Key bindings
 
 #+begin_src emacs-lisp
 
 ;; Don't count two spaces after a period as the end of a sentence.
 ;; Just one space is needed.
 (setq sentence-end-double-space nil)
-
-;; (global-visual-line-mode -1)
-(remove-hook 'text-mode-hook #'turn-on-auto-fill)
-(add-hook 'text-mode-hook 'turn-on-visual-line-mode)
-(diminish 'visual-line-mode)
 
 ;; -i gets alias definitions from .bash_profile
 (setq shell-command-switch "-ic")
@@ -598,23 +605,13 @@ There are configurations to make when running Emacs on macOS (hence the
 ** Indent
 #+begin_src emacs-lisp
 
-(use-package indent-bars
-  :ensure nil
+(use-package indent-guide
+  :defer t
+  :ensure t
+  :hook
+  (prog-mode . indent-guide-mode)  ;; Activate indent-guide in programming modes.
   :config
-  (setq
-   indent-bars-color '(highlight :face-bg t :blend 0.3)
-   indent-bars-pattern " . . . . ." ; play with the number of dots for your usual font size
-   indent-bars-width-frac 0.25
-   indent-bars-pad-frac 0.1)
-  :custom
-  (indent-bars-treesit-support t)
-  (indent-bars-no-descend-string t)
-  (indent-bars-treesit-ignore-blank-lines-types '("module"))
-  (indent-bars-treesit-wrap '((python argument_list parameters ; for python, as an example
-				                              list list_comprehension
-				                              dictionary dictionary_comprehension
-				                              parenthesized_expression subscript)))
-  :hook (prog-mode . indent-bars-mode))
+  (setq indent-guide-char "│"))    ;; Set the character used for the indent guide.
 
 #+end_src
 
@@ -641,6 +638,17 @@ There are configurations to make when running Emacs on macOS (hence the
   :ensure t)
 
 
+#+end_src
+
+** Neotree
+#+begin_src emacs-lisp
+(use-package neotree
+  :ensure t
+  :custom
+  (neo-show-hidden-files t)                ;; By default shows hidden files (toggle with H)
+  (neo-theme 'icons)                        ;; Set the default theme for Neotree to 'nerd' for a visually appealing look.
+  (neo-vc-integration '(face char))        ;; Enable VC integration to display file states with faces (color coding) and characters (icons).
+  :defer t)                                 ;; Load the package only when needed to improve startup time.
 #+end_src
 
 ** Helpful
@@ -722,7 +730,7 @@ We'll also need to ~(require 'multiple-cusors)~ because of [[https://github.com/
 ** Savehist
 #+begin_src emacs-lisp
 ;; Further reading: https://protesilaos.com/emacs/dotemacs#h:25765797-27a5-431e-8aa4-cc890a6a913a
-;;;; `savehist' (minibuffer and related histories)
+  ;;;; `savehist' (minibuffer and related histories)
 (use-package savehist
   :ensure nil
   :hook (after-init . savehist-mode)
@@ -1154,7 +1162,7 @@ Source block templates
 #+end_src
 
 #+begin_src emacs-lisp
-;;; Corfu (in-buffer completion popup)
+  ;;; Corfu (in-buffer completion popup)
 (use-package corfu
   :ensure t
   :hook (after-init . global-corfu-mode)
@@ -1453,15 +1461,12 @@ programming languages.
   (setq lsp-eslint-server-command '("eslint-lsp" "--stdio")))
 
 (use-package lsp-tailwindcss
-  :init (setq lsp-tailwindcss-add-on-mode t)
+  :ensure t
+  :defer t
   :config
-  (dolist (tw-major-mode
-           '(css-mode
-             css-ts-mode
-             js-ts-mode
-             tsx-ts-mode
-             clojure-mode))
-    (add-to-list 'lsp-tailwindcss-major-modes tw-major-mode)))
+  (add-to-list 'lsp-language-id-configuration '(".*\\.erb$" . "html")) ;; Associate ERB files with HTML.
+  :init
+  (setq lsp-tailwindcss-add-on-mode t))
 
 #+end_src
 
