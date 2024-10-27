@@ -75,7 +75,7 @@ customize settings in [[file:init.el][init.el]].
   (use-short-answers t)                           ;; Use short answers in prompts for quicker responses (y instead of yes)
   (warning-minimum-level :emergency)              ;; Set the minimum level of warnings to display.
   (uniquify-buffer-name-style    'forward)
-
+	(help-window-select t)
   :hook                                           ;; Add hooks to enable specific features in certain modes.
   (prog-mode . display-line-numbers-mode)         ;; Enable line numbers in programming modes.
 
@@ -392,11 +392,9 @@ customize settings in [[file:init.el][init.el]].
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
   			doom-themes-enable-italic t) ; if nil, italics is universally disabled
-
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (doom-themes-neotree-config)
+	(load-theme 'doom-one t)
+  (doom-themes-visual-bell-config)     ;; Enable flashing mode-line on errors
+	(require 'org-indent)
   ;; or for treemacs users
   ;; (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
   ;; (doom-themes-treemacs-config)
@@ -407,24 +405,24 @@ customize settings in [[file:init.el][init.el]].
 (use-package ef-themes
   :ensure nil)
 
-(use-package auto-dark
-  :ensure t
-  :custom
-  (auto-dark-themes '((doom-one) (doom-one-light)))
-  (auto-dark-polling-interval-seconds 300)
-  (auto-dark-allow-osascript t)
-  (auto-dark-allow-powershell nil)
-  ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
-  :hook
-  (auto-dark-dark-mode
-   . (lambda ()
-       ;; something to execute when dark mode is detected
-       ))
-  (auto-dark-light-mode
-   . (lambda ()
-       ;; something to execute when light mode is detected
-       ))
-  :init (auto-dark-mode))
+;; (use-package auto-dark
+;;   :ensure t
+;;   :custom
+;;   (auto-dark-themes '((doom-one) (doom-one-light)))
+;;   (auto-dark-polling-interval-seconds 300)
+;;   (auto-dark-allow-osascript t)
+;;   (auto-dark-allow-powershell nil)
+;;   ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
+;;   :hook
+;;   (auto-dark-dark-mode
+;;    . (lambda ()
+;;        ;; something to execute when dark mode is detected
+;;        ))
+;;   (auto-dark-light-mode
+;;    . (lambda ()
+;;        ;; something to execute when light mode is detected
+;;        ))
+;;   :init (auto-dark-mode))
 
 
 ;; (defun reset-modeline()
@@ -492,7 +490,7 @@ customize settings in [[file:init.el][init.el]].
 ** Font
 
 #+begin_src emacs-lisp
-(set-face-attribute 'default nil :font "Iosevka Comfy" :height 140 :weight 'regular) 
+(set-face-attribute 'default nil :font "Iosevka Comfy" :height 150 :weight 'regular) 
 ;; (set-face-attribute 'default nil :font "CaskaydiaMono Nerd Font" :height 140 :weight 'regular) 
 
 
@@ -646,9 +644,13 @@ There are configurations to make when running Emacs on macOS (hence the
   :ensure t
   :custom
   (neo-show-hidden-files t)                ;; By default shows hidden files (toggle with H)
-  (neo-theme 'icons)                        ;; Set the default theme for Neotree to 'nerd' for a visually appealing look.
+  (neo-theme 'nerd-icons)                        ;; Set the default theme for Neotree to 'nerd' for a visually appealing look.
   (neo-vc-integration '(face char))        ;; Enable VC integration to display file states with faces (color coding) and characters (icons).
-  :defer t)                                 ;; Load the package only when needed to improve startup time.
+  :defer t
+	:config
+	(setq neo-theme (if (display-graphic-p) 'nerd-icons 'arrow))
+	(doom-themes-neotree-config)       ;; Enable custom neotree theme (all-the-icons must be installed!)
+	)                                 ;; Load the package only when needed to improve startup time.
 #+end_src
 
 ** Helpful
@@ -1513,6 +1515,7 @@ programming languages.
   (mu4e-maildir "~/Mail")
   (mu4e-attachment-dir "~/Downloads")
   (mu4e-change-filenames-when-moving t)
+	(mu4e-search-include-related nil)
   ;; === send email ===
   (mu4e-compose-format-flowed t)
   (message-kill-buffer-on-exit t)
