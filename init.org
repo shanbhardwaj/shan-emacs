@@ -75,7 +75,7 @@ customize settings in [[file:init.el][init.el]].
   (use-short-answers t)                           ;; Use short answers in prompts for quicker responses (y instead of yes)
   (warning-minimum-level :emergency)              ;; Set the minimum level of warnings to display.
   (uniquify-buffer-name-style    'forward)
-
+	(help-window-select t)
   :hook                                           ;; Add hooks to enable specific features in certain modes.
   (prog-mode . display-line-numbers-mode)         ;; Enable line numbers in programming modes.
 
@@ -393,10 +393,9 @@ customize settings in [[file:init.el][init.el]].
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
   			doom-themes-enable-italic t) ; if nil, italics is universally disabled
 
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (doom-themes-neotree-config)
+  (doom-themes-visual-bell-config)     ;; Enable flashing mode-line on errors
+	(require 'org-indent)
+  (doom-themes-neotree-config)       ;; Enable custom neotree theme (all-the-icons must be installed!)
   ;; or for treemacs users
   ;; (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
   ;; (doom-themes-treemacs-config)
@@ -1513,6 +1512,7 @@ programming languages.
   (mu4e-maildir "~/Mail")
   (mu4e-attachment-dir "~/Downloads")
   (mu4e-change-filenames-when-moving t)
+	(mu4e-search-include-related nil)
   ;; === send email ===
   (mu4e-compose-format-flowed t)
   (message-kill-buffer-on-exit t)
