@@ -745,6 +745,16 @@ We'll also need to ~(require 'multiple-cusors)~ because of [[https://github.com/
 
 #+end_src
 
+** Seethru
+#+begin_src emacs-lisp
+(use-package seethru
+:ensure t
+:defert t
+:config
+(seethru 95)
+(seethru-recommended-keybinds))
+#+end_src
+
 ** Smoothscrolling
 
 This makes it so ~C-n~-ing and ~C-p~-ing won't make the buffer jump
@@ -1516,6 +1526,7 @@ programming languages.
   (mu4e-attachment-dir "~/Downloads")
   (mu4e-change-filenames-when-moving t)
 	(mu4e-search-include-related nil)
+	(mu4e-view-prefer-html nil)
   ;; === send email ===
   (mu4e-compose-format-flowed t)
   (message-kill-buffer-on-exit t)
