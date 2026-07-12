@@ -82,6 +82,8 @@
 (bind-key "H-s" (defun save-and-recompile () (interactive) (save-buffer) (recompile)))
 
 (windmove-default-keybindings 'super)
+(bind-key "M-[" 'windmove-left)
+(bind-key "M-]" 'windmove-right)
 
 (defun align-values (start end)
   "Vertically aligns region based on lengths of the first value of each line."
