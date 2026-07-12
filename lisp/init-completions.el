@@ -46,7 +46,7 @@
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
   (vertico-mouse-mode 1)
   (vertico-multiform-mode 1)
-  (setq vertico-count 20)
+  (setq vertico-count 12)
   (setq vertico-cycle t)
   (setq vertico-resize nil))
 
