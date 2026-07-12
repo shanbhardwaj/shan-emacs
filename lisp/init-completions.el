@@ -56,6 +56,17 @@
               ("M-DEL" . vertico-directory-delete-word))
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
+;; show vertico in a centered child frame instead of expanding the
+;; minibuffer, so windows don't shift when M-x etc. open
+(use-package vertico-posframe
+  :ensure t
+  :after vertico
+  :custom
+  (vertico-posframe-poshandler #'posframe-poshandler-frame-center)
+  (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
+  :config
+  (vertico-posframe-mode 1))
+
 (use-package marginalia
   :ensure t
   :config
