@@ -11,13 +11,15 @@
          ("M-g i"   . consult-imenu)))
 
 (use-package consult-project-extra
+  :ensure t
   :defer t
   :bind
   (("C-c p F" . consult-project-extra-find)
    ("C-c p o" . consult-project-extra-find-other-window)))
 
 (use-package consult-todo
-  :demand t)
+  :ensure t
+  :commands (consult-todo consult-todo-all consult-todo-project))
 
 (use-package embark
   :ensure t
@@ -27,7 +29,8 @@
          ("C-c C-e" . embark-export)))
 
 (use-package embark-consult
-  :ensure t)
+  :ensure t
+  :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package vertico
   :ensure t
@@ -91,6 +94,7 @@
   (setq completion-styles '(orderless basic)))
 
 (use-package cape
+  :ensure t
   :defer t
   :bind (("C-c p p" . completion-at-point)
          ("C-c p d" . cape-dabbrev)
@@ -98,7 +102,6 @@
          ("C-c p f" . cape-file)
          ("C-c p k" . cape-keyword)
          ("C-c p a" . cape-abbrev)
-         ("C-c p i" . cape-ispell)
          ("C-c p l" . cape-line)
          ("C-c p w" . cape-dict)
          ("C-c p r" . cape-rfc1345))

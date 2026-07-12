@@ -72,6 +72,9 @@
 (global-set-key (kbd "C-c e") (lambda () (interactive) (find-file "~/.emacs.d/init.org")))
 (global-set-key (kbd "M-n") 'forward-paragraph)
 (global-set-key (kbd "M-p") 'backward-paragraph)
+;; non-native fullscreen: child frames (posframe) can't render over
+;; macOS native-fullscreen frames, which breaks vertico-posframe
+(setq ns-use-native-fullscreen nil)
 (bind-key "<s-return>" 'toggle-frame-fullscreen)
 (bind-key "s-[" 'previous-buffer)
 (bind-key "s-]" 'next-buffer)
