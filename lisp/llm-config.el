@@ -16,12 +16,17 @@
 
 (use-package agent-shell
   :ensure t
-  :commands (agent-shell-anthropic-start-claude-code)
-  :bind ("C-c a" . agent-shell-anthropic-start-claude-code)
+  :commands (agent-shell-anthropic-start-claude-code
+             agent-shell-openai-start-codex)
+  :bind (("C-c a" . agent-shell-anthropic-start-claude-code)
+         ("C-c A" . agent-shell-openai-start-codex))
   :config
-  ;; use the Claude subscription login (claude auth), not an API key
+  ;; both agents use subscription logins, not API keys:
+  ;; claude auth for Claude Code, ChatGPT login (codex login) for Codex
   (setq agent-shell-anthropic-authentication
-        (agent-shell-anthropic-make-authentication :login t)))
+        (agent-shell-anthropic-make-authentication :login t))
+  (setq agent-shell-openai-authentication
+        (agent-shell-openai-make-authentication :login t)))
 
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)

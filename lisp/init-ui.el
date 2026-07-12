@@ -29,7 +29,7 @@
   :config
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
     		doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-Horizon t)
+  (load-theme 'doom-horizon t)
   (doom-themes-visual-bell-config)     ;; Enable flashing mode-line on errors
   (require 'org-indent)
   ;;(doom-themes-org-configure)

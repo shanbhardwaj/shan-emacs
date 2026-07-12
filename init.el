@@ -12,11 +12,9 @@
 
 ;; --- Typography -------------------------------------------------------------
 (set-face-attribute 'default nil
-                    :height 140 :family "CaskaydiaMono Nerd Font")
+                    :height 160 :family "CaskaydiaMono Nerd Font")
 (set-face-attribute 'bold nil :weight 'regular)
 (set-face-attribute 'bold-italic nil :weight 'regular)
-(set-display-table-slot standard-display-table 'truncation (make-glyph-code ?…))
-(set-display-table-slot standard-display-table 'wrap (make-glyph-code ?–))
 
 ;; --- Frame / window layout --------------------------------------------------
 (modify-frame-parameters nil default-frame-alist)
@@ -87,11 +85,11 @@
 (load "~/.emacs.d/lisp/init-ui.el")
 (load "~/.emacs.d/lisp/init-completions.el")
 (load "~/.emacs.d/lisp/init-packages.el")
+(load "~/.emacs.d/lisp/init-email.el")
+(load "~/.emacs.d/lisp/llm-config.el")
 ;; (load "~/.emacs.d/lisp/init-ruby.el")
 ;; (load "~/.emacs.d/lisp/init-lsp.el")
 ;; (load "~/.emacs.d/lisp/init-vc.el")
-(load "~/.emacs.d/lisp/init-email.el")
-(load "~/.emacs.d/lisp/llm-config.el")
 ;; (load "~/.emacs.d/lisp/init-org.el")
 
 ;; --- Speed benchmarking -----------------------------------------------------

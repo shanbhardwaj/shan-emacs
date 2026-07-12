@@ -43,9 +43,9 @@
                           (setq mu4e-headers-fields
                                 `((:human-date . 25)
                                   (:flags . 6)
-                                  (:account . 25)
+                                  (:account . 10)
                                   (:from . 25)
-                                  (:thread-subject . ,(- (window-body-width) 101))
+                                  (:thread-subject . ,(- (window-body-width) 86))
                                   (:size . 7))))))
 
   :bind

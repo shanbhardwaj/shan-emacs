@@ -46,9 +46,20 @@
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
   (vertico-mouse-mode 1)
   (vertico-multiform-mode 1)
-  (setq vertico-count 12)
+  (setq vertico-count 20)
   (setq vertico-cycle t)
   (setq vertico-resize nil))
+
+;; show vertico in a centered child frame instead of expanding the
+;; minibuffer, so windows don't shift when M-x etc. open
+(use-package vertico-posframe
+  :ensure t
+  :after vertico
+  :custom
+  (vertico-posframe-poshandler #'posframe-poshandler-frame-center)
+  (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
+  :config
+  (vertico-posframe-mode 1))
 
 (use-package vertico-directory
   :after vertico

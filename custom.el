@@ -30,8 +30,8 @@
                            show-font smartparens smooth-scrolling
                            spacious-padding super-save svg-tag-mode
                            toml treemacs treesit-auto ts undo-fu
-                           vertico vterm vundo wgrep yaml-mode
-                           yasnippet))
+                           vertico vertico-posframe vterm vundo wgrep
+                           yaml-mode yasnippet))
  '(savehist-additional-variables '(kill-ring)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
