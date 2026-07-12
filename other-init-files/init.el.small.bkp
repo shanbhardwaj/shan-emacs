@@ -1,0 +1,191 @@
+;; nano-emacs.el --- NANO Emacs (minimal version)     -*- lexical-binding: t -*-
+
+;; Copyright (c) 2025  Nicolas P. Rougier
+;; Released under the GNU General Public License 3.0
+;; Author: Nicolas P. Rougier <nicolas.rougier@inria.fr>
+;; URL: https://github.com/rougier/nano-emacs
+
+;; This is NANO Emacs in 256 lines, without any dependency 
+;; Usage (command line):  emacs -Q -l nano.el -[light|dark]
+
+;; --- Speed benchmarking -----------------------------------------------------
+(setq init-start-time (current-time))
+
+(setq user-full-name "Shantanu Bhardwaj"
+      user-mail-address "shan@addvalsolutions.com")
+
+
+;; --- Typography stack -------------------------------------------------------
+;; (set-face-attribute 'default nil
+;;                     :height 140 :weight 'regular :family "Iosevka Nerd Font")
+(set-face-attribute 'default nil
+                    :height 120 :weight 'regular :family "Monaco Nerd Font Mono")
+(set-face-attribute 'bold nil :weight 'regular)
+(set-face-attribute 'bold-italic nil :weight 'regular)
+(set-display-table-slot standard-display-table 'truncation (make-glyph-code ?…))
+(set-display-table-slot standard-display-table 'wrap (make-glyph-code ?–))
+
+;; --- Frame / windows layout & behavior --------------------------------------
+(setq default-frame-alist
+      '((height . 44) (width  . 81) (left-fringe . 0) (right-fringe . 0)
+        (internal-border-width . 32) (vertical-scroll-bars . nil)
+        (bottom-divider-width . 0) (right-divider-width . 0)
+        (undecorated-round . t)))
+(modify-frame-parameters nil default-frame-alist)
+(setq-default pop-up-windows nil)
+
+;; --- Activate / Deactivate modes --------------------------------------------
+(tool-bar-mode -1) (menu-bar-mode -1) (blink-cursor-mode -1)
+(recentf-mode 1)
+(global-hl-line-mode 1) ;; (icomplete-vertical-mode 1)
+(pixel-scroll-precision-mode 1)
+
+;; --- Sane settings ----------------------------------------------------------
+(set-default-coding-systems 'utf-8)
+(setq-default indent-tabs-mode nil
+              ring-bell-function 'ignore
+              select-enable-clipboard t)
+(setq backup-directory-alist `(("." . "~/.emacs.d/backups")))
+;; --- OSX Specific -----------------------------------------------------------
+(when (eq system-type 'darwin)
+  (select-frame-set-input-focus (selected-frame))
+  (setq mac-option-modifier 'super
+        ns-function-modifier 'super
+        mac-right-command-modifier 'hyper
+        mac-right-option-modifier 'alt
+        mac-command-modifier 'meta)
+  ;; Fullscreen!
+  (setq ns-use-native-fullscreen nil) ; Not Lion style
+  (bind-key "<s-return>" 'toggle-frame-fullscreen)
+  (bind-key "s-[" 'previous-buffer)
+  (bind-key "s-]" 'next-buffer)
+  (bind-key "M-C-w" 'restart-emacs)
+  (setq delete-by-moving-to-trash t)
+  (setq trash-directory "~/.Trash")
+  (setq ns-pop-up-frames nil))
+
+--- Header & mode lines ----------------------------------------------------
+(setq-default mode-line-format "")
+(setq-default header-line-format
+  '(:eval
+    (let ((prefix (cond (buffer-read-only     '("RO" . nano-default-i))
+                        ((buffer-modified-p)  '("**" . nano-critical-i))
+                        (t                    '("RW" . nano-faded-i))))
+          (mode (concat "(" (downcase (cond ((consp mode-name) (car mode-name))
+                                            ((stringp mode-name) mode-name)
+                                            (t "unknow")))
+                        " mode)"))
+          (coords (format-mode-line "%c:%l ")))
+      (list
+       (propertize " " 'face (cdr prefix)  'display '(raise -0.25))
+       (propertize (car prefix) 'face (cdr prefix))
+       (propertize " " 'face (cdr prefix) 'display '(raise +0.25))
+       (propertize (format-mode-line " %b ") 'face 'nano-strong)
+       (propertize mode 'face 'header-line)
+       (propertize " " 'display `(space :align-to (- right ,(length coords))))
+       (propertize coords 'face 'nano-faded)))))
+  ;; (set-face-attribute 'header-line nil
+  ;;                     :background 'unspecified
+  ;;                     :underline nil
+  ;;                     :box `( :line-width 1
+  ;;                             :color ,(face-background 'nano-default))
+  ;;                     :inherit 'nano-subtle)
+  ;; (set-face-attribute 'mode-line nil
+  ;;                     :background (face-background 'default)
+  ;;                     :underline (face-foreground 'nano-faded)
+  ;;                     :height 40 :overline nil :box nil)
+  ;; (set-face-attribute 'mode-line-inactive nil
+  ;;                     :background (face-background 'default)
+  ;;                     :underline (face-foreground 'nano-faded)
+  ;;                     :height 40 :overline nil :box nil))
+
+;; --- Minibuffer setup -------------------------------------------------------
+(defun nano-minibuffer--setup ()
+  (set-window-margins nil 3 0)
+  (let ((inhibit-read-only t))
+    (add-text-properties (point-min) (+ (point-min) 1)
+      `(display ((margin left-margin)
+                 ,(format "# %s" (substring (minibuffer-prompt) 0 1))))))
+  (setq truncate-lines t))
+(add-hook 'minibuffer-setup-hook #'nano-minibuffer--setup)
+
+;; --- Speed benchmarking -----------------------------------------------------
+(let ((init-time (float-time (time-subtract (current-time) init-start-time)))
+      (total-time (string-to-number (emacs-init-time "%f"))))
+  (message (concat
+    (propertize "Startup time: " 'face 'bold)
+    (format "%.2fs " init-time)
+    (propertize (format "(+ %.2fs system time)"
+                        (- total-time init-time)) 'face 'shadow))))
+
+;; --- Packages and stuff -----------------------------------------------------
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")
+			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+(package-initialize)
+(require 'use-package)
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
+
+(let* ((dir (expand-file-name (concat user-emacs-directory "local-packages")))
+       (default-directory dir))
+  (when (file-directory-p dir)
+    (add-to-list 'load-path dir)
+    (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
+        (normal-top-level-add-subdirs-to-load-path))))
+
+;; Load ui settings
+(load "~/.emacs.d/lisp/init-completions.el")
+(load "~/.emacs.d/lisp/init-packages.el")
+;; (load "~/.emacs.d/lisp/init-settings.el")
+;; (load "~/.emacs.d/lisp/init-ui.el")
+;; (load "~/.emacs.d/lisp/init-builtin.el")
+;; (load "~/.emacs.d/lisp/init-ruby.el")
+;; (load "~/.emacs.d/lisp/init-lsp.el")
+;; (load "~/.emacs.d/lisp/init-vc.el")
+;; (load "~/.emacs.d/lisp/init-email.el")
+(load "~/.emacs.d/lisp/llm-config.el")
+;; (load "~/.emacs.d/lisp/init-org.el")
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(add-node-modules-path apheleia auto-dark blamer cape
+                           catppuccin-theme claude-code-ide
+                           comment-dwim-2 consult-todo
+                           corfu-candidate-overlay dape diminish
+                           dirvish disproject doom-themes dotenv-mode
+                           dracula-theme dune dune-format eat
+                           ef-themes embark-consult
+                           exec-path-from-shell gcmh git-gutter-fringe
+                           git-timemachine gptel helpful
+                           hindu-calendar indent-guide kv learn-ocaml
+                           lsp-tailwindcss magit-todos marginalia
+                           merlin-company merlin-eldoc merlin-iedit
+                           mise mistty mu4e-column-faces
+                           mu4e-marker-icons mu4e-views
+                           multiple-cursors neotree
+                           nerd-icons-completion nerd-icons-corfu
+                           nerd-icons-dired no-littering ocaml-ts-mode
+                           orderless org-auto-tangle orgit-forge
+                           persistent-scratch rainbow-delimiters
+                           rainbow-mode rbenv robe rspec-mode rubocop
+                           ruby-refactor ruby-tools scratch
+                           seeing-is-believing seethru shell-pop
+                           smartparens smooth-scrolling
+                           spacious-padding super-save svg-tag-mode
+                           toml treemacs treesit-auto ts undo-fu
+                           vertico vterm vundo wgrep yaml-mode
+                           yasnippet))
+ '(savehist-additional-variables '(kill-ring)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

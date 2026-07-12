@@ -1,32 +1,44 @@
+# macOS noise
 *.DS_Store
+
+# compiled elisp
 *.elc
-/Not used/
-/backups/
-/eln-cache/
+
+# packages and build artifacts
 /elpa/
-/history
-/localpackages/welcome-dashboard
-/localpackages/indent-bars
-/places
-/projectile-bookmarks.eld
-/quelpa/
-/recentf
-/themes/.DS_Store
-/transient/
-/var/
 /eln-cache/
+/local-packages/
+/tree-sitter/
+/quelpa/
 /straight/
-/github/mu4e-tff/
-.persistent-scratch
+
+# runtime state and caches
 /.cache/
 /auto-save-list/
-/dape-breakpoints
+/var/
+/url/
+/agent/
+/devdocs/
 /hackernews/
+/backups/
+/history
+/places
+/recentf
+/savehist
+/transient/
+/eshell/
+/tramp
+/projects
+/network-security.eld
+/.emacs.desktop*
+/.persistent-scratch
+/.lsp-session*
+/.mc-lists.el
+/.dap-breakpoints
+/dape-breakpoints
+/forge-database*.sqlite
+/projectile-bookmarks.eld
 /projectile.cache
-/tree-sitter/
-eshell/*
-eshell*
+
+# user snippets intentionally unversioned
 etc/yasnippet/snippets
-local-packages
-*lsp*
-*custom*

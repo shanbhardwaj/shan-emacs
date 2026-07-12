@@ -5,40 +5,37 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(apheleia auto-dark blamer cape consult-project-extra consult-todo
-              corfu devdocs diminish ef-themes ellama embark-consult
-              exec-path-from-shell expand-region gcmh
-              git-gutter-fringe git-link git-timemachine
-              github-notifier helpful hideshowvis indent-bars
-              lsp-tailwindcss lsp-ui magit-file-icons magit-gh-pulls
-              magit-todos marginalia modus-themes
-              nerd-icons-completion nerd-icons-corfu nerd-icons-dired
-              no-littering orderless orgit-forge persistent-scratch
-              project-treemacs rainbow-delimiters rainbow-mode scratch
-              smartparens smooth-scrolling spacious-padding toml
-              treemacs-magit treemacs-nerd-icons undo-fu
-              vertico-posframe vundo wgrep yasnippet))
+   '(add-node-modules-path agent-shell apheleia auto-dark blamer cape
+                           catppuccin-theme claude-code-ide
+                           comment-dwim-2 consult-project-extra
+                           consult-todo corfu-candidate-overlay dape
+                           diminish dirvish disproject doom-modeline
+                           doom-themes dotenv-mode dracula-theme dune
+                           dune-format eat ef-themes embark-consult
+                           exec-path-from-shell gcmh git-gutter-fringe
+                           git-link git-timemachine gptel helpful
+                           hindu-calendar indent-guide kv learn-ocaml
+                           lsp-tailwindcss lsp-ui magit-todos
+                           marginalia merlin-company merlin-eldoc
+                           merlin-iedit mise mistty move-text
+                           mu4e-column-faces mu4e-marker-icons
+                           mu4e-views multiple-cursors neotree
+                           nerd-icons-completion nerd-icons-corfu
+                           nerd-icons-dired no-littering ocaml-ts-mode
+                           orderless org-auto-tangle orgit-forge
+                           persistent-scratch rainbow-delimiters
+                           rainbow-mode rbenv robe rspec-mode rubocop
+                           ruby-refactor ruby-tools scratch
+                           seeing-is-believing seethru shell-pop
+                           show-font smartparens smooth-scrolling
+                           spacious-padding super-save svg-tag-mode
+                           toml treemacs treesit-auto ts undo-fu
+                           vertico vterm vundo wgrep yaml-mode
+                           yasnippet))
  '(savehist-additional-variables '(kill-ring)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(fringe ((t :background "White")))
- '(header-line ((t :box (:line-width 4 :color "grey90" :style nil))))
- '(header-line-highlight ((t :box (:color "Black"))))
- '(keycast-key ((t)))
- '(line-number ((t :background "White")))
- '(mode-line ((t :box (:line-width 6 :color "grey75" :style nil))))
- '(mode-line-active ((t :box (:line-width 6 :color "grey75" :style nil))))
- '(mode-line-highlight ((t :box (:color "Black"))))
- '(mode-line-inactive ((t :box (:line-width 6 :color "grey90" :style nil))))
- '(tab-bar-tab ((t :box (:line-width 4 :color "grey85" :style nil))))
- '(tab-bar-tab-inactive ((t :box (:line-width 4 :color "grey75" :style nil))))
- '(tab-line-tab ((t)))
- '(tab-line-tab-active ((t)))
- '(tab-line-tab-inactive ((t)))
- '(vertical-border ((t :background "White" :foreground "White")))
- '(window-divider ((t (:background "White" :foreground "White"))))
- '(window-divider-first-pixel ((t (:background "White" :foreground "White"))))
- '(window-divider-last-pixel ((t (:background "White" :foreground "White")))))
+ )
