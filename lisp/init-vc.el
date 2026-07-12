@@ -43,17 +43,6 @@
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-(use-package magit-todos
-  :ensure t
-  :commands (magit-todos-mode)
-  :hook (magit-mode . magit-todos-mode)
-  :config
-  (setq magit-todos-recursive t
-        magit-todos-depth 10
-        magit-todos-exclude-globs '("*Pods*" ".git/" "*elpa*" "*var/lsp/*"))
-  (custom-set-variables
-   '(magit-todos-keywords (list "TODO" "FIXME" "HACK"))))
-
 (use-package blamer
   :ensure t
   :commands (blamer-mode)

@@ -50,13 +50,13 @@
   (setq vertico-cycle t)
   (setq vertico-resize nil))
 
-;; show vertico in a centered child frame instead of expanding the
-;; minibuffer, so windows don't shift when M-x etc. open
+;; show vertico in a child frame at the bottom (where the minibuffer
+;; normally sits), so windows don't shift when M-x etc. open
 (use-package vertico-posframe
   :ensure t
   :after vertico
   :custom
-  (vertico-posframe-poshandler #'posframe-poshandler-frame-center)
+  (vertico-posframe-poshandler #'posframe-poshandler-frame-bottom-center)
   (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
   :config
   (vertico-posframe-mode 1))
