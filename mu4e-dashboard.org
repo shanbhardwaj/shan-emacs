@@ -1,0 +1,32 @@
+#+STARTUP: showall
+
+* Mail                                            [[mu:(maildir:/kulcare/INBOX or maildir:/addval/INBOX or maildir:/gmail/INBOX or maildir:/codetiger/INBOX) and flag:unread|%3d unread][  0 unread]]
+
+[[mu:maildir:/kulcare/INBOX][Kulcare]] ..........  [[mu:maildir:/kulcare/INBOX and flag:unread|(%3d)][(  0)]]  [k]
+[[mu:maildir:/addval/INBOX][Addval]] ...........  [[mu:maildir:/addval/INBOX and flag:unread|(%3d)][(  0)]]  [a]
+[[mu:maildir:/gmail/INBOX][Gmail]] ............  [[mu:maildir:/gmail/INBOX and flag:unread|(%3d)][(  0)]]  [g]
+[[mu:maildir:/codetiger/INBOX][Codetiger]] ........  [[mu:maildir:/codetiger/INBOX and flag:unread|(%3d)][(  0)]]  [c]
+[[mu:maildir:/kulcare/INBOX or maildir:/addval/INBOX or maildir:/gmail/INBOX or maildir:/codetiger/INBOX][All inboxes]] ......  [[mu:maildir:/kulcare/INBOX or maildir:/addval/INBOX or maildir:/gmail/INBOX or maildir:/codetiger/INBOX|(%4d)][(   0)]]  [i]
+
+[[mu:(maildir:/kulcare/INBOX or maildir:/addval/INBOX or maildir:/gmail/INBOX or maildir:/codetiger/INBOX) and flag:unread][Unread]] [u]    [[mu:(maildir:/kulcare/INBOX or maildir:/addval/INBOX or maildir:/gmail/INBOX or maildir:/codetiger/INBOX) and date:2w..][Recent]] [r]    [[mu:date:today..now][Today]] [t]    [[mu:(maildir:/kulcare/INBOX or maildir:/addval/INBOX or maildir:/gmail/INBOX or maildir:/codetiger/INBOX) and flag:flagged][Reply queue]] /[[mu:(maildir:/kulcare/INBOX or maildir:/addval/INBOX or maildir:/gmail/INBOX or maildir:/codetiger/INBOX) and flag:flagged|(%3d)][(  0)]]/ [f]
+
+Compose [C]    Update [U]    mu4e [m]    Quit [q]
+
+* Configuration
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+
+#+KEYMAP: k | mu4e-headers-search "maildir:/kulcare/INBOX"
+#+KEYMAP: a | mu4e-headers-search "maildir:/addval/INBOX"
+#+KEYMAP: g | mu4e-headers-search "maildir:/gmail/INBOX"
+#+KEYMAP: c | mu4e-headers-search "maildir:/codetiger/INBOX"
+#+KEYMAP: i | mu4e-headers-search "maildir:/kulcare/INBOX or maildir:/addval/INBOX or maildir:/gmail/INBOX or maildir:/codetiger/INBOX"
+#+KEYMAP: u | mu4e-headers-search "(maildir:/kulcare/INBOX or maildir:/addval/INBOX or maildir:/gmail/INBOX or maildir:/codetiger/INBOX) and flag:unread"
+#+KEYMAP: r | mu4e-headers-search "(maildir:/kulcare/INBOX or maildir:/addval/INBOX or maildir:/gmail/INBOX or maildir:/codetiger/INBOX) and date:2w.."
+#+KEYMAP: t | mu4e-headers-search "date:today..now"
+#+KEYMAP: f | mu4e-headers-search "(maildir:/kulcare/INBOX or maildir:/addval/INBOX or maildir:/gmail/INBOX or maildir:/codetiger/INBOX) and flag:flagged"
+#+KEYMAP: C | mu4e-compose-new
+#+KEYMAP: U | mu4e-dashboard-update
+#+KEYMAP: m | mu4e
+#+KEYMAP: q | kill-current-buffer

@@ -23,7 +23,7 @@
                            mu4e-views multiple-cursors neotree
                            nerd-icons-completion nerd-icons-corfu
                            nerd-icons-dired no-littering ocaml-ts-mode
-                           orderless org-auto-tangle orgit-forge
+                           orderless org-gcal orgit-forge
                            persistent-scratch rainbow-delimiters
                            rainbow-mode rbenv robe rspec-mode rubocop
                            ruby-refactor ruby-tools scratch

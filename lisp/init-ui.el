@@ -30,6 +30,15 @@
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
     		doom-themes-enable-italic t) ; if nil, italics is universally disabled
   (load-theme 'doom-horizon t)
+  ;; doom-horizon's inactive mode-line text is bg lightened 20% -- too
+  ;; faint to read at the reduced 0.8 mode-line height; use dimmed fg
+  (set-face-attribute 'mode-line-inactive nil
+                      :foreground (doom-darken (doom-color 'fg) 0.35))
+  ;; header-line inherits mode-line in doom themes; the 0.8 mode-line
+  ;; height would shrink it too and misalign mu4e's column headers, so
+  ;; pin it to the default font size (absolute height overrides inherit)
+  (set-face-attribute 'header-line nil
+                      :height (face-attribute 'default :height))
   (doom-themes-visual-bell-config)     ;; Enable flashing mode-line on errors
   (require 'org-indent)
   ;;(doom-themes-org-configure)
@@ -99,10 +108,10 @@
   (doom-modeline-github nil)      ; no github polling timer
   (doom-modeline-battery nil)
   ;; integrations
-  (doom-modeline-mu4e t))         ; unread count via mu4e-alert
+  (doom-modeline-mu4e nil))       ; unread count comes from mu4e-modeline-mode instead
 
-(set-face-attribute 'mode-line nil :height 0.8)
-(set-face-attribute 'mode-line-inactive nil :height 0.8)
+;; (set-face-attribute 'mode-line nil :height 0.8)
+;; (set-face-attribute 'mode-line-inactive nil :height 0.8)
 
 ;; (defun reset-modeline()
 ;;   "Reset the modeline to 12pt font"

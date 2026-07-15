@@ -26,7 +26,14 @@
   :bind (("C-." . embark-act)
          :map minibuffer-local-map
          ("C-c C-c" . embark-collect)
-         ("C-c C-e" . embark-export)))
+         ("C-c C-e" . embark-export))
+  :custom
+  ;; pick actions via completing-read so the menu renders in the vertico
+  ;; posframe, instead of the key-listing buffer taking over a window
+  (embark-prompter #'embark-completing-read-prompter)
+  (embark-indicators '(embark-minimal-indicator
+                       embark-highlight-indicator
+                       embark-isearch-highlight-indicator)))
 
 (use-package embark-consult
   :ensure t

@@ -12,7 +12,8 @@
 
 ;; --- Typography -------------------------------------------------------------
 (set-face-attribute 'default nil
-                    :height 160 :family "CaskaydiaMono Nerd Font")
+                    :height 120 :family "Monaco")
+                    ;; :height 160 :family "CaskaydiaMono Nerd Font")
 (set-face-attribute 'bold nil :weight 'regular)
 (set-face-attribute 'bold-italic nil :weight 'regular)
 
@@ -41,7 +42,9 @@
 
 ;; --- macOS ------------------------------------------------------------------
 (when (eq system-type 'darwin)
-  (select-frame-set-input-focus (selected-frame))
+  ;; skip under --daemon: there is no GUI frame to focus at startup
+  (when (display-graphic-p)
+    (select-frame-set-input-focus (selected-frame)))
   (setq mac-option-modifier 'super
         ns-function-modifier 'super
         mac-right-command-modifier 'hyper
@@ -90,7 +93,7 @@
 ;; (load "~/.emacs.d/lisp/init-ruby.el")
 ;; (load "~/.emacs.d/lisp/init-lsp.el")
 ;; (load "~/.emacs.d/lisp/init-vc.el")
-;; (load "~/.emacs.d/lisp/init-org.el")
+(load "~/.emacs.d/lisp/init-org.el")
 
 ;; --- Speed benchmarking -----------------------------------------------------
 (let ((init-time (float-time (time-subtract (current-time) init-start-time)))

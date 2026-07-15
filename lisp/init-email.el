@@ -62,13 +62,9 @@
                              :function
                              (lambda (msg)
                                (let ((md (mu4e-message-field msg :maildir)))
-                                 (or (when (string-match "\\`/\\([^/]+\\)" md)
-                                       (cdr (assoc (match-string 1 md)
-                                                   '(("addval"    . "shan@addvalsolutions.com")
-                                                     ("kulcare"   . "shantanu@kulcare.com")
-                                                     ("codetiger" . "shan@codetiger.com")
-                                                     ("gmail"     . "bhardwaj.10@gmail.com")))))
-                                     md))))))
+                                 (if (string-match "\\`/\\([^/]+\\)" md)
+                                     (capitalize (match-string 1 md))
+                                   md))))))
 
   ;; hide deleted-but-not-yet-expunged messages from all headers views
   (setq mu4e-search-hide-predicate
@@ -85,11 +81,29 @@
           ("/kulcare/[Gmail]/Drafts"    . ?d)
           ("/kulcare/[Gmail]/All Mail"  . ?l)))
 
+  ;; every entry on the main screen is a bookmark so that mu4e keeps its
+  ;; count/unread numbers up to date (via `mu4e-query-items')
   (setq mu4e-bookmarks
-        '((:name "Inbox - Kulcare"  :query "maildir:/kulcare/INBOX"  :key ?k)
-          (:name "Inbox - Addval"   :query "maildir:/addval/INBOX"   :key ?a)
-          (:name "Inbox - Gmail"    :query "maildir:/gmail/INBOX"    :key ?g)
-          (:name "Inbox - Codetiger":query "maildir:/codetiger/INBOX":key ?c)))
+        (let ((inboxes (concat "maildir:/kulcare/INBOX OR maildir:/addval/INBOX "
+                               "OR maildir:/gmail/INBOX OR maildir:/codetiger/INBOX"))
+              (sent (mapconcat (lambda (a)
+                                 (format "maildir:\"/%s/[Gmail]/Sent Mail\"" a))
+                               '("kulcare" "addval" "gmail" "codetiger")
+                               " OR ")))
+          `((:name "Unread" :query ,(format "(%s) AND flag:unread" inboxes)
+             :key ?u :favorite t) ; favorite: unread count shows in the modeline
+            (:name "Inbox"      :query ,inboxes             :key ?i)
+            (:name "Reply queue" :query ,(format "(%s) AND flag:flagged" inboxes) :key ?f)
+            (:name "Drafts"     :query "flag:draft"         :key ?d)
+            (:name "Sent"       :query ,sent                :key ?s)
+            (:name "Today"      :query "date:today..now"    :key ?t)
+            (:name "Yesterday"  :query "date:2d..1d"        :key ?y)
+            (:name "Last week"  :query "date:7d..now"       :key ?w)
+            (:name "Last month" :query "date:4w..now"       :key ?m)
+            (:name "Kulcare"    :query "maildir:/kulcare/INBOX"   :key ?k)
+            (:name "Addval"     :query "maildir:/addval/INBOX"    :key ?a)
+            (:name "Gmail"      :query "maildir:/gmail/INBOX"     :key ?g)
+            (:name "Codetiger"  :query "maildir:/codetiger/INBOX" :key ?c))))
 
   (setq mu4e-contexts
         `(,(make-mu4e-context
@@ -142,14 +156,114 @@
                     (mu4e-drafts-folder    . "/gmail/[Gmail]/Drafts")
                     (mu4e-sent-folder      . "/gmail/[Gmail]/Sent Mail")
                     (mu4e-refile-folder    . "/gmail/[Gmail]/All Mail")
-                    (mu4e-trash-folder     . "/gmail/[Gmail]/Trash"))))))
+                    (mu4e-trash-folder     . "/gmail/[Gmail]/Trash")))))
 
-(use-package mu4e-alert
-  :ensure t
-  :after mu4e
-  :config
-  (setq mu4e-alert-email-notification-types '(count))
-  (mu4e-alert-enable-mode-line-display))
+  ;; --- Rougier-style main screen -------------------------------------
+  ;; Replaces the default mu4e main view with a compact dashboard; all
+  ;; counts come from `mu4e-query-items' so they refresh with the index.
+
+  (defun shan/mu4e--counts (key)
+    "Query-item plist (with :count/:unread) for the bookmark with char KEY."
+    (or (seq-find (lambda (item) (eq (plist-get item :key) key))
+                  (mu4e-query-items 'bookmarks))
+        '(:count 0 :unread 0)))
+
+  (defun shan/mu4e--bookmark-cmd (key)
+    "Command running the search of the bookmark with char KEY."
+    (lambda ()
+      (interactive)
+      (mu4e-search-bookmark (mu4e-get-bookmark-query key))))
+
+  (defun shan/mu4e--main-cell (label key cmd width &optional count)
+    "Dot-padded cell \"LABEL (COUNT) ... [KEY]\" of WIDTH chars, activating CMD."
+    (let* ((text (if count (format "%s (%d)" label count) label))
+           (dots (max 1 (- width (string-width text) 5)))
+           (map (make-sparse-keymap)))
+      (define-key map [mouse-1] cmd)
+      (define-key map (kbd "RET") cmd)
+      (concat
+       (propertize text 'face 'mu4e-highlight-face
+                   'mouse-face 'highlight 'keymap map)
+       " " (make-string dots ?.) " "
+       (propertize (format "[%s]" (string key)) 'face 'shadow))))
+
+  (defun shan/mu4e--main-contents ()
+    "Render the Rougier-style main screen."
+    (let* ((w1 24) (w2 27) (w3 20) (sep "   ")
+           (line-width (+ 2 w1 w2 w3 (* 2 (length sep))))
+           (col1 '(("Unread" ?u) ("Inbox" ?i) ("Drafts" ?d) ("Sent" ?s)))
+           (col2 '(("Today" ?t) ("Yesterday" ?y)
+                   ("Last week" ?w) ("Last month" ?m)))
+           (col3 (list (list "Compose" ?C #'mu4e-compose-new)
+                       (list "Update" ?U #'mu4e-update-mail-and-index)
+                       (list "Switch context" ?\; #'mu4e-context-switch)
+                       (list "Quit" ?q #'mu4e-quit)))
+           (header
+            (let ((left "* Mu for Emacs (mu4e)")
+                  (right (format "%d unread"
+                                 (or (plist-get (shan/mu4e--counts ?u) :count)
+                                     0))))
+              (concat
+               (propertize left 'face 'mu4e-title-face)
+               (make-string (max 1 (- line-width (length left) (length right)))
+                            ?\s)
+               (propertize right 'face 'mu4e-header-key-face))))
+           (bookmark-cell
+            (lambda (entry width &optional unread)
+              (pcase-let ((`(,label ,key) entry))
+                (shan/mu4e--main-cell
+                 label key (shan/mu4e--bookmark-cmd key) width
+                 (or (plist-get (shan/mu4e--counts key)
+                                (if unread :unread :count))
+                     0))))))
+      (concat
+       header "\n\n"
+       (mapconcat
+        (lambda (i)
+          (pcase-let ((`(,label ,key ,cmd) (nth i col3)))
+            (concat
+             "  "
+             (funcall bookmark-cell (nth i col1) w1) sep
+             (funcall bookmark-cell (nth i col2) w2) sep
+             (shan/mu4e--main-cell label key cmd w3))))
+        '(0 1 2 3) "\n")
+       "\n\n"
+       ;; per-account inboxes, showing unread counts
+       "  " (funcall bookmark-cell '("Kulcare" ?k) w1 'unread) sep
+       (funcall bookmark-cell '("Addval" ?a) w2 'unread) "\n"
+       "  " (funcall bookmark-cell '("Gmail" ?g) w1 'unread) sep
+       (funcall bookmark-cell '("Codetiger" ?c) w2 'unread) "\n")))
+
+  (defun shan/mu4e--main-redraw ()
+    "Redraw the mu4e main buffer, Rougier style."
+    (when-let* ((buffer (get-buffer mu4e-main-buffer-name))
+                (buffer (and (buffer-live-p buffer) buffer)))
+      (with-current-buffer buffer
+        (let ((inhibit-read-only t)
+              (pos (point)))
+          (unless (eq major-mode 'mu4e-main-mode)
+            (mu4e-main-mode))
+          (erase-buffer)
+          (insert (shan/mu4e--main-contents))
+          (goto-char (min pos (point-max)))))))
+
+  (advice-add #'mu4e--main-redraw :override #'shan/mu4e--main-redraw)
+
+  (defun shan/mu4e-main-setup-keys ()
+    "Bind the dashboard's single-key searches in the main buffer only."
+    (let ((map (make-sparse-keymap)))
+      ;; inherit search-minor-mode bindings, then shadow ours on top;
+      ;; plain search moves from `s' (now Sent) to `/'
+      (set-keymap-parent map mu4e-search-minor-mode-map)
+      (dolist (key '(?u ?i ?d ?s ?t ?y ?w ?m ?k ?a ?g ?c))
+        (define-key map (string key) (shan/mu4e--bookmark-cmd key)))
+      (define-key map "/" #'mu4e-search)
+      (setq-local minor-mode-overriding-map-alist
+                  (list (cons 'mu4e-search-minor-mode map)))))
+  (add-hook 'mu4e-main-mode-hook #'shan/mu4e-main-setup-keys))
+
+;; unread count in the modeline comes from mu4e's native mu4e-modeline-mode
+;; via the :favorite bookmark (mu4e-alert was removed as redundant)
 
 (use-package mu4e-column-faces
   :after mu4e
