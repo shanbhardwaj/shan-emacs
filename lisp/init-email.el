@@ -66,10 +66,29 @@
                                      (capitalize (match-string 1 md))
                                    md))))))
 
-  ;; hide deleted-but-not-yet-expunged messages from all headers views
+  ;; hide trashed/spam mail from search results: both messages marked for
+  ;; deletion (trashed flag) and mail living in Trash/Spam folders (e.g.
+  ;; deleted from another device). Skipped when the query itself asks for
+  ;; Trash/Spam, so those folders stay browsable via j or s.
   (setq mu4e-search-hide-predicate
         (lambda (msg)
-          (memq 'trashed (mu4e-message-field msg :flags))))
+          (let ((md (mu4e-message-field msg :maildir))
+                (query (or (mu4e-last-query) "")))
+            (and (not (string-match-p "Trash\\|Spam" query))
+                 (or (memq 'trashed (mu4e-message-field msg :flags))
+                     (string-match-p "/\\(Trash\\|Spam\\)\\'" md))))))
+
+  ;; ^ jumps straight back to the main screen from headers or the
+  ;; message view, collapsing the split (dired-style "up")
+  (defun shan/mu4e-goto-main ()
+    "Close the view/headers buffers and return to the mu4e main screen."
+    (interactive)
+    (when (derived-mode-p 'mu4e-view-mode)
+      (mu4e-view-quit))
+    (when (derived-mode-p 'mu4e-headers-mode)
+      (mu4e~headers-quit-buffer)))
+  (define-key mu4e-headers-mode-map (kbd "^") #'shan/mu4e-goto-main)
+  (define-key mu4e-view-mode-map (kbd "^") #'shan/mu4e-goto-main)
 
   (setq mu4e-maildir-shortcuts
         '(("/kulcare/INBOX"             . ?k)
