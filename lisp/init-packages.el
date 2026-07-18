@@ -43,7 +43,7 @@
 (use-package neotree
   :ensure
   :defer t
-  :bind ("C-<f8>" . neotree-toggle)
+  :bind ("C-<f8>" . shan/neotree-project-toggle) ; defined in init-project.el
   :custom
   (neo-show-hidden-files t)
   (neo-theme 'nerd-icons)
@@ -98,6 +98,13 @@
   :config
   (setq rainbow-x-colors nil))
 
+(use-package which-key
+  :ensure nil ; built into Emacs 30+
+  :diminish
+  :config
+  (setq which-key-idle-delay 0.5)
+  (which-key-mode 1))
+
 (use-package move-text
   :ensure t
   :bind (("M-<up>"   . move-text-up)
@@ -114,7 +121,12 @@
   (setq savehist-save-minibuffer-history t)
   (savehist-mode 1)
   :config
-  ;; cap persisted kill-ring entries so the savehist file can't balloon
+  ;; cap persisted kill-ring entries so the savehist file can't balloon;
+  ;; drop any uncapped kill-ring entry first (Custom keeps re-saving one
+  ;; into custom.el from long-running sessions)
+  (setq savehist-additional-variables
+        (cl-remove-if (lambda (x) (eq (if (consp x) (car x) x) 'kill-ring))
+                      savehist-additional-variables))
   (add-to-list 'savehist-additional-variables '(kill-ring . 25)))
 
 (use-package seethru

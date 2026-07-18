@@ -67,11 +67,19 @@
 ;; (must load before anything else computes its state-file paths)
 (use-package no-littering
   :ensure t
-  :demand t)
+  :demand t
+  :config
+  ;; route backup and auto-save files into var/ instead of alongside
+  ;; the files being edited
+  (no-littering-theme-backups))
 
 (use-package exec-path-from-shell
   :ensure t
   :config
+  ;; login shell (-l): bash only reads .bash_profile/.bashrc for login
+  ;; shells, so this is required for a correct PATH (fish was fine with
+  ;; a plain non-interactive shell; bash is not)
+  (setq exec-path-from-shell-arguments '("-l"))
   (exec-path-from-shell-initialize))
 
 ;; --- Local packages ---------------------------------------------------------
@@ -87,6 +95,7 @@
 (load "~/.emacs.d/lisp/init-settings.el")
 (load "~/.emacs.d/lisp/init-ui.el")
 (load "~/.emacs.d/lisp/init-completions.el")
+(load "~/.emacs.d/lisp/init-project.el")
 (load "~/.emacs.d/lisp/init-packages.el")
 (load "~/.emacs.d/lisp/init-email.el")
 (load "~/.emacs.d/lisp/llm-config.el")
@@ -94,6 +103,14 @@
 ;; (load "~/.emacs.d/lisp/init-lsp.el")
 ;; (load "~/.emacs.d/lisp/init-vc.el")
 (load "~/.emacs.d/lisp/init-org.el")
+
+;; --- Server -------------------------------------------------------------
+;; normally the emacs-plus daemon serves emacsclient; if it isn't running
+;; (or died), serve from this instance so Emacs Client.app and tooling
+;; can always connect
+(require 'server)
+(unless (or (daemonp) (server-running-p))
+  (server-start))
 
 ;; --- Speed benchmarking -----------------------------------------------------
 (let ((init-time (float-time (time-subtract (current-time) init-start-time)))

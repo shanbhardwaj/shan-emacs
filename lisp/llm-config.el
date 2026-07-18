@@ -87,11 +87,28 @@ Merges the dashboard's default source with sessions found under
   (setq agent-shell-dashboard-recent-sessions-function
         #'my/agent-shell-dashboard-recent-sessions))
 
+;; terminal emulator backed by libghostty; the native module lives in
+;; var/ghostel/ (outside the package dir) so package updates can't
+;; clobber it while loaded
+(use-package ghostel
+  :ensure t
+  :defer t
+  :custom
+  (ghostel-module-directory (expand-file-name "var/ghostel/" user-emacs-directory))
+  (ghostel-module-auto-install 'download)
+  ;; defaults plus M-o: keep window-hopping working inside terminals
+  (ghostel-keymap-exceptions
+   '("C-c" "C-x" "C-u" "C-h" "M-x" "M-:" "C-\\" "M-o")))
+
+;; same exemption for any remaining eat terminal buffers
+(with-eval-after-load 'eat
+  (define-key eat-semi-char-mode-map (kbd "M-o") #'other-window))
+
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+  :bind ("C-c C-'" . claude-code-ide-menu)
   :config
-  (claude-code-ide-emacs-tools-setup)
-  (setq claude-code-ide-terminal-backend 'eat)) ; Optionally enable Emacs MCP tools
+  (claude-code-ide-emacs-tools-setup) ; expose Emacs MCP tools (xref, imenu, ...)
+  (setq claude-code-ide-terminal-backend 'ghostel))
 
 (provide 'llm-config)

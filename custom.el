@@ -13,10 +13,10 @@
                            dirvish disproject doom-modeline
                            doom-themes dotenv-mode dracula-theme dune
                            dune-format eat ef-themes embark-consult
-                           exec-path-from-shell gcmh git-gutter-fringe
-                           git-link git-timemachine gptel helpful
-                           hindu-calendar indent-guide kv learn-ocaml
-                           lsp-tailwindcss lsp-ui
+                           exec-path-from-shell gcmh ghostel
+                           git-gutter-fringe git-link git-timemachine
+                           gptel helpful hindu-calendar indent-guide
+                           kv learn-ocaml lsp-tailwindcss lsp-ui
                            marginalia merlin-company merlin-eldoc
                            merlin-iedit mise mistty move-text
                            mu4e-column-faces mu4e-marker-icons
