@@ -39,7 +39,8 @@
 (use-package magit
   :ensure t
   :commands (magit-status magit-ediff-show-working-tree)
-  :bind ("C-c C-d" . magit-ediff-show-working-tree)
+  :bind (("C-x g" . magit-status) ; conventional magit entry point
+         ("C-c C-d" . magit-ediff-show-working-tree))
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
@@ -64,7 +65,16 @@
 (use-package forge
   :ensure t
   :after magit
-  :defer t)
+  :defer t
+  :config
+  (defun shan/forge-my-issues ()
+    "List my open issues in the current repository's forge."
+    (interactive)
+    (forge-topics-setup-buffer nil nil
+                               :type 'issue
+                               :assignee (magit-get "github.user")
+                               :state 'open))
+  (bind-key "H-i" 'shan/forge-my-issues))
 
 (use-package orgit-forge
   :ensure t

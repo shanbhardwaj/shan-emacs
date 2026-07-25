@@ -73,6 +73,65 @@
 ;; group" warnings into every M-x shell-command (fish tolerated -ic)
 (setq shell-command-switch "-c")
 
+;; --- TRAMP (remote editing over ssh) ---------------------------------
+;; ssh connection sharing comes from ~/.ssh/config (ControlPersist);
+;; auto-saves and backups of remote files stay local via no-littering
+(setq tramp-default-method "ssh")
+(setq tramp-verbose 1)                  ; errors only; default 3 is chatty
+(setq remote-file-name-inhibit-locks t) ; don't scatter .#lockfiles remotely
+
+;; Keepalive so a dead remote drops instead of hanging forever. Without
+;; this, a network drop leaves tramp-wait-for-output blocked indefinitely;
+;; combined with global-auto-revert-mode's timer re-entering Tramp, the
+;; daemon livelocks at 100% CPU. ServerAlive makes ssh notice the dead peer
+;; (~10s) and error out, so redisplay/auto-revert recover cleanly.
+;; NOTE: Tramp injects these itself (tramp-use-ssh-controlmaster-options
+;; defaults to t) and ignores ~/.ssh/config's ControlMaster, so keepalive
+;; must go here. Keep %%C literal — Tramp %-expands this string.
+(setq tramp-ssh-controlmaster-options
+      (concat "-o ControlMaster=auto "
+              "-o ControlPath='tramp.%%C' "
+              "-o ControlPersist=no "
+              "-o ServerAliveInterval=5 "
+              "-o ServerAliveCountMax=2"))
+(setq tramp-connection-timeout 10)      ; fail fast on the initial handshake too
+
+;; Don't let auto-revert actively revert remote buffers (already the
+;; default, but be explicit — it's the other half of the livelock).
+(setq auto-revert-remote-files nil)
+
+;; save-place's exit-time cleanup runs a bare file-readable-p over every
+;; saved entry (no remote guard) from kill-emacs-hook -- with a dead
+;; remote that hangs Emacs on exit. Skip the cleanup; stale entries are
+;; harmless.
+(setq save-place-forget-unreadable-files nil)
+
+;; git-gutter has no remote awareness: its 1s update timer would run git
+;; over Tramp for every remote prog-mode buffer, and a dropped connection
+;; wedges it. Keep it local-only.
+(with-eval-after-load 'git-gutter
+  (advice-add 'git-gutter-mode :before-while
+              (lambda (&optional _arg)
+                (not (file-remote-p default-directory)))))
+
+;; Don't run vc's automatic backend detection on remote files when
+;; visiting them (per the Tramp manual's own recommendation); magit and
+;; explicit vc commands still work when invoked.
+(setq vc-ignore-dir-regexp
+      (format "\\(%s\\)\\|\\(%s\\)" vc-ignore-dir-regexp tramp-file-name-regexp))
+
+;; save bookmarks immediately, not just at exit
+(setq bookmark-save-flag 1)
+
+;; M-x shell on remote hosts: use bash, no "Remote shell path" prompt
+;; (with vertico, RET in that prompt submits the directory -> env error)
+(connection-local-set-profile-variables
+ 'shan/remote-bash
+ '((explicit-shell-file-name . "/bin/bash")
+   (shell-file-name . "/bin/bash")))
+(connection-local-set-profiles
+ '(:application tramp) 'shan/remote-bash)
+
 (global-unset-key (kbd "M-m"))
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)

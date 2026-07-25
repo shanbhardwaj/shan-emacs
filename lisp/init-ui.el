@@ -39,6 +39,18 @@
   ;; pin it to the default font size (absolute height overrides inherit)
   (set-face-attribute 'header-line nil
                       :height (face-attribute 'default :height))
+  ;; break the doom<->gnus face inheritance cycle: gnus's default spec for
+  ;; gnus-group-news-low inherits -low-empty while doom-themes points
+  ;; -low-empty back at -low; once gnus faces load (via mu4e), every new
+  ;; frame creation errors -- killing posframes and vertico with them.
+  ;; Rewriting the *default* specs removes the back-edge at the root.
+  (defun shan/break-gnus-face-cycle ()
+    (face-spec-set 'gnus-group-news-low
+                   '((t :inherit gnus-group-mail-1)) 'face-defface-spec)
+    (face-spec-set 'gnus-group-news-low-empty
+                   '((t :inherit gnus-group-mail-1 :weight normal))
+                   'face-defface-spec))
+  (with-eval-after-load 'gnus (shan/break-gnus-face-cycle))
   (doom-themes-visual-bell-config)     ;; Enable flashing mode-line on errors
   (require 'org-indent)
   ;;(doom-themes-org-configure)

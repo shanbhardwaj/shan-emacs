@@ -105,6 +105,16 @@
   (setq which-key-idle-delay 0.5)
   (which-key-mode 1))
 
+;; kitty keyboard protocol: in kitty/ghostty, terminal Emacs receives real
+;; modifier state, so GUI ergonomics carry over: Cmd = Meta and left
+;; Option = super, exactly like the GUI (init.el macOS modifier setup)
+(use-package kkp
+  :ensure t
+  :config
+  (setq kkp-super-modifier 'meta) ; Cmd arrives as protocol-super
+  (setq kkp-alt-modifier 'super)  ; left Option (option_as_alt) arrives as alt
+  (global-kkp-mode 1))
+
 (use-package move-text
   :ensure t
   :bind (("M-<up>"   . move-text-up)
@@ -162,11 +172,6 @@
 (use-package vundo
   :ensure t
   :bind ("C-M-z" . vundo))
-
-(use-package which-key
-  :defer t
-  :diminish which-key-mode
-  :hook (after-init . which-key-mode))
 
 (use-package wgrep
   :ensure t

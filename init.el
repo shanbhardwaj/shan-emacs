@@ -10,12 +10,11 @@
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file 'noerror)
 
+(set-face-attribute 'default nil :height 130 :family "Monaco" :weight 'regular)
 ;; --- Typography -------------------------------------------------------------
-(set-face-attribute 'default nil
-                    :height 120 :family "Monaco")
-                    ;; :height 160 :family "CaskaydiaMono Nerd Font")
-(set-face-attribute 'bold nil :weight 'regular)
-(set-face-attribute 'bold-italic nil :weight 'regular)
+;; (set-face-attribute 'default nil :height 150 :family "AnonymicePro Nerd Font" :weight 'bold)
+;; (set-face-attribute 'bold nil :weight 'regular)
+;; (set-face-attribute 'bold-italic nil :weight 'regular)
 
 ;; --- Frame / window layout --------------------------------------------------
 (modify-frame-parameters nil default-frame-alist)
@@ -101,7 +100,7 @@
 (load "~/.emacs.d/lisp/llm-config.el")
 ;; (load "~/.emacs.d/lisp/init-ruby.el")
 ;; (load "~/.emacs.d/lisp/init-lsp.el")
-;; (load "~/.emacs.d/lisp/init-vc.el")
+(load "~/.emacs.d/lisp/init-vc.el")
 (load "~/.emacs.d/lisp/init-org.el")
 
 ;; --- Server -------------------------------------------------------------
