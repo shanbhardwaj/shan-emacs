@@ -80,25 +80,39 @@
 (setq tramp-verbose 1)                  ; errors only; default 3 is chatty
 (setq remote-file-name-inhibit-locks t) ; don't scatter .#lockfiles remotely
 
-;; Keepalive so a dead remote drops instead of hanging forever. Without
-;; this, a network drop leaves tramp-wait-for-output blocked indefinitely;
-;; combined with global-auto-revert-mode's timer re-entering Tramp, the
-;; daemon livelocks at 100% CPU. ServerAlive makes ssh notice the dead peer
-;; (~10s) and error out, so redisplay/auto-revert recover cleanly.
-;; NOTE: Tramp injects these itself (tramp-use-ssh-controlmaster-options
-;; defaults to t) and ignores ~/.ssh/config's ControlMaster, so keepalive
-;; must go here. Keep %%C literal — Tramp %-expands this string.
+;; ssh keepalive: only helps when the *host* dies (network drop) -- ssh
+;; then notices the dead peer in ~10s and errors out instead of blocking
+;; accept-process-output forever. It does NOT stop the 100% CPU livelock
+;; below (that host stays up and answers keepalives). Tramp injects these
+;; itself (tramp-use-ssh-controlmaster-options defaults to t) and ignores
+;; ~/.ssh/config's ControlMaster, so they must go here, not in ssh config.
+;; Keep %%C literal -- Tramp %-expands this string.
 (setq tramp-ssh-controlmaster-options
       (concat "-o ControlMaster=auto "
               "-o ControlPath='tramp.%%C' "
               "-o ControlPersist=no "
               "-o ServerAliveInterval=5 "
               "-o ServerAliveCountMax=2"))
-(setq tramp-connection-timeout 10)      ; fail fast on the initial handshake too
+(setq tramp-connection-timeout 10)      ; fail fast on the initial handshake
 
-;; Don't let auto-revert actively revert remote buffers (already the
-;; default, but be explicit — it's the other half of the livelock).
-(setq auto-revert-remote-files nil)
+;; THE actual daemon-livelock fix. Symptom: Emacs pegged at 100% CPU,
+;; unresponsive, sample shows one endless stack:
+;;   redisplay -> doom-modeline file-truename on a /ssh: buffer
+;;     -> tramp-wait-for-regexp, whose loop calls (sit-for 0 'nodisp)
+;;     -> sit-for runs due timers -> global-auto-revert's timer fires
+;;     -> auto-revert--buffer-candidates calls (file-remote-p ... t)
+;;     -> re-enters Tramp mid-command  ==> spin.
+;; Tramp is not reentrant; the timer re-entry is what turns a quiet block
+;; into a 100% CPU spin. auto-revert-remote-files/global-auto-revert-ignore-
+;; buffer don't help (the candidate scan re-enters before either is checked).
+;; Fix: drop remote buffers from the poll set entirely by clearing the
+;; buffer-local flag auto-revert--polled-buffers keys on. Mode line and
+;; local-buffer auto-revert are unaffected.
+(defun shan/no-autorevert-remote ()
+  "Exclude remote (Tramp) buffers from `global-auto-revert-mode' polling."
+  (when (and buffer-file-name (file-remote-p buffer-file-name))
+    (setq-local auto-revert--global-mode nil)))
+(add-hook 'find-file-hook #'shan/no-autorevert-remote)
 
 ;; save-place's exit-time cleanup runs a bare file-readable-p over every
 ;; saved entry (no remote guard) from kill-emacs-hook -- with a dead
