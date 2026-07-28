@@ -1,16 +1,23 @@
 ;;; init-org.el --- Org mode configuration -*- lexical-binding: t; -*-
 
-;; Files live in ~/Documents/org: inbox.org is the capture target, notes.org
-;; holds reference notes, and the agenda scans the whole directory.
+;; Files live in the Orgenda iOS app's iCloud folder, so the phone and Emacs
+;; edit the same set: inbox.org is the capture target, notes.org holds
+;; reference notes, and the agenda scans the whole directory.
+;; global-auto-revert-mode (init.el) picks up edits made on the phone.
+;; Caveat: editing the same file in both places at once makes iCloud write
+;; a conflict copy -- finish on one side before the other.
 
 (use-package org
   :defer t
   :bind (("C-c o a" . org-agenda)
          ("C-c o c" . org-capture)
-         ("C-c o l" . org-store-link))
+         ("C-c o l" . org-store-link)
+         ("C-c o n" . shan/org-open-notes)
+         ("C-c o i" . shan/org-open-inbox)
+         ("C-c o f" . shan/org-open-file))
   :custom
   ;; Files and agenda
-  (org-directory "~/Documents/org")
+  (org-directory "~/Library/Mobile Documents/iCloud~com~yakshaven~orgenda/Documents")
   (org-default-notes-file (expand-file-name "inbox.org" org-directory))
   (org-agenda-files (list org-directory))
   (org-agenda-window-setup 'current-window)
@@ -24,8 +31,9 @@
   (org-outline-path-complete-in-steps nil)
 
   ;; Capture
+  ;; flat top-level entries, matching how Orgenda writes its files
   (org-capture-templates
-   '(("t" "Task" entry (file+headline "inbox.org" "Tasks")
+   '(("t" "Task" entry (file "inbox.org")
       "* TODO %?\n%U" :empty-lines 1)
      ("n" "Note" entry (file+headline "notes.org" "Notes")
       "* %?\n%U" :empty-lines 1)))
@@ -46,6 +54,23 @@
   (dolist (tpl '(("el" . "src emacs-lisp") ("rb" . "src ruby")
                  ("sh" . "src sh") ("md" . "src markdown")))
     (add-to-list 'org-structure-template-alist tpl)))
+
+;; --- Quick access to org files -----------------------------------------------
+(defun shan/org-open-notes ()
+  "Open notes.org in `org-directory'."
+  (interactive)
+  (find-file (expand-file-name "notes.org" org-directory)))
+
+(defun shan/org-open-inbox ()
+  "Open inbox.org in `org-directory'."
+  (interactive)
+  (find-file (expand-file-name "inbox.org" org-directory)))
+
+(defun shan/org-open-file ()
+  "Pick any file in `org-directory' with completion."
+  (interactive)
+  (let ((default-directory (file-name-as-directory org-directory)))
+    (call-interactively #'find-file)))
 
 ;; --- Google Calendar sync ----------------------------------------------------
 ;; OAuth client credentials are read from ~/.authinfo:

@@ -24,14 +24,15 @@
                            nerd-icons-completion nerd-icons-corfu
                            nerd-icons-dired no-littering ocaml-ts-mode
                            orderless org-gcal orgit-forge
-                           persistent-scratch rainbow-delimiters
-                           rainbow-mode rbenv robe rspec-mode rubocop
-                           ruby-refactor ruby-tools scratch
-                           seeing-is-believing seethru shell-pop
-                           show-font smartparens smooth-scrolling
-                           spacious-padding super-save svg-tag-mode
-                           toml treemacs treesit-auto ts undo-fu
-                           vertico vertico-posframe vterm vundo wgrep
+                           persistent-scratch project-x
+                           rainbow-delimiters rainbow-mode rbenv robe
+                           rspec-mode rubocop ruby-refactor ruby-tools
+                           scratch seeing-is-believing seethru
+                           shell-pop show-font smartparens
+                           smooth-scrolling spacious-padding
+                           super-save svg-tag-mode toml treemacs
+                           treesit-auto ts undo-fu vertico
+                           vertico-posframe vterm vundo wgrep
                            yaml-mode yasnippet))
  '(package-vc-selected-packages
    '((agent-shell-dashboard :url

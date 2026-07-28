@@ -1,3 +1,4 @@
+
 # Mail setup notes (mu4e)
 
 How the email system is wired together, plus a day-to-day cheatsheet and a
@@ -14,12 +15,12 @@ layout in `mu4e-dashboard.org`.
   Config: `~/.msmtprc`, log: `~/Mail/msmtp.log`.
 - **Passwords** are Google app passwords stored in the macOS Keychain:
 
-  | account   | service        | keychain account (-a)      |
-  |-----------|----------------|----------------------------|
-  | Addval    | mu4e-addval    | shan@addvalsolutions.com   |
-  | Kulcare   | mu4e-kulcare   | shantanu@kulcare.com       |
-  | Codetiger | mu4e-codetiger | shan@codetiger.com         |
-  | Gmail     | mu4e-gmail     | bhardwaj.10                |
+  | account   | service        | keychain account (-a)    |
+  |-----------|----------------|--------------------------|
+  | Addval    | mu4e-addval    | shan@addvalsolutions.com |
+  | Kulcare   | mu4e-kulcare   | shantanu@kulcare.com     |
+  | Codetiger | mu4e-codetiger | shan@codetiger.com       |
+  | Gmail     | mu4e-gmail     | bhardwaj.10              |
 
   `.mbsyncrc` and `.msmtprc` must use these exact service/account strings.
 

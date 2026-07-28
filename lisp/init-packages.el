@@ -51,9 +51,14 @@
   :config
   (setq neo-theme (if (display-graphic-p) 'nerd-icons 'arrow))
   ;; 10pt for everything in the neotree buffer, including VC-state faces
-  ;; used for filenames when neo-vc-integration includes 'face
+  ;; used for filenames when neo-vc-integration includes 'face; also mark
+  ;; the window so M-o (other-window) skips it -- enter it deliberately
+  ;; via C-<f8>/H-n or the mouse instead
   (add-hook 'neo-after-create-hook
-            (lambda (_) (face-remap-add-relative 'default :height 100))))
+            (lambda (_)
+              (face-remap-add-relative 'default :height 100)
+              (when-let* ((win (neo-global--get-window)))
+                (set-window-parameter win 'no-other-window t)))))
 
 (use-package helpful
   :ensure t
@@ -114,6 +119,12 @@
   (setq kkp-super-modifier 'meta) ; Cmd arrives as protocol-super
   (setq kkp-alt-modifier 'super)  ; left Option (option_as_alt) arrives as alt
   (global-kkp-mode 1))
+
+;; org-style markdown editing (https://github.com/yibie/md-mode), now the
+;; default for .md files; M-x markdown-mode falls back to the classic one.
+(use-package md-mode
+  :vc (:url "https://github.com/yibie/md-mode" :rev :newest)
+  :mode ("\\.md\\'" . md-mode))
 
 (use-package move-text
   :ensure t

@@ -161,7 +161,10 @@
 (bind-key "H-r" 'recompile)
 ;; function-key-free alternatives (no dedicated F-keys on this keyboard)
 (bind-key "H-n" 'shan/neotree-project-toggle) ; also on C-<f8>
-(bind-key "H-t" 'consult-theme)               ; also on s-<f12>
+;; themes (config in init-ui.el)
+(bind-key "H-t" 'consult-theme)
+(bind-key "s-<f12>" 'consult-theme)
+(bind-key "s-<f11>" 'disable-active-themes)
 ;; hyper launcher layer: single-chord versions of daily commands
 (bind-key "H-m" 'mu4e)                        ; also on C-c m
 (bind-key "H-d" 'mu4e-dashboard)              ; also on C-c M
@@ -171,6 +174,60 @@
 (bind-key "H-g" 'ghostel-project)             ; also on C-x p t
 (bind-key "H-," (defun shan/open-init () (interactive) (find-file "~/.emacs.d/init.el")))
 (bind-key "H-s" (defun save-and-recompile () (interactive) (save-buffer) (recompile)))
+;; the hyper layer is invisible to which-key (modifier chords, not
+;; prefixes), and tapping right-Cmd alone opens Leader Key -- so H-h
+;; shows a generated cheatsheet of every current H- binding
+(defun shan/hyper-cheatsheet ()
+  "Pop a which-key panel of every global H- chord.
+While the panel is up, pressing the bare key runs the command."
+  (interactive)
+  (let ((map (make-sparse-keymap)))
+    (map-keymap
+     (lambda (event binding)
+       (when (and (commandp binding)
+                  (memq 'hyper (event-modifiers event)))
+         ;; strip the hyper bit so the panel lists plain keys
+         (define-key map (vector (event-basic-type event)) binding)))
+     global-map)
+    (which-key--show-keymap "Hyper layer" map)))
+(bind-key "H-h" 'shan/hyper-cheatsheet)
+
+(defun shan/my-keybindings ()
+  "List personal keybindings collected from the init files."
+  (interactive)
+  (let ((files (cons (expand-file-name "init.el" user-emacs-directory)
+                     (directory-files
+                      (expand-file-name "lisp" user-emacs-directory)
+                      t "\\`init-.*\\.el\\'")))
+        (results nil))
+    (dolist (file files)
+      (when (file-readable-p file)
+        (with-temp-buffer
+          (insert-file-contents file)
+          (let (rows)
+            ;; (bind-key "K" 'cmd) and (global-set-key (kbd "K") 'cmd)
+            (goto-char (point-min))
+            (while (re-search-forward
+                    "(\\(?:bind-key\\|global-set-key\\) +\\(?:(kbd \\)?\"\\([^\"]+\\)\")? +\\(?:'\\([a-zA-Z][^ )\n]*\\)\\|(defun \\([a-zA-Z][^ (]*\\)\\|(lambda\\)"
+                    nil t)
+              (push (list (match-string 1)
+                          (or (match-string 2) (match-string 3) "<lambda>"))
+                    rows))
+            ;; ("K" . cmd) pairs inside :bind lists
+            (goto-char (point-min))
+            (while (re-search-forward
+                    "(\"\\([^\"]+\\)\" *\\. \\([a-zA-Z][a-zA-Z0-9/-]*\\))" nil t)
+              (push (list (match-string 1) (match-string 2)) rows))
+            (when rows
+              (push (cons (file-name-nondirectory file) (nreverse rows))
+                    results))))))
+    (with-help-window "*My Keybindings*"
+      (dolist (group (nreverse results))
+        (princ (format "%s\n" (car group)))
+        (dolist (row (cdr group))
+          (princ (format "  %-14s %s\n" (car row) (cadr row))))
+        (princ "\n")))))
+(bind-key "C-c k" 'shan/my-keybindings)
 
 (windmove-default-keybindings 'super)
 (bind-key "M-[" 'windmove-left)
