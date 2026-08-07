@@ -24,14 +24,25 @@
 
   ;; --- theme fixups ---------------------------------------------------
   ;; doom-horizon's inactive mode-line text is bg lightened 20% -- too
-  ;; faint to read at a reduced mode-line height; use a dimmed fg instead
-  (set-face-attribute 'mode-line-inactive nil
-                      :foreground (doom-darken (doom-color 'fg) 0.35))
-  ;; header-line inherits mode-line in doom themes; a shrunken mode-line
-  ;; would shrink it too and misalign mu4e's column headers, so pin it to
-  ;; the default font size (an absolute height overrides the inherit)
-  (set-face-attribute 'header-line nil
-                      :height (face-attribute 'default :height))
+  ;; faint to read at a reduced mode-line height; use a dimmed fg instead.
+  ;; These fixups are theme-clobbered, so they live in a function that
+  ;; re-runs after every auto-dark theme switch (see auto-dark below).
+  (defun shan/apply-theme-fixups (&rest _)
+    "Re-apply face fixups that loading a theme clobbers."
+    ;; dimmed-but-readable inactive mode-line text, derived from the
+    ;; current theme's foreground (works for dark and light themes)
+    (set-face-attribute 'mode-line-inactive nil
+                        :foreground (doom-darken
+                                     (face-attribute 'default :foreground)
+                                     0.35))
+    ;; header-line inherits mode-line; pin it to the default font size so
+    ;; a shrunken mode-line can't misalign mu4e's column headers
+    (let ((h (face-attribute 'default :height)))
+      (when (numberp h)
+        (set-face-attribute 'header-line nil :height h))))
+  ;; enable-theme-functions covers auto-dark AND manual H-t theme switches
+  (add-hook 'enable-theme-functions #'shan/apply-theme-fixups)
+  (shan/apply-theme-fixups)
   ;; break the doom<->gnus face inheritance cycle: gnus's default spec for
   ;; gnus-group-news-low inherits -low-empty while doom-themes points
   ;; -low-empty back at -low; once gnus faces load (via mu4e), every new
@@ -43,7 +54,19 @@
     (face-spec-set 'gnus-group-news-low-empty
                    '((t :inherit gnus-group-mail-1 :weight normal))
                    'face-defface-spec))
-  (with-eval-after-load 'gnus (shan/break-gnus-face-cycle)))
+  (with-eval-after-load 'gnus (shan/break-gnus-face-cycle))
+  ;; terminal frames: let the terminal's theme provide the canvas -- clear
+  ;; the Emacs theme's default fg/bg (and related surfaces) in tty frames
+  ;; so kitty/ghostty colors show through; GUI frames keep the full theme
+  (defun shan/tty-use-terminal-colors (&optional frame)
+    (let ((frame (or frame (selected-frame))))
+      (unless (display-graphic-p frame)
+        (set-face-background 'default "unspecified-bg" frame)
+        (set-face-foreground 'default "unspecified-fg" frame)
+        (dolist (face '(fringe line-number line-number-current-line))
+          (when (facep face)
+            (set-face-background face "unspecified-bg" frame))))))
+  (add-hook 'after-make-frame-functions #'shan/tty-use-terminal-colors))
 
 ;; alternative theme families, available to consult-theme (H-t)
 (use-package ef-themes
@@ -54,16 +77,22 @@
   (interactive)
   (mapc #'disable-theme custom-enabled-themes))
 
-;; follow the macOS light/dark setting (disabled; set auto-dark-themes
-;; and re-enable if you want automatic switching)
-;; (use-package auto-dark
-;;   :ensure t
-;;   :custom
-;;   (auto-dark-themes '((doom-one) (doom-one-light)))
-;;   (auto-dark-polling-interval-seconds 300)
-;;   (auto-dark-allow-osascript t)
-;;   (auto-dark-allow-powershell nil)
-;;   :init (auto-dark-mode))
+;; follow the macOS light/dark setting: doom-horizon in dark mode,
+;; ef-summer in light -- matching the kitty auto-themes generated from
+;; these same palettes (themes/doom-horizon.conf, themes/ef-summer.conf)
+;; trust locally installed themes (no load-theme confirmation prompts;
+;; needed for auto-dark to switch themes unattended)
+(setq custom-safe-themes t)
+
+(use-package auto-dark
+  :ensure t
+  :after doom-themes
+  :custom
+  (auto-dark-themes '((doom-horizon) (ef-summer)))
+  (auto-dark-allow-osascript t)
+  :config
+  ;; face fixups re-run via enable-theme-functions (see doom-themes block)
+  (auto-dark-mode 1))
 
 ;;; ============================================================ Fonts
 

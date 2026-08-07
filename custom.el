@@ -12,7 +12,7 @@
                            corfu-candidate-overlay dape diminish
                            dirvish disproject doom-modeline
                            doom-themes dotenv-mode dracula-theme dune
-                           dune-format eat ef-themes embark-consult
+                           dune-format ef-themes embark-consult
                            exec-path-from-shell gcmh ghostel
                            git-gutter-fringe git-link git-timemachine
                            gptel helpful hindu-calendar indent-guide
@@ -20,7 +20,7 @@
                            marginalia merlin-company merlin-eldoc
                            merlin-iedit mise mistty move-text
                            mu4e-column-faces mu4e-marker-icons
-                           mu4e-views multiple-cursors neotree
+                           mu4e-views multiple-cursors
                            nerd-icons-completion nerd-icons-corfu
                            nerd-icons-dired no-littering ocaml-ts-mode
                            orderless org-gcal orgit-forge
@@ -36,7 +36,8 @@
                            yaml-mode yasnippet))
  '(package-vc-selected-packages
    '((agent-shell-dashboard :url
-                            "https://github.com/wandersoncferreira/agent-shell-dashboard"))))
+                            "https://github.com/wandersoncferreira/agent-shell-dashboard")))
+ '(savehist-additional-variables '(kill-ring)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

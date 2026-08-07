@@ -160,7 +160,7 @@
 (bind-key "H-c" 'compile)
 (bind-key "H-r" 'recompile)
 ;; function-key-free alternatives (no dedicated F-keys on this keyboard)
-(bind-key "H-n" 'shan/neotree-project-toggle) ; also on C-<f8>
+(bind-key "H-n" 'shan/speedbar-toggle) ; also on C-<f8>
 ;; themes (config in init-ui.el)
 (bind-key "H-t" 'consult-theme)
 (bind-key "s-<f12>" 'consult-theme)

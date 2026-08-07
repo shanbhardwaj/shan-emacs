@@ -10,9 +10,9 @@
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file 'noerror)
 
-(set-face-attribute 'default nil :height 130 :family "Monaco" :weight 'regular)
+;; (set-face-attribute 'default nil :height 130 :family "Monaco" :weight 'bold)
 ;; --- Typography -------------------------------------------------------------
-;; (set-face-attribute 'default nil :height 150 :family "AnonymicePro Nerd Font" :weight 'bold)
+(set-face-attribute 'default nil :height 140 :family "Iosevka Nerd Font" :weight 'bold)
 ;; (set-face-attribute 'bold nil :weight 'regular)
 ;; (set-face-attribute 'bold-italic nil :weight 'regular)
 
@@ -98,6 +98,7 @@
 (load "~/.emacs.d/lisp/init-packages.el")
 (load "~/.emacs.d/lisp/init-email.el")
 (load "~/.emacs.d/lisp/llm-config.el")
+(load "~/.emacs.d/lisp/term-config.el")
 ;; (load "~/.emacs.d/lisp/init-ruby.el")
 ;; (load "~/.emacs.d/lisp/init-lsp.el")
 (load "~/.emacs.d/lisp/init-vc.el")

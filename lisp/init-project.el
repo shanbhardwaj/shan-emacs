@@ -3,7 +3,7 @@
 ;; Built-in project.el is the single source of project awareness:
 ;; claude-code-ide resolves its session root through it, ghostel provides
 ;; project-scoped terminals, consult-project-extra reads its project list,
-;; and neotree is taught to follow it below.
+;; and speedbar provides the file tree below.
 
 (use-package project
   :ensure nil
@@ -19,12 +19,12 @@
           (consult-project-extra-find "Consult"  ?F)
           (project-find-regexp      "Grep"       ?g)
           (project-dired            "Dired"      ?d)
-          (shan/neotree-project-toggle "Neotree" ?n)
+          (shan/speedbar-toggle       "Speedbar"   ?n)
           (ghostel-project          "Terminal"   ?t)
           (project-eshell           "Eshell"     ?e)))
   ;; extra keys on the C-x p prefix
   (define-key project-prefix-map (kbd "t") #'ghostel-project)
-  (define-key project-prefix-map (kbd "n") #'shan/neotree-project-toggle))
+  (define-key project-prefix-map (kbd "n") #'shan/speedbar-toggle))
 
 ;; --- project-x: per-project window layouts --------------------------------
 ;; Saves the window configuration per project and restores it on switch, so
@@ -47,22 +47,28 @@
   ;; (project-x-tabs-mode 1)
   (define-key project-prefix-map (kbd "w") #'project-x-window-state-save-as))
 
-;; --- neotree: root the tree at the current project ------------------------
-(defun shan/neotree-project-toggle ()
-  "Toggle neotree rooted at the current project.
-Falls back to `default-directory' outside a project; when opening,
-reveal the current file in the tree."
-  (interactive)
-  (if (and (featurep 'neotree) (neo-global--window-exists-p))
-      (neotree-hide)
-    (let ((root (if-let* ((proj (project-current)))
-                    (project-root proj)
-                  default-directory))
-          (file (buffer-file-name)))
-      (neotree-dir root)
-      (when file (neotree-find file)))))
+;; --- speedbar: built-in file tree in a side window (Emacs 31) -------------
+;; replaces neotree; speedbar follows the current buffer's directory (press
+;; U in the tree to go up, e.g. to the project root)
+(use-package speedbar
+  :ensure nil
+  :custom
+  (speedbar-prefer-window t)           ; side window, not a separate frame
+  (speedbar-window-default-width 30)
+  (speedbar-use-images nil)            ; text arrows; also works in tty frames
+  (speedbar-show-unknown-files t)      ; show all files, not just recognized types
+  (speedbar-indentation-width 2)
+  :config
+  ;; tree text at 85% of the default font, tracking font-size changes
+  (add-hook 'speedbar-mode-hook
+            (lambda () (face-remap-add-relative 'default :height 0.85))))
 
-;; replace plain neotree-toggle: same key, but project-rooted
-(bind-key "C-<f8>" #'shan/neotree-project-toggle)
+(defun shan/speedbar-toggle ()
+  "Toggle the speedbar side window."
+  (interactive)
+  (require 'speedbar)
+  (speedbar-window-mode))
+
+(bind-key "C-<f8>" #'shan/speedbar-toggle)
 
 (provide 'init-project)

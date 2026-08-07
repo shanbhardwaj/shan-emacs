@@ -26,7 +26,34 @@
   (setq agent-shell-anthropic-authentication
         (agent-shell-anthropic-make-authentication :login t))
   (setq agent-shell-openai-authentication
-        (agent-shell-openai-make-authentication :login t)))
+        (agent-shell-openai-make-authentication :login t))
+
+  ;; VS Code-inspired rendering: tinted panels for user input and code,
+  ;; monospace inline code inside proportional prose.  Backgrounds are
+  ;; derived from the current theme, so this follows auto-dark switches.
+  (defun shan/style-agent-shell-faces (&rest _)
+    "Give agent-shell markdown faces subtle, theme-relative panels."
+    (when (facep 'agent-shell-markdown-inline-code)
+      (let* ((bg (face-attribute 'default :background nil t))
+             (dark (eq (frame-parameter nil 'background-mode) 'dark))
+             (tint (if (and (stringp bg) (string-prefix-p "#" bg))
+                       (if dark (color-lighten-name bg 8)
+                         (color-darken-name bg 4))
+                       'unspecified)))
+        ;; inline code: monospace island in the prose
+        (set-face-attribute 'agent-shell-markdown-inline-code nil
+                            :background tint :inherit 'fixed-pitch)
+        ;; code blocks and the user's own input: full-width panels
+        (dolist (face '(agent-shell-markdown-source-block agent-shell-input))
+          (when (facep face)
+            (set-face-attribute face nil :background tint :extend t)))
+        ;; headers stand out without shouting
+        (dolist (n '(1 2 3))
+          (let ((face (intern (format "agent-shell-markdown-header-%d" n))))
+            (when (facep face)
+              (set-face-attribute face nil :weight 'bold)))))))
+  (add-hook 'enable-theme-functions #'shan/style-agent-shell-faces)
+  (shan/style-agent-shell-faces))
 
 (use-package agent-shell-dashboard
   ;; not on MELPA; linked from the official agent-shell README
@@ -98,7 +125,26 @@ Merges the dashboard's default source with sessions found under
   (ghostel-module-auto-install 'download)
   ;; defaults plus M-o: keep window-hopping working inside terminals
   (ghostel-keymap-exceptions
-   '("C-c" "C-x" "C-u" "C-h" "M-x" "M-:" "C-\\" "M-o")))
+   '("C-c" "C-x" "C-u" "C-h" "M-x" "M-:" "C-\\" "M-o"))
+  :config
+  ;; TUIs that auto-pick a light/dark palette (Claude Code with theme
+  ;; "auto") ask the terminal for its background via OSC 11.  ghostel
+  ;; answers from `ghostel-default', but when that face has no explicit
+  ;; background it resolves against whichever frame is selected -- and a
+  ;; TTY frame yields ghostel's #000000 fallback, which would report
+  ;; "dark" on a light theme.  Pin the colours so the reply is always
+  ;; the real theme background.  Visually neutral: same colour the face
+  ;; already inherits.  ghostel re-pushes these on theme change via its
+  ;; own `enable-theme-functions' hook (ghostel-sync-theme).
+  (defun shan/ghostel-pin-default-colors (&rest _)
+    "Pin `ghostel-default' colours so OSC 10/11 replies are deterministic."
+    (let ((bg (face-attribute 'default :background nil t))
+          (fg (face-attribute 'default :foreground nil t)))
+      (when (and (stringp bg) (string-prefix-p "#" bg))
+        (set-face-attribute 'ghostel-default nil
+                            :background bg :foreground fg))))
+  (add-hook 'enable-theme-functions #'shan/ghostel-pin-default-colors)
+  (shan/ghostel-pin-default-colors))
 
 ;; same exemption for any remaining eat terminal buffers
 (with-eval-after-load 'eat
@@ -110,5 +156,173 @@ Merges the dashboard's default source with sessions found under
   :config
   (claude-code-ide-emacs-tools-setup) ; expose Emacs MCP tools (xref, imenu, ...)
   (setq claude-code-ide-terminal-backend 'ghostel))
+
+;;; --- Claude Code tool-call highlighting -----------------------------------
+;;
+;; Bands tool-call blocks so they read as sections instead of a wall of
+;; text.  Overlays are the only option here: ghostel's native renderer
+;; writes anonymous face plists as text properties, so face-remap and
+;; font-lock have nothing to hook (and font-lock is disabled in the mode).
+;;
+;; Claude Code marks blocks with coloured glyphs, and the colour is the
+;; discriminator -- the same marker is used for assistant prose:
+;;   green/red/grey  U+23FA  tool call (ok / errored / collapsed)
+;;   white           U+23FA  prose -- must NOT be banded
+;;   grey            U+23BF  tool output
+;; Those are hardcoded truecolor from the CLI, so they can drift on a CLI
+;; upgrade; that is what the two colour defcustoms are for.
+
+(require 'color)
+
+(defcustom shan/cc-header-colors
+  '("#4eba65" "#ff6b80" "#999999"    ; dark theme:  success / error / inactive
+    "#2c7a39" "#ab2b3f" "#666666")   ; light theme: success / error / inactive
+  "Foregrounds of the tool-call marker, for both Claude Code palettes.
+Taken from the CLI's own theme tables, so both are listed and the bands
+survive a light/dark switch.  The body-text colours are deliberately
+absent -- prose uses the same marker glyph and must not be banded
+\(#ffffff in the dark palette, #000000 in the light one), as is the
+warning colour used for system notices."
+  :type '(repeat string) :group 'tools)
+
+(defcustom shan/cc-output-colors '("#999999" "#666666")
+  "Foregrounds of the tool-output marker (dark and light palettes)."
+  :type '(repeat string) :group 'tools)
+
+(defface shan/cc-header '((t :extend t)) "Tool-call header band.")
+(defface shan/cc-output '((t :extend t)) "Tool-output band.")
+
+(defun shan/cc-update-faces (&rest _)
+  "Derive band colours from the current theme (follows auto-dark)."
+  (let ((bg (face-attribute 'default :background nil t)))
+    (when (and (stringp bg) (string-prefix-p "#" bg))
+      (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+        (set-face-attribute 'shan/cc-header nil :extend t
+                            :background (if dark (color-lighten-name bg 7)
+                                          (color-darken-name bg 5)))
+        (set-face-attribute 'shan/cc-output nil :extend t
+                            :background (if dark (color-lighten-name bg 3)
+                                          (color-darken-name bg 2)))))))
+(add-hook 'enable-theme-functions #'shan/cc-update-faces)
+(shan/cc-update-faces)
+
+(defsubst shan/cc--fg (pos)
+  (let ((f (get-text-property pos 'face)))
+    (and (consp f) (plist-get f :foreground))))
+
+(defun shan/cc--output-line-p (bol eol)
+  "Non-nil if this line starts a tool-output row (marker within 8 columns)."
+  (let ((p bol) (limit (min eol (+ bol 8))) hit)
+    (while (and (< p limit) (not hit))
+      (when (and (eq (char-after p) ?⎿)
+                 (member (shan/cc--fg p) shan/cc-output-colors))
+        (setq hit t))
+      (setq p (1+ p)))
+    hit))
+
+(defun shan/cc--set-line (bol eol face)
+  "Make line BOL..EOL carry FACE, reusing any existing overlay.
+Reuse matters: recreating overlays on every repaint would churn
+redisplay.  `evaporate' matters too -- the renderer repaints by
+delete-region + insert, which collapses overlays it covers, and without
+it they would pile up at point-min."
+  (let* ((end (min (point-max) (1+ eol)))
+         (ov (seq-find (lambda (o) (overlay-get o 'shan/cc))
+                       (overlays-in bol (min (point-max) (1+ bol))))))
+    (cond
+     ((null face) (when ov (delete-overlay ov)))
+     ((and ov (eq (overlay-get ov 'face) face) (eq (overlay-end ov) end)) nil)
+     (ov (move-overlay ov bol end) (overlay-put ov 'face face))
+     (t (let ((new (make-overlay bol end nil t nil)))
+          (overlay-put new 'shan/cc t)
+          (overlay-put new 'face face)
+          (overlay-put new 'evaporate t))))))
+
+(defun shan/cc--scan-visible ()
+  "Band tool-call blocks across the visible region of each window.
+A block opens at a coloured header marker, switches to output at the
+first output marker, and closes on a blank line -- no indent heuristics,
+so wrapped header lines and varying output indents both work."
+  (with-demoted-errors "claude-code highlight: %S"
+    (dolist (w (get-buffer-window-list (current-buffer) nil t))
+      (save-excursion
+        ;; back up to a blank line or header so block state is unambiguous
+        (goto-char (window-start w))
+        (forward-line 0)
+        (let ((stop (max (point-min) (- (point) 8000))))
+          (when (re-search-backward "^⏺\\|^$" stop t) (forward-line 0)))
+        (let ((end (save-excursion (goto-char (window-start w))
+                                   (forward-line (+ (window-body-height w) 10))
+                                   (point)))
+              (state nil) (n 0))
+          (while (and (< (point) end) (< n 400))
+            (setq n (1+ n))
+            (let* ((bol (point)) (eol (line-end-position)) face)
+              (cond
+               ((eq bol eol) (setq state nil))            ; blank closes block
+               ((eq (char-after bol) ?⏺)
+                (setq state (and (member (shan/cc--fg bol) shan/cc-header-colors)
+                                 'header)))
+               ((shan/cc--output-line-p bol eol) (setq state 'output)))
+              (setq face (pcase state
+                           ('header 'shan/cc-header)
+                           ('output 'shan/cc-output)))
+              ;; never band a row the CLI already gave a background (diff
+              ;; hunks): an overlay face would erase that colouring
+              (when (and face (get-text-property bol 'face)
+                         (plist-get (get-text-property bol 'face) :background))
+                (setq face nil))
+              (shan/cc--set-line bol eol face))
+            (forward-line 1))
+          (shan/cc--prune (window-start w) end))))))
+
+(defun shan/cc--prune (beg end)
+  "Drop our overlays far outside BEG..END once they pile up.
+Scrolling through a long session keeps creating bands in scrollback;
+they are cheap but unbounded, and scrolling back re-creates them."
+  (let ((ours (seq-filter (lambda (o) (overlay-get o 'shan/cc))
+                          (overlays-in (point-min) (point-max)))))
+    (when (> (length ours) 600)
+      (let ((lo (max (point-min) (- beg 20000)))
+            (hi (min (point-max) (+ end 20000))))
+        (dolist (o ours)
+          (when (or (< (overlay-end o) lo) (> (overlay-start o) hi))
+            (delete-overlay o)))))))
+
+(defun shan/cc--after-redraw (buffer &optional _force)
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (when (bound-and-true-p shan/cc-highlight-mode)
+        (shan/cc--scan-visible)))))
+
+(defun shan/cc--on-scroll (window _start)
+  (when (window-live-p window)
+    (with-current-buffer (window-buffer window)
+      (when (bound-and-true-p shan/cc-highlight-mode)
+        (shan/cc--scan-visible)))))
+
+(define-minor-mode shan/cc-highlight-mode
+  "Band Claude Code tool-call blocks in this ghostel buffer."
+  :lighter " CC"
+  (if shan/cc-highlight-mode
+      (progn
+        (add-hook 'window-scroll-functions #'shan/cc--on-scroll nil t)
+        (shan/cc--scan-visible))
+    (remove-hook 'window-scroll-functions #'shan/cc--on-scroll t)
+    (dolist (o (overlays-in (point-min) (point-max)))
+      (when (overlay-get o 'shan/cc) (delete-overlay o)))))
+
+(defun shan/cc-maybe-enable ()
+  "Enable in claude-code-ide session buffers only, not other terminals.
+Also applies the reading tweaks (spacing, slightly smaller text) here
+rather than globally, so plain ghostel terminals keep their defaults."
+  (when (string-prefix-p "*claude-code[" (buffer-name))
+    (setq-local line-spacing 0.1)
+    (face-remap-add-relative 'default :height 0.95)
+    (shan/cc-highlight-mode 1)))
+
+(add-hook 'ghostel-mode-hook #'shan/cc-maybe-enable)
+(with-eval-after-load 'ghostel
+  (advice-add 'ghostel--redraw-now :after #'shan/cc--after-redraw))
 
 (provide 'llm-config)

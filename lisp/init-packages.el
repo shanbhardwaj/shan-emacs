@@ -40,25 +40,7 @@
 (use-package diminish
   :ensure t)
 
-(use-package neotree
-  :ensure
-  :defer t
-  :bind ("C-<f8>" . shan/neotree-project-toggle) ; defined in init-project.el
-  :custom
-  (neo-show-hidden-files t)
-  (neo-theme 'nerd-icons)
-  (neo-vc-integration '(face char))
-  :config
-  (setq neo-theme (if (display-graphic-p) 'nerd-icons 'arrow))
-  ;; 10pt for everything in the neotree buffer, including VC-state faces
-  ;; used for filenames when neo-vc-integration includes 'face; also mark
-  ;; the window so M-o (other-window) skips it -- enter it deliberately
-  ;; via C-<f8>/H-n or the mouse instead
-  (add-hook 'neo-after-create-hook
-            (lambda (_)
-              (face-remap-add-relative 'default :height 100)
-              (when-let* ((win (neo-global--get-window)))
-                (set-window-parameter win 'no-other-window t)))))
+;; neotree replaced by built-in speedbar (see init-project.el)
 
 (use-package helpful
   :ensure t
