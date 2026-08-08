@@ -10,9 +10,12 @@
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file 'noerror)
 
-;; (set-face-attribute 'default nil :height 130 :family "Monaco" :weight 'bold)
 ;; --- Typography -------------------------------------------------------------
-(set-face-attribute 'default nil :height 140 :family "Iosevka Nerd Font" :weight 'bold)
+;; ;; (set-face-attribute 'default nil :height 130 :family "Monaco" :weight 'bold)
+;; guarded: a missing family errors, and the font set differs per machine
+(let ((family "Iosevka Nerd Font"))
+  (when (and (display-graphic-p) (member family (font-family-list)))
+    (set-face-attribute 'default nil :height 140 :family family :weight 'bold)))
 ;; (set-face-attribute 'bold nil :weight 'regular)
 ;; (set-face-attribute 'bold-italic nil :weight 'regular)
 
@@ -96,12 +99,16 @@
 (load "~/.emacs.d/lisp/init-completions.el")
 (load "~/.emacs.d/lisp/init-project.el")
 (load "~/.emacs.d/lisp/init-packages.el")
-(load "~/.emacs.d/lisp/init-email.el")
+;; mu4e lives beside the mu binary; skip where mail isn't set up (Linux box)
+(when (executable-find "mu")
+  (load "~/.emacs.d/lisp/init-email.el"))
 (load "~/.emacs.d/lisp/llm-config.el")
 (load "~/.emacs.d/lisp/term-config.el")
 ;; (load "~/.emacs.d/lisp/init-ruby.el")
 ;; (load "~/.emacs.d/lisp/init-lsp.el")
 (load "~/.emacs.d/lisp/init-vc.el")
+(load "~/.emacs.d/lisp/init-fold.el")
+(load "~/.emacs.d/lisp/init-servers.el")
 (load "~/.emacs.d/lisp/init-org.el")
 
 ;; --- Server -------------------------------------------------------------

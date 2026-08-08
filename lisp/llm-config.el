@@ -66,6 +66,53 @@
         '("claude" "-p" "--allowed-tools" "" "--model" "haiku"))
   (setq agent-shell-dashboard-recent-sessions-count 8)
 
+  ;; Claude Code keeps a live status registry at ~/.claude/sessions/<pid>.json,
+  ;; rewritten by the REPL on every state transition.  That is a better
+  ;; "is it working / does it need me" signal than hooks: the Notification
+  ;; hook only fires ~6s after a permission prompt opens (and not at all if
+  ;; you answer it quickly), while this file is always current.
+  (defun my/claude-live-sessions ()
+    "Live Claude Code sessions from the CLI's own status registry.
+Each entry is a plist (:id :pid :cwd :status :waiting-for :name).
+STATUS is busy | waiting | idle | shell, or \"unknown\" for sessions
+whose CLI is too old to record one."
+    (let ((dir (expand-file-name "~/.claude/sessions/"))
+          out)
+      (when (file-directory-p dir)
+        (dolist (f (directory-files dir t "\\.json\\'"))
+          (ignore-errors
+            (let* ((json (with-temp-buffer
+                           (insert-file-contents f)
+                           (json-parse-buffer :object-type 'alist
+                                              :null-object nil
+                                              :false-object nil)))
+                   (pid (alist-get 'pid json))
+                   (attrs (and (integerp pid) (process-attributes pid))))
+              ;; live only: pid exists AND is actually a claude process
+              ;; (cheap guard against pid reuse)
+              (when (and attrs
+                         (string-match-p "claude"
+                                         (or (alist-get 'args attrs) "")))
+                (push (list :id (alist-get 'sessionId json)
+                            :pid pid
+                            :cwd (alist-get 'cwd json)
+                            :status (or (alist-get 'status json) "unknown")
+                            :waiting-for (alist-get 'waitingFor json)
+                            :name (alist-get 'name json)
+                            ;; ms epoch -> seconds, for sorting with transcripts
+                            :time (/ (or (alist-get 'statusUpdatedAt json)
+                                         (alist-get 'updatedAt json)
+                                         0)
+                                     1000.0))
+                      out))))))
+      (nreverse out)))
+
+  (defun my/claude-session-status (id)
+    "Return (STATUS . WAITING-FOR) for session ID, or nil if not live."
+    (when-let* ((s (seq-find (lambda (s) (equal (plist-get s :id) id))
+                             (my/claude-live-sessions))))
+      (cons (plist-get s :status) (plist-get s :waiting-for))))
+
   (defun my/claude-cli-session-cwd (file)
     "Return the cwd recorded in Claude Code transcript FILE, or nil."
     (with-temp-buffer
@@ -78,7 +125,8 @@
     "Recent sessions from agent-shell transcripts plus the Claude CLI store.
 Merges the dashboard's default source with sessions found under
 ~/.claude/projects/ so sessions started in other terminals show up too."
-    (let* ((defaults (agent-shell-dashboard--recent-sessions-default))
+    (let* ((defaults (append (my/claude-live-sessions)   ; live always listed
+                             (agent-shell-dashboard--recent-sessions-default)))
            (live (agent-shell-dashboard--live-session-ids))
            (seen (make-hash-table :test 'equal))
            (root (expand-file-name "~/.claude/projects/"))
@@ -108,11 +156,93 @@ Merges the dashboard's default source with sessions found under
               (push (list :id id :cwd cwd :agent "Claude Code"
                           :opened mtime :time mtime)
                     out)))))
-      (seq-take (seq-sort-by (lambda (s) (plist-get s :time)) #'> out)
-                agent-shell-dashboard-recent-sessions-count)))
+      ;; live sessions are never trimmed; the count caps the historical tail
+      (let* ((sorted (seq-sort-by (lambda (s) (or (plist-get s :time) 0)) #'> out))
+             (live-rows (seq-filter (lambda (s) (plist-get s :status)) sorted))
+             (rest (seq-remove (lambda (s) (plist-get s :status)) sorted)))
+        (append live-rows
+                (seq-take rest agent-shell-dashboard-recent-sessions-count)))))
 
   (setq agent-shell-dashboard-recent-sessions-function
-        #'my/agent-shell-dashboard-recent-sessions))
+        #'my/agent-shell-dashboard-recent-sessions)
+
+  ;; RET on a recent session: the dashboard's default reopens it as an
+  ;; agent-shell buffer, but these sessions are claude-code-ide ones (they
+  ;; come from ~/.claude/projects/), so send them back to that client.
+  ;; NOTE: claude-code-ide's own `session-id' is an MCP identifier, not the
+  ;; CLI's -- and its `-r' takes no argument -- so an exact resume has to go
+  ;; through --resume in the extra-flags string.
+  (defun my/dashboard-open-claude-code-session (session)
+    "Open SESSION in claude-code-ide: switch if live, else resume by id."
+    (let* ((cwd (plist-get session :cwd))
+           (id (plist-get session :id))
+           (default-directory (file-name-as-directory
+                               (or cwd default-directory))))
+      (if-let* ((buf (get-buffer (claude-code-ide--get-buffer-name))))
+          (claude-code-ide--display-buffer-in-side-window buf)
+        (let ((claude-code-ide-cli-extra-flags
+               (string-trim
+                (format "%s --resume %s"
+                        (or claude-code-ide-cli-extra-flags "") id))))
+          (claude-code-ide)))))
+
+  (setq agent-shell-dashboard-resume-recent-function
+        #'my/dashboard-open-claude-code-session)
+
+  ;; --- status in the row label -------------------------------------------
+  ;; glyph AND word, so the state does not depend on colour alone
+  (defface my/dashboard-busy '((t :inherit success :weight bold))
+    "Session actively working.")
+  (defface my/dashboard-waiting '((t :inherit warning :weight bold))
+    "Session waiting for user input.")
+  (defface my/dashboard-idle '((t :inherit shadow))
+    "Session live but idle.")
+
+  (defun my/dashboard-status-suffix (session)
+    "Return a propertized \" ● working\"-style suffix for SESSION, or \"\"."
+    (pcase (plist-get session :status)
+      ("busy"    (propertize "  ● working" 'face 'my/dashboard-busy))
+      ("waiting" (propertize (format "  ▲ needs input%s"
+                                     (if-let* ((w (plist-get session :waiting-for)))
+                                         (format " — %s" w) ""))
+                             'face 'my/dashboard-waiting))
+      ("idle"    (propertize "  ○ idle" 'face 'my/dashboard-idle))
+      ("shell"   (propertize "  ○ shell" 'face 'my/dashboard-idle))
+      ("unknown" (propertize "  ? unknown" 'face 'my/dashboard-idle))
+      (_ "")))
+
+  (defun my/dashboard-session-name (session)
+    "Label for SESSION: project directory plus its live status."
+    (let ((base (or (plist-get session :name)
+                    (when-let* ((cwd (plist-get session :cwd)))
+                      (file-name-nondirectory (directory-file-name cwd)))
+                    "session")))
+      (concat base (my/dashboard-status-suffix session))))
+
+  (setq agent-shell-dashboard-session-name-function
+        #'my/dashboard-session-name)
+
+  ;; --- refresh while the dashboard is on screen --------------------------
+  (defvar my/dashboard-refresh-timer nil)
+
+  (defun my/dashboard-refresh-visible ()
+    "Re-render the dashboard when it is displayed; otherwise stop the timer."
+    (let ((buf (seq-find (lambda (b)
+                           (with-current-buffer b
+                             (derived-mode-p 'agent-shell-dashboard-mode)))
+                         (buffer-list))))
+      (if (and buf (get-buffer-window buf t))
+          (with-current-buffer buf
+            (ignore-errors (revert-buffer nil t)))
+        (when my/dashboard-refresh-timer
+          (cancel-timer my/dashboard-refresh-timer)
+          (setq my/dashboard-refresh-timer nil)))))
+
+  (defun my/dashboard-start-refresh (&rest _)
+    (unless my/dashboard-refresh-timer
+      (setq my/dashboard-refresh-timer
+            (run-with-timer 5 5 #'my/dashboard-refresh-visible))))
+  (advice-add 'agent-shell-dashboard :after #'my/dashboard-start-refresh))
 
 ;; terminal emulator backed by libghostty; the native module lives in
 ;; var/ghostel/ (outside the package dir) so package updates can't

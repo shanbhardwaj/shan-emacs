@@ -24,7 +24,7 @@
                            nerd-icons-completion nerd-icons-corfu
                            nerd-icons-dired no-littering ocaml-ts-mode
                            orderless org-gcal orgit-forge
-                           persistent-scratch project-x
+                           persistent-scratch prodigy project-x
                            rainbow-delimiters rainbow-mode rbenv robe
                            rspec-mode rubocop ruby-refactor ruby-tools
                            scratch seeing-is-believing seethru
@@ -43,4 +43,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(ghostel-default ((t (:height 0.95)))))

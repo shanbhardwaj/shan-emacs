@@ -36,13 +36,51 @@
               ("C-c ^ n" . smerge-next)        ;; Move to the next conflict.
               ("C-c ^ p" . smerge-previous)))  ;; Move to the previous conflict.
 
+;; --- PR review helpers ------------------------------------------------------
+;; Give diff/revision/log buffers the WHOLE frame instead of the cramped
+;; side-popup that `same-window-except-diff' produced.  `q' restores the
+;; previous window layout, so review stays a "fly through" loop.
+(defun shan/magit-display-buffer (buffer)
+  "Display magit BUFFER: diffs/revisions/logs full-frame, everything else same-window."
+  (if (with-current-buffer buffer
+        (derived-mode-p 'magit-diff-mode 'magit-revision-mode 'magit-log-mode))
+      (display-buffer buffer '(display-buffer-full-frame))
+    (magit-display-buffer-same-window-except-diff-v1 buffer)))
+
+(defvar shan/pr-base-branch "docs/new-schema-design"
+  "Base branch PRs target in this repo; used by `shan/review-pr'.")
+
+(defun shan/review-pr (pr)
+  "Review GitHub PR number PR (or a branch name): fetch it and show the range
+diff against `shan/pr-base-branch', filling the frame.  Review-only — never
+checks out or merges.  Requires the `gh' CLI to be authed."
+  (interactive "sPR number or branch: ")
+  (let* ((default-directory (or (magit-toplevel) default-directory))
+         (base shan/pr-base-branch)
+         (branch (if (string-match-p "\\`[0-9]+\\'" pr)
+                     (string-trim
+                      (shell-command-to-string
+                       (format "gh pr view %s --json headRefName --jq .headRefName"
+                               (shell-quote-argument pr))))
+                   pr)))
+    (when (string-empty-p branch)
+      (user-error "Could not resolve PR/branch %S (is `gh' authed?)" pr))
+    (message "Fetching origin/%s and origin/%s…" base branch)
+    (magit-run-git "fetch" "origin" base branch)
+    (magit-diff-range (format "origin/%s...origin/%s" base branch))))
+
+;; Bound directly (not via magit's :bind) since it is not a magit command.
+;; Under the C-c v (dev-workflow) prefix — C-c p is taken by cape.
+(global-set-key (kbd "C-c v r") #'shan/review-pr)
+
 (use-package magit
   :ensure t
   :commands (magit-status magit-ediff-show-working-tree)
-  :bind (("C-x g" . magit-status) ; conventional magit entry point
+  :bind (("C-x g" . magit-status)        ; conventional magit entry point
          ("C-c C-d" . magit-ediff-show-working-tree))
   :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  (magit-display-buffer-function #'shan/magit-display-buffer)
+  (magit-diff-refine-hunk 'all))          ; word-level highlighting within hunks
 
 (use-package blamer
   :ensure t

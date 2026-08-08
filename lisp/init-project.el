@@ -61,7 +61,33 @@
   :config
   ;; tree text at 85% of the default font, tracking font-size changes
   (add-hook 'speedbar-mode-hook
-            (lambda () (face-remap-add-relative 'default :height 0.85))))
+            (lambda () (face-remap-add-relative 'default :height 0.85)))
+
+  ;; --- VC state in the tree ----------------------------------------------
+  ;; Speedbar's VC support is RCS-era and needs two fixes for git:
+  ;;
+  ;; 1. It only looks for VC when the *current* directory contains a VCS
+  ;;    dir, so anywhere below the repo root (lisp/, src/...) it silently
+  ;;    does nothing.  The hook below walks up instead.
+  ;; 2. Its marker means "writable and tracked", which under RCS meant
+  ;;    "checked out for editing".  Under git every tracked file is
+  ;;    writable, so every file would be flagged.  Redefine the predicate
+  ;;    to mean "modified" so the marker actually carries information.
+  (setq speedbar-vc-do-check t)
+  (setq speedbar-vc-indicator " *")
+
+  (add-hook 'speedbar-vc-directory-enable-hook
+            (lambda (dir) (locate-dominating-file dir ".git")))
+
+  (defun shan/speedbar-file-modified-p (dir name)
+    "Non-nil when DIR/NAME differs from its VC state.
+Replaces `speedbar-this-file-in-vc' so the speedbar marker flags
+modified files rather than every tracked one."
+    (ignore-errors
+      (memq (vc-state (expand-file-name name dir))
+            '(edited added removed conflict missing))))
+  (advice-add 'speedbar-this-file-in-vc
+              :override #'shan/speedbar-file-modified-p))
 
 (defun shan/speedbar-toggle ()
   "Toggle the speedbar side window."
