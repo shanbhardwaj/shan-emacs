@@ -24,10 +24,11 @@
 (setq-default pop-up-windows nil)
 
 ;; --- Modes ------------------------------------------------------------------
-(tool-bar-mode -1)
+;; tool-bar/scroll-bar are absent from --without-x builds (the Linux box)
+(when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+(when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (menu-bar-mode -1)
 (blink-cursor-mode -1)
-(scroll-bar-mode -1)
 (setq recentf-max-saved-items 200)
 (recentf-mode 1)
 (global-hl-line-mode 1)
