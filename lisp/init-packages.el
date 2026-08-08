@@ -213,7 +213,8 @@
   :diminish
   :defer t
   :config
-  (setq yas-snippet-dirs (concat user-emacs-directory "snippets"))
+  ;; must be a LIST of directories; a bare string fails with listp
+  (setq yas-snippet-dirs (list (expand-file-name "snippets" user-emacs-directory)))
   (setq yas-indent-line 'fixed)
   (yas-global-mode)
   (global-set-key (kbd "M-/") 'company-yasnippet))

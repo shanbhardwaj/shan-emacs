@@ -70,7 +70,7 @@
 
 ;; alternative theme families, available to consult-theme (H-t)
 (use-package ef-themes
-  :ensure nil)
+  :ensure t)   ; auto-dark loads ef-summer from here; :ensure nil never installs it
 
 (defun disable-active-themes ()
   "Disable any currently active themes listed in `custom-enabled-themes'."

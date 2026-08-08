@@ -136,6 +136,7 @@ checks out or merges.  Requires the `gh' CLI to be authed."
   (setq git-gutter:update-interval 1))
 
 (use-package git-gutter-fringe
+  :ensure t
   :after git-gutter
   :config
   (setq git-gutter-fr:side 'left-fringe)
