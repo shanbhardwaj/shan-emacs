@@ -99,6 +99,7 @@
 ;; ====== end lsp-mode 
 
 (use-package lsp-eslint
+  :ensure t
   :demand t
   :after lsp-mode
   :config

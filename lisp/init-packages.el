@@ -9,6 +9,7 @@
   (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
 (use-package nerd-icons-dired
+  :ensure t
   :hook (dired-mode . nerd-icons-dired-mode))
 
 (use-package comment-dwim-2
@@ -24,6 +25,7 @@
   (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
 
 (use-package expand-region
+  :ensure t
   :bind ("C-=" . er/expand-region))
 
 (use-package indent-guide
@@ -34,6 +36,7 @@
   (setq indent-guide-char "│"))
 
 (use-package gcmh
+  :ensure t
   :diminish
   :hook (after-init . gcmh-mode))
 
@@ -174,7 +177,7 @@
           ("C-c C-c" . wgrep-finish-edit)))
 
 (use-package apheleia
-  :ensure nil
+  :ensure t
   :defer t
   :diminish ""
   :defines
@@ -192,10 +195,11 @@
 (setq flymake-no-changes-timeout 0.5)
 
 (use-package show-font
+  :ensure t
   :defer t)
 
 (use-package treesit-auto
-  :ensure nil
+  :ensure t
   :defer t
   :custom
   (treesit-auto-install 'prompt)
@@ -205,7 +209,7 @@
 
 (use-package restclient
   :defer t
-  :ensure nil
+  :ensure t
   :commands (restclient))
 
 (use-package yasnippet

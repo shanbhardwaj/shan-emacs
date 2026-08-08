@@ -285,10 +285,12 @@
 ;; via the :favorite bookmark (mu4e-alert was removed as redundant)
 
 (use-package mu4e-column-faces
+  :ensure t
   :after mu4e
   :config (mu4e-column-faces-mode))
 
 (use-package mu4e-views
+  :ensure t
   :after mu4e
   :init
   ;; mu4e-views uses goto-address-url-regexp at load time without
