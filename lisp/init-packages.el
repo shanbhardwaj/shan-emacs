@@ -103,6 +103,10 @@
   :config
   (setq kkp-super-modifier 'meta) ; Cmd arrives as protocol-super
   (setq kkp-alt-modifier 'super)  ; left Option (option_as_alt) arrives as alt
+  ;; the capability query round-trips to the outer terminal; over ssh the
+  ;; 2s default can expire before the reply lands, leaving kkp inactive
+  ;; (set kkp-verbose to t to watch the negotiation)
+  (setq kkp-terminal-query-timeout 5)
   (global-kkp-mode 1))
 
 ;; org-style markdown editing (https://github.com/yibie/md-mode), now the

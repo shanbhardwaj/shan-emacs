@@ -282,7 +282,11 @@ Merges the dashboard's default source with sessions found under
 
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-  :bind ("C-c C-'" . claude-code-ide-menu)
+  ;; C-c j as well as C-c C-': a terminal cannot encode C-' at all (ASCII has
+  ;; no control code for it), so over ssh it arrives as a plain quote unless
+  ;; the kitty keyboard protocol negotiated -- which it does not always do.
+  :bind (("C-c C-'" . claude-code-ide-menu)
+         ("C-c j"   . claude-code-ide-menu))
   :config
   (claude-code-ide-emacs-tools-setup) ; expose Emacs MCP tools (xref, imenu, ...)
   (setq claude-code-ide-terminal-backend 'ghostel))
