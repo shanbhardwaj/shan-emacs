@@ -24,7 +24,8 @@
           (project-eshell           "Eshell"     ?e)))
   ;; extra keys on the C-x p prefix
   (define-key project-prefix-map (kbd "t") #'ghostel-project)
-  (define-key project-prefix-map (kbd "n") #'shan/speedbar-toggle))
+  (define-key project-prefix-map (kbd "n") #'shan/speedbar-toggle)
+  (define-key project-prefix-map (kbd "m") #'shan/project-mistty))
 
 ;; --- project-x: per-project window layouts --------------------------------
 ;; Saves the window configuration per project and restores it on switch, so
