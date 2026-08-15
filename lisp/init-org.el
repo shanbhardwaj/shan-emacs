@@ -36,7 +36,13 @@
    '(("t" "Task" entry (file "inbox.org")
       "* TODO %?\n%U" :empty-lines 1)
      ("n" "Note" entry (file+headline "notes.org" "Notes")
-      "* %?\n%U" :empty-lines 1)))
+      "* %?\n%U" :empty-lines 1)
+     ;; Filled by org-protocol (see org-capture-safari / bookmarklet):
+     ;; %:description = page title, %:link = URL, %i = selected text.
+     ;; Point lands at %? so you type WHY you saved it -- that one line is
+     ;; the difference between this and a bookmark graveyard.
+     ("w" "Web link" entry (file "inbox.org")
+      "* TODO %?\n%U\n[[%:link][%:description]]\n\n%i" :empty-lines 1)))
 
   ;; Editing
   (org-special-ctrl-a/e t)
@@ -53,7 +59,27 @@
   (require 'org-tempo) ; <el TAB, <sh TAB etc. expand into src blocks
   (dolist (tpl '(("el" . "src emacs-lisp") ("rb" . "src ruby")
                  ("sh" . "src sh") ("md" . "src markdown")))
-    (add-to-list 'org-structure-template-alist tpl)))
+    (add-to-list 'org-structure-template-alist tpl))
+
+  ;; org-protocol: lets anything outside Emacs hand a URL/title/selection
+  ;; to org-capture by running
+  ;;   emacsclient "org-protocol://capture?template=w&url=...&title=..."
+  ;; No macOS URL-scheme registration needed for the ~/.local/bin/org-capture-safari
+  ;; script (it calls emacsclient directly); registration is only required if
+  ;; a browser bookmarklet should launch it.
+  (require 'org-protocol)
+  ;; capture frames are small and disposable: give them their own frame and
+  ;; delete it on finish/abort, so capturing never disturbs a window layout
+  (defun shan/org-capture-frame-p ()
+    (equal (frame-parameter nil 'name) "org-capture"))
+  (defun shan/org-capture-cleanup-frame ()
+    (when (shan/org-capture-frame-p) (delete-frame)))
+  (add-hook 'org-capture-after-finalize-hook #'shan/org-capture-cleanup-frame)
+  ;; in the dedicated capture frame, show ONLY the capture buffer -- the new
+  ;; frame otherwise inherits whatever buffer the daemon had current
+  (defun shan/org-capture-only-window ()
+    (when (shan/org-capture-frame-p) (delete-other-windows)))
+  (add-hook 'org-capture-mode-hook #'shan/org-capture-only-window))
 
 ;; --- Quick access to org files -----------------------------------------------
 (defun shan/org-open-notes ()

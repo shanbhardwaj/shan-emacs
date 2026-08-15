@@ -13,9 +13,12 @@
 ;; --- Typography -------------------------------------------------------------
 ;; ;; (set-face-attribute 'default nil :height 130 :family "Monaco" :weight 'bold)
 ;; guarded: a missing family errors, and the font set differs per machine
-(let ((family "Iosevka Nerd Font"))
+(let ((family "Cascadia Code"))
   (when (and (display-graphic-p) (member family (font-family-list)))
-    (set-face-attribute 'default nil :height 140 :family family :weight 'bold)))
+    (set-face-attribute 'default nil :height 160 :family family :weight 'regular)))
+;; extra space between lines, as a fraction of line height (0.2 = 20%).
+;; ghostel/mu4e set this buffer-locally and those values still win.
+(setq-default line-spacing 0.1)
 ;; (set-face-attribute 'bold nil :weight 'regular)
 ;; (set-face-attribute 'bold-italic nil :weight 'regular)
 
@@ -27,7 +30,7 @@
 ;; tool-bar/scroll-bar are absent from --without-x builds (the Linux box)
 (when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-(menu-bar-mode -1)
+(when (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (blink-cursor-mode -1)
 (setq recentf-max-saved-items 200)
 (recentf-mode 1)

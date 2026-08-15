@@ -73,6 +73,52 @@
 ;; group" warnings into every M-x shell-command (fish tolerated -ic)
 (setq shell-command-switch "-c")
 
+;; --- Review notes for the agent --------------------------------------
+;; Leave inline comments on plan/brainstorm docs and on code, then point
+;; the agent at them.  Uses the buffer's own comment syntax, so it works
+;; in markdown (<!-- -->), elisp (;;), ruby (#) and the rest.
+
+(defcustom shan/review-tag "REVIEW"
+  "Marker that starts a note written for the coding agent."
+  :type 'string :group 'convenience)
+
+(defun shan/insert-review-note (&optional arg)
+  "Insert a tagged comment for the agent and leave point inside it.
+With a region active, comment the region and tag the first line.
+With prefix ARG, ask for a different tag (TODO, QUESTION, ...)."
+  (interactive "P")
+  (let ((tag (if arg (read-string "Tag: " shan/review-tag) shan/review-tag)))
+    (if (use-region-p)
+        (let ((beg (region-beginning)))
+          (comment-region beg (region-end))
+          (goto-char beg)
+          (comment-search-forward (line-end-position) t)
+          (insert (format "%s: " tag)))
+      (end-of-line)
+      (insert " ")
+      (insert comment-start)
+      (unless (string-suffix-p " " comment-start) (insert " "))
+      (insert (format "%s: " tag))
+      (save-excursion
+        (unless (string-empty-p comment-end)
+          (insert (if (string-prefix-p " " comment-end) comment-end
+                    (concat " " comment-end))))))))
+
+(defun shan/list-review-notes ()
+  "Show every review note in the current project.
+Feeds the list the agent needs: run it before asking the agent to
+address your comments."
+  (interactive)
+  (if (fboundp 'consult-ripgrep)
+      (consult-ripgrep (when (project-current) (project-root (project-current)))
+                       (concat shan/review-tag ":"))
+    (rgrep (concat shan/review-tag ":") "*" (or (and (project-current)
+                                                     (project-root (project-current)))
+                                                default-directory))))
+
+(bind-key "C-c n" #'shan/insert-review-note)
+(bind-key "C-c N" #'shan/list-review-notes)
+
 ;; --- TRAMP (remote editing over ssh) ---------------------------------
 ;; ssh connection sharing comes from ~/.ssh/config (ControlPersist);
 ;; auto-saves and backups of remote files stay local via no-littering

@@ -27,19 +27,27 @@
   ;; faint to read at a reduced mode-line height; use a dimmed fg instead.
   ;; These fixups are theme-clobbered, so they live in a function that
   ;; re-runs after every auto-dark theme switch (see auto-dark below).
+  ;; Read theme colours from a GUI frame, never the selected one: tty
+  ;; frames have their surfaces cleared to "unspecified-*" (see
+  ;; shan/tty-use-terminal-colors), and these setters write globally, so
+  ;; reading a tty value here would push it onto every frame.
+  (defun shan/graphic-frame ()
+    (seq-find #'display-graphic-p (frame-list)))
+
   (defun shan/apply-theme-fixups (&rest _)
     "Re-apply face fixups that loading a theme clobbers."
-    ;; dimmed-but-readable inactive mode-line text, derived from the
-    ;; current theme's foreground (works for dark and light themes)
-    (set-face-attribute 'mode-line-inactive nil
-                        :foreground (doom-darken
-                                     (face-attribute 'default :foreground)
-                                     0.35))
-    ;; header-line inherits mode-line; pin it to the default font size so
-    ;; a shrunken mode-line can't misalign mu4e's column headers
-    (let ((h (face-attribute 'default :height)))
-      (when (numberp h)
-        (set-face-attribute 'header-line nil :height h))))
+    (let ((gui (shan/graphic-frame)))
+      ;; dimmed-but-readable inactive mode-line text, derived from the
+      ;; current theme's foreground (works for dark and light themes)
+      (let ((fg (face-attribute 'default :foreground gui)))
+        (when (and (stringp fg) (string-prefix-p "#" fg))
+          (set-face-attribute 'mode-line-inactive nil
+                              :foreground (doom-darken fg 0.35))))
+      ;; header-line inherits mode-line; pin it to the default font size so
+      ;; a shrunken mode-line can't misalign mu4e's column headers
+      (let ((h (face-attribute 'default :height gui)))
+        (when (numberp h)
+          (set-face-attribute 'header-line nil :height h)))))
   ;; enable-theme-functions covers auto-dark AND manual H-t theme switches
   (add-hook 'enable-theme-functions #'shan/apply-theme-fixups)
   (shan/apply-theme-fixups)
@@ -58,15 +66,37 @@
   ;; terminal frames: let the terminal's theme provide the canvas -- clear
   ;; the Emacs theme's default fg/bg (and related surfaces) in tty frames
   ;; so kitty/ghostty colors show through; GUI frames keep the full theme
+  ;; A daemon has one theme for every frame, but the terminal it is
+  ;; displayed in has its own.  When the two disagree in lightness (Emacs
+  ;; on ef-summer while kitty is pinned to a dark catppuccin, say) the
+  ;; theme's opaque surfaces -- mode line, header line, tab bar -- show up
+  ;; as light slabs on a dark canvas.  Clearing their backgrounds in tty
+  ;; frames lets the terminal's own colours through, so terminal Emacs
+  ;; stays legible whatever the terminal theme is.  GUI frames keep the
+  ;; full theme.
+  (defvar shan/tty-transparent-faces
+    '(default fringe line-number line-number-current-line
+      mode-line mode-line-inactive mode-line-active
+      header-line header-line-highlight
+      tab-bar tab-line vertical-border window-divider)
+    "Faces whose background is cleared in tty frames.
+Deliberately excludes `region' and `hl-line': those need a background to
+do their job, and a light-theme highlight still reads on a dark terminal.")
+
   (defun shan/tty-use-terminal-colors (&optional frame)
     (let ((frame (or frame (selected-frame))))
       (unless (display-graphic-p frame)
-        (set-face-background 'default "unspecified-bg" frame)
         (set-face-foreground 'default "unspecified-fg" frame)
-        (dolist (face '(fringe line-number line-number-current-line))
+        (dolist (face shan/tty-transparent-faces)
           (when (facep face)
             (set-face-background face "unspecified-bg" frame))))))
-  (add-hook 'after-make-frame-functions #'shan/tty-use-terminal-colors))
+  (add-hook 'after-make-frame-functions #'shan/tty-use-terminal-colors)
+  ;; also re-apply on theme change: a new theme repaints these faces
+  (add-hook 'enable-theme-functions
+            (lambda (&rest _)
+              (dolist (f (frame-list))
+                (unless (display-graphic-p f)
+                  (shan/tty-use-terminal-colors f))))))
 
 ;; alternative theme families, available to consult-theme (H-t)
 (use-package ef-themes
@@ -117,13 +147,17 @@
 ;; the bar back to size. Runs on every theme change so the padding color
 ;; always tracks the current theme's background.
 (defun shan/modeline-compact-text (&rest _)
-  "Give the mode-line 0.85-height text with height-preserving padding."
-  (dolist (face '(mode-line mode-line-inactive))
-    (set-face-attribute face nil
-                        :height 0.85
-                        :box `(:line-width (1 . 4)
-                               :color ,(or (face-background face nil t)
-                                           (face-background 'default nil t))))))
+  "Give the mode-line 0.85-height text with height-preserving padding.
+Colours are read from a GUI frame: tty frames clear these backgrounds to
+\"unspecified-bg\", and these setters write globally."
+  (let ((gui (shan/graphic-frame)))
+    (dolist (face '(mode-line mode-line-inactive))
+      (let ((bg (or (face-background face gui t)
+                    (face-background 'default gui t))))
+        (set-face-attribute face nil :height 0.85)
+        (when (and (stringp bg) (string-prefix-p "#" bg))
+          (set-face-attribute face nil
+                              :box `(:line-width (1 . 4) :color ,bg)))))))
 (add-hook 'enable-theme-functions #'shan/modeline-compact-text)
 (shan/modeline-compact-text)
 

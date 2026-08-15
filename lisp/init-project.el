@@ -59,6 +59,11 @@
   (speedbar-use-images nil)            ; text arrows; also works in tty frames
   (speedbar-show-unknown-files t)      ; show all files, not just recognized types
   (speedbar-indentation-width 2)
+  ;; show dot-directories (.github, .config...): the default regexp hides
+  ;; every name starting with a dot; this hides only . and ..
+  ;; (dot-FILES are already shown -- speedbar-file-unshown-regexp only
+  ;; excludes . and .. plus build/backup extensions)
+  (speedbar-directory-unshown-regexp "\\`\\.\\.?\\'")
   :config
   ;; tree text at 85% of the default font, tracking font-size changes
   (add-hook 'speedbar-mode-hook
