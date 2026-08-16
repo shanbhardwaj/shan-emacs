@@ -285,3 +285,28 @@ While the panel is up, pressing the bare key runs the command."
   (align-regexp start end
                 "\\([a-z_]+: \\)"
                 -1 1 nil))
+
+;; --- Copy the current file/buffer name -------------------------------
+(defun shan/copy-file-name (&optional arg)
+  "Copy the current buffer's file name to the kill ring.
+Default is the path relative to the project root -- the form you
+usually want to paste into a commit message, chat, or an agent prompt.
+With \\[universal-argument], copy the absolute path.
+With \\[universal-argument] \\[universal-argument], copy just the base name.
+Falls back to the buffer name in buffers not visiting a file (dired
+gives its directory)."
+  (interactive "P")
+  (let* ((file (or buffer-file-name
+                   (and (derived-mode-p 'dired-mode) default-directory)))
+         (name (cond
+                ((null file) (buffer-name))
+                ((equal arg '(16)) (file-name-nondirectory
+                                    (directory-file-name file)))
+                ((equal arg '(4)) file)
+                (t (if-let* ((proj (project-current)))
+                       (file-relative-name file (project-root proj))
+                     (abbreviate-file-name file))))))
+    (kill-new name)
+    (message "Copied: %s" name)))
+
+(bind-key "C-c w" #'shan/copy-file-name)
