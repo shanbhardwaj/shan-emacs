@@ -22,6 +22,23 @@
   (org-agenda-files (list org-directory))
   (org-agenda-window-setup 'current-window)
 
+  ;; One view that hides nothing: C-c o a d.
+  ;; The plain agenda (a) only lists items with a date, so undated captures
+  ;; from inbox.org are invisible there -- which is most of what the Leader
+  ;; Key capture produces.  This stacks today's dated items on top of the
+  ;; undated backlog, newest captures first.
+  (org-agenda-custom-commands
+   '(("d" "Dashboard: today + undated inbox"
+      ((agenda "" ((org-agenda-span 'day)
+                   (org-deadline-warning-days 7)))
+       (todo "NEXT"
+             ((org-agenda-overriding-header "In progress")))
+       (tags-todo "-SCHEDULED={.}-DEADLINE={.}/!TODO"
+                  ((org-agenda-overriding-header "Inbox (no date)")
+                   (org-agenda-sorting-strategy '(timestamp-down))))
+       (todo "WAITING"
+             ((org-agenda-overriding-header "Waiting on someone")))))))
+
   ;; Tasks
   (org-todo-keywords
    '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")))
