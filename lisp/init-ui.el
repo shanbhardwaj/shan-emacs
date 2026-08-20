@@ -9,8 +9,11 @@
 
 ;; The active theme.  Change this one line (then restart or re-eval this
 ;; file) to switch permanently; `consult-theme' (H-t) previews live.
-(defvar shan/theme 'doom-horizon
-  "Theme loaded at startup by `init-ui.el'.")
+(defvar shan/theme 'doom-ayu-dark
+  "Theme loaded at startup by `init-ui.el'.
+auto-dark switches this immediately to match the system appearance; it
+matters only for the moment before that, so keep it as the dark half of
+`auto-dark-themes'.  Previously doom-horizon.")
 
 (use-package doom-themes
   :ensure t
@@ -107,9 +110,10 @@ do their job, and a light-theme highlight still reads on a dark terminal.")
   (interactive)
   (mapc #'disable-theme custom-enabled-themes))
 
-;; follow the macOS light/dark setting: doom-horizon in dark mode,
-;; ef-summer in light -- matching the kitty auto-themes generated from
-;; these same palettes (themes/doom-horizon.conf, themes/ef-summer.conf)
+;; follow the macOS light/dark setting.  Note the kitty auto-themes are
+;; still generated from the Horizon palettes, so while this pair is in use
+;; Emacs and the terminal no longer match; regenerate those (or switch
+;; back) if the mismatch grates.
 ;; trust locally installed themes (no load-theme confirmation prompts;
 ;; needed for auto-dark to switch themes unattended)
 (setq custom-safe-themes t)
@@ -118,7 +122,8 @@ do their job, and a light-theme highlight still reads on a dark terminal.")
   :ensure t
   :after doom-themes
   :custom
-  (auto-dark-themes '((doom-horizon) (ef-summer)))
+  ;; trying the ayu pair for a while; previous: (doom-horizon) (ef-summer)
+  (auto-dark-themes '((doom-ayu-dark) (doom-ayu-light)))
   (auto-dark-allow-osascript t)
   :config
   ;; face fixups re-run via enable-theme-functions (see doom-themes block)
