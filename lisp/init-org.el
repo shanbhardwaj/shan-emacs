@@ -104,6 +104,36 @@
     (when (shan/org-capture-frame-p) (delete-other-windows)))
   (add-hook 'org-capture-mode-hook #'shan/org-capture-only-window))
 
+;; --- Entry counts on agenda section headers ----------------------------------
+;; The block headers are static strings, and a block cannot know its own
+;; result count while it is being built -- so count afterwards, once the
+;; buffer is rendered, and append [n] to each header.  Sections are marked
+;; with the `org-agenda-structural-header' text property; everything
+;; between one header and the next that carries `org-marker' is an entry.
+(defun shan/org-agenda-append-counts ()
+  "Append [n] to each agenda section header, counting its entries."
+  (let ((inhibit-read-only t))
+    (save-excursion
+      (goto-char (point-min))
+      (let (header-pos (count 0))
+        (cl-flet ((flush ()
+                    (when (and header-pos (> count 0))
+                      (save-excursion
+                        (goto-char header-pos)
+                        (end-of-line)
+                        (insert (propertize (format " [%d]" count)
+                                            'face 'org-agenda-structure))))))
+          (while (not (eobp))
+            (cond
+             ((get-text-property (point) 'org-agenda-structural-header)
+              (flush)
+              (setq header-pos (point) count 0))
+             ((get-text-property (point) 'org-marker)
+              (setq count (1+ count))))
+            (forward-line 1))
+          (flush))))))
+(add-hook 'org-agenda-finalize-hook #'shan/org-agenda-append-counts)
+
 ;; --- Quick access to org files -----------------------------------------------
 (defun shan/org-open-notes ()
   "Open notes.org in `org-directory'."
