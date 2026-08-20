@@ -15,10 +15,10 @@
 ;; guarded: a missing family errors, and the font set differs per machine
 (let ((family "Cascadia Code"))
   (when (and (display-graphic-p) (member family (font-family-list)))
-    (set-face-attribute 'default nil :height 160 :family family :weight 'regular)))
+    (set-face-attribute 'default nil :height 140 :family family :weight 'regular)))
 ;; extra space between lines, as a fraction of line height (0.2 = 20%).
 ;; ghostel/mu4e set this buffer-locally and those values still win.
-(setq-default line-spacing 0.1)
+;; (setq-default line-spacing 0.1)
 ;; (set-face-attribute 'bold nil :weight 'regular)
 ;; (set-face-attribute 'bold-italic nil :weight 'regular)
 

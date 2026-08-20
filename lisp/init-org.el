@@ -14,7 +14,8 @@
          ("C-c o l" . org-store-link)
          ("C-c o n" . shan/org-open-notes)
          ("C-c o i" . shan/org-open-inbox)
-         ("C-c o f" . shan/org-open-file))
+         ("C-c o f" . shan/org-open-file)
+         ("C-c o G" . shan/org-refresh-github-issues))
   :custom
   ;; Files and agenda
   (org-directory "~/Library/Mobile Documents/iCloud~com~yakshaven~orgenda/Documents")
@@ -33,9 +34,14 @@
                    (org-deadline-warning-days 7)))
        (todo "NEXT"
              ((org-agenda-overriding-header "In progress")))
-       (tags-todo "-SCHEDULED={.}-DEADLINE={.}/!TODO"
+       ;; -github keeps the 50-odd issues in github.org out of here; they
+       ;; get their own section below.  Without it they drown the inbox.
+       (tags-todo "-SCHEDULED={.}-DEADLINE={.}-github/!TODO"
                   ((org-agenda-overriding-header "Inbox (no date)")
                    (org-agenda-sorting-strategy '(timestamp-down))))
+       (tags-todo "+github/!TODO"
+                  ((org-agenda-overriding-header "GitHub (assigned to me)")
+                   (org-agenda-max-entries 12)))
        (todo "WAITING"
              ((org-agenda-overriding-header "Waiting on someone")))))))
 
@@ -108,6 +114,28 @@
   "Open inbox.org in `org-directory'."
   (interactive)
   (find-file (expand-file-name "inbox.org" org-directory)))
+
+(defun shan/org-refresh-github-issues ()
+  "Regenerate github.org from issues assigned to you on GitHub.
+Runs the gh-issues-to-org script (dotfiles/bin) asynchronously; the file
+is rewritten wholesale, so anything typed into it is lost -- keep notes in
+inbox.org with a link back instead."
+  (interactive)
+  (let ((script (expand-file-name "~/.local/bin/gh-issues-to-org")))
+    (if (not (file-executable-p script))
+        (user-error "Not found: %s" script)
+      (message "Fetching GitHub issues...")
+      (set-process-sentinel
+       (start-process "gh-issues-to-org" "*gh-issues*" script)
+       (lambda (_p event)
+         (if (string-match-p "finished" event)
+             (progn
+               (dolist (b (buffer-list))
+                 (when (and (buffer-file-name b)
+                            (string-suffix-p "github.org" (buffer-file-name b)))
+                   (with-current-buffer b (revert-buffer t t t))))
+               (message "GitHub issues refreshed"))
+           (message "gh-issues-to-org failed; see *gh-issues*")))))))
 
 (defun shan/org-open-file ()
   "Pick any file in `org-directory' with completion."
