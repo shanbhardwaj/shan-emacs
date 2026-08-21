@@ -12,10 +12,34 @@
 
 ;; --- Typography -------------------------------------------------------------
 ;; ;; (set-face-attribute 'default nil :height 130 :family "Monaco" :weight 'bold)
-;; guarded: a missing family errors, and the font set differs per machine
-(let ((family "Cascadia Code"))
-  (when (and (display-graphic-p) (member family (font-family-list)))
-    (set-face-attribute 'default nil :height 140 :family family :weight 'regular)))
+;; First family actually installed wins, so one config serves both machines:
+;; SF Mono is macOS-only (Apple licence) and Caskaydia is what the Linux box
+;; has.  Height travels with the family because the two displays want
+;; different sizes -- hardcoding either made every `git pull' conflict.
+(defvar shan/font-preferences
+  '(("Liga SFMono Nerd Font"   . 140)
+    ("CaskaydiaMono Nerd Font" . 120)
+    ("Cascadia Code"           . 140)
+    ("Menlo"                   . 140))
+  "Fonts to try in order, as (FAMILY . HEIGHT).")
+
+(defun shan/apply-font (&optional frame)
+  "Set the default face to the first installed family in `shan/font-preferences'.
+Runs per FRAME rather than once at startup: under the daemon, init.el is
+evaluated with no frame at all, so a bare `display-graphic-p' check is nil
+and the font is silently never applied."
+  (let ((frame (or frame (selected-frame))))
+    (when (display-graphic-p frame)
+      (let ((installed (font-family-list frame)))
+        (catch 'done
+          (pcase-dolist (`(,family . ,height) shan/font-preferences)
+            (when (member family installed)
+              (set-face-attribute 'default frame
+                                  :height height :family family :weight 'regular)
+              (throw 'done family))))))))
+
+(add-hook 'after-make-frame-functions #'shan/apply-font)
+(shan/apply-font)   ; non-daemon startup, where a frame already exists
 ;; extra space between lines, as a fraction of line height (0.2 = 20%).
 ;; ghostel/mu4e set this buffer-locally and those values still win.
 ;; (setq-default line-spacing 0.1)
