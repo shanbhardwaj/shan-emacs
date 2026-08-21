@@ -1,11 +1,11 @@
 ;;; init-org.el --- Org mode configuration -*- lexical-binding: t; -*-
 
-;; Files live in the Orgenda iOS app's iCloud folder, so the phone and Emacs
-;; edit the same set: inbox.org is the capture target, notes.org holds
-;; reference notes, and the agenda scans the whole directory.
-;; global-auto-revert-mode (init.el) picks up edits made on the phone.
-;; Caveat: editing the same file in both places at once makes iCloud write
-;; a conflict copy -- finish on one side before the other.
+;; Files live in ~/org on every machine: inbox.org is the capture target,
+;; notes.org holds reference notes, and the agenda scans the whole directory.
+;; Syncthing replicates the folder between the Mac and the 4090, and
+;; global-auto-revert-mode (init.el) picks up what it writes.
+;; Caveat: editing the same file on both machines at once leaves a
+;; .sync-conflict-* file beside it -- finish on one side before the other.
 
 (use-package org
   :defer t
@@ -18,7 +18,11 @@
          ("C-c o G" . shan/org-refresh-github-issues))
   :custom
   ;; Files and agenda
-  (org-directory "~/Library/Mobile Documents/iCloud~com~yakshaven~orgenda/Documents")
+  ;; Plain ~/org, not an app's iCloud container: that path does not exist on
+  ;; Linux, so agenda and capture were dead on the 4090.  Syncthing keeps the
+  ;; two machines in step; a cloud client can watch the same folder later for
+  ;; phone access, without tying the files to one app again.
+  (org-directory "~/org")
   (org-default-notes-file (expand-file-name "inbox.org" org-directory))
   (org-agenda-files (list org-directory))
   (org-agenda-window-setup 'current-window)

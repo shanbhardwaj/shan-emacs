@@ -95,6 +95,22 @@ or says so when none of the listed families are installed."
         trash-directory "~/.Trash"
         ns-pop-up-frames nil))
 
+;; --- Linux: same modifier layout as the Mac ---------------------------------
+;; The keyboard is shared over Deskflow, so the keys pressed are the Mac's.
+;; Deskflow forwards Command as Super and Option as Alt, which is the mirror
+;; image of the mapping above (Command = meta, left Option = super) -- so
+;; every M- binding arrived as s- over here and did nothing.  Swap them back.
+;;
+;; These variables live in pgtkterm.c, so they apply to graphical frames on
+;; Wayland only; TTY frames go through kkp and are untouched.  x-meta-keysym
+;; is the one that fires for Alt_L on a keyboard with no dedicated Meta key,
+;; which is this case; x-alt-keysym is set to match so the binding survives a
+;; layout that does expose a Meta key.
+(when (featurep 'pgtk)
+  (setq x-super-keysym 'meta    ; Command -> M-
+        x-meta-keysym  'super   ; Option  -> s-
+        x-alt-keysym   'super))
+
 ;; --- Packages ---------------------------------------------------------------
 (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
                          ("elpa"   . "https://elpa.gnu.org/packages/")
