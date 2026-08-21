@@ -19,7 +19,7 @@
 (defvar shan/font-preferences
   '(("Liga SFMono Nerd Font"   . 140)
     ("CaskaydiaMono Nerd Font" . 120)
-    ("Cascadia Code"           . 140)
+    ("Cascadia Code"           . 120)
     ("Menlo"                   . 140))
   "Fonts to try in order, as (FAMILY . HEIGHT).")
 
@@ -27,7 +27,12 @@
   "Set the default face to the first installed family in `shan/font-preferences'.
 Runs per FRAME rather than once at startup: under the daemon, init.el is
 evaluated with no frame at all, so a bare `display-graphic-p' check is nil
-and the font is silently never applied."
+and the font is silently never applied.
+
+Called automatically for every new frame.  Call it interactively to
+re-apply after editing `shan/font-preferences'; it reports what it picked,
+or says so when none of the listed families are installed."
+  (interactive)
   (let ((frame (or frame (selected-frame))))
     (when (display-graphic-p frame)
       (let ((installed (font-family-list frame)))
@@ -36,7 +41,11 @@ and the font is silently never applied."
             (when (member family installed)
               (set-face-attribute 'default frame
                                   :height height :family family :weight 'regular)
-              (throw 'done family))))))))
+              (when (called-interactively-p 'interactive)
+                (message "Font: %s %.1fpt" family (/ height 10.0)))
+              (throw 'done family)))
+          (when (called-interactively-p 'interactive)
+            (message "None of shan/font-preferences is installed")))))))
 
 (add-hook 'after-make-frame-functions #'shan/apply-font)
 (shan/apply-font)   ; non-daemon startup, where a frame already exists
