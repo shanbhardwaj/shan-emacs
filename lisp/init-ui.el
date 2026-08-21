@@ -231,3 +231,41 @@ Colours are read from a GUI frame: tty frames clear these backgrounds to
 ;;            :right-divider-width 6
 ;;            :scroll-bar-width 2))
 ;;   (spacious-padding-mode 0))
+
+;; --- Pick a font the way consult-theme picks a theme ------------------------
+;; Live preview while you move through the list, original restored on C-g.
+;; Height is kept from the current frame, so this changes family only --
+;; sizing stays with `shan/font-preferences' / M-x shan/apply-font.
+(defun shan/consult-font ()
+  "Choose a font family with completion and live preview.
+On RET the family is applied to all frames.  On abort the previous family
+is restored.  The choice lasts for this session; to make it permanent put
+it at the head of `shan/font-preferences' in init.el."
+  (interactive)
+  (unless (fboundp 'consult--read)
+    (user-error "consult is not available"))
+  (let* ((frame (or (seq-find #'display-graphic-p (frame-list))
+                    (user-error "No graphical frame to preview in")))
+         (original (face-attribute 'default :family frame))
+         (families (sort (delete-dups (font-family-list frame)) #'string<)))
+    (consult--read
+     families
+     :prompt "Font: "
+     :require-match t
+     :category 'font
+     :default original
+     :history 'shan/consult-font-history
+     :state
+     (lambda (action candidate)
+       (pcase action
+         ;; preview as point moves; candidate is nil between candidates
+         ((or 'preview 'return)
+          (when candidate
+            (set-face-attribute 'default nil :family candidate)))
+         ;; abort: put back what was there
+         ('exit
+          (unless candidate
+            (set-face-attribute 'default nil :family original))))))))
+
+(bind-key "H-F" #'shan/consult-font)
+(define-key shan/hyper-map (kbd "F") #'shan/consult-font)
