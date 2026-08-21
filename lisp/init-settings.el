@@ -238,6 +238,38 @@ While the panel is up, pressing the bare key runs the command."
     (which-key--show-keymap "Hyper layer" map)))
 (bind-key "H-h" 'shan/hyper-cheatsheet)
 
+;; --- The hyper layer, reachable without a hyper key -------------------------
+;; H-<key> comes from Karabiner mapping right-Command; the Linux box has no
+;; such key, so every H- binding above is dead there.  This mirrors them onto
+;; a C-c h prefix using the SAME letters, so the muscle memory transfers and
+;; the mnemonics stay in one place.  Bound on both machines deliberately:
+;; identical keys everywhere beats a shortcut that only exists on one.
+(defvar shan/hyper-map (make-sparse-keymap)
+  "Prefix map mirroring the H- bindings, for machines without a hyper key.")
+
+(dolist (pair '(("c" . compile)
+                ("r" . recompile)
+                ("s" . save-and-recompile)
+                ("n" . shan/speedbar-toggle)
+                ("t" . consult-theme)
+                ("m" . mu4e)
+                ("d" . mu4e-dashboard)
+                ("p" . project-switch-project)
+                ("f" . consult-project-extra-find)
+                ("b" . consult-buffer)
+                ("g" . ghostel-project)
+                ("," . shan/open-init)
+                ("h" . shan/hyper-cheatsheet)))
+  (define-key shan/hyper-map (kbd (car pair)) (cdr pair)))
+
+(bind-key "C-c h" shan/hyper-map)
+
+;; Buffer/window keys that were super-only (s-[ , s-] , s-arrows) also need a
+;; portable form; M-o already cycles windows on both.
+(bind-key "C-c h [" 'previous-buffer)
+(bind-key "C-c h ]" 'next-buffer)
+
+
 (defun shan/my-keybindings ()
   "List personal keybindings collected from the init files."
   (interactive)
