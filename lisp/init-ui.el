@@ -266,7 +266,12 @@ On RET the family is applied to all frames.  On abort the previous family
 is restored.  The choice lasts for this session; to make it permanent put
 it at the head of `shan/font-preferences' in init.el."
   (interactive)
-  (unless (fboundp 'consult--read)
+  ;; require, not fboundp: consult--read is private and so carries no
+  ;; autoload, while consult itself is deferred until one of its bound
+  ;; commands runs.  Probing fboundp therefore failed on a fresh Emacs and
+  ;; succeeded only after something else had already pulled consult in --
+  ;; which reads exactly like the package being uninstalled.
+  (unless (require 'consult nil t)
     (user-error "consult is not available"))
   (let* ((frame (or (seq-find #'display-graphic-p (frame-list))
                     (user-error "No graphical frame to preview in")))
