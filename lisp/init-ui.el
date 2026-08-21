@@ -232,6 +232,30 @@ Colours are read from a GUI frame: tty frames clear these backgrounds to
 ;;            :scroll-bar-width 2))
 ;;   (spacious-padding-mode 0))
 
+;; `font-family-list' returns everything installed -- around 240 families
+;; here, most of which make the preview look broken: proportional faces,
+;; and icon/emoji fonts with no Latin glyphs at all.  Keep only families
+;; that can actually render code.
+(defun shan/usable-font-families (&optional frame)
+  "Monospaced families in FRAME that have Latin glyphs.
+Two tests, both cheap: `font-info' reports equal max and average width
+only for a fixed-pitch font, and opening the font and asking for glyphs
+for \"Agx\" rejects symbol/emoji families that are technically
+fixed-pitch but render nothing readable."
+  (let ((frame (or frame (selected-frame)))
+        out)
+    (dolist (family (delete-dups (font-family-list frame)))
+      (ignore-errors
+        (let* ((entity (find-font (font-spec :family family) frame))
+               (info   (and entity (font-info entity frame))))
+          ;; index 7 is max-width, 11 is average-width
+          (when (and info (= (aref info 7) (aref info 11)))
+            (let* ((object (open-font entity 14 frame))
+                   (glyphs (and object (font-get-glyphs object 0 3 "Agx"))))
+              (when (and glyphs (cl-every #'identity (append glyphs nil)))
+                (push family out)))))))
+    (sort out #'string<)))
+
 ;; --- Pick a font the way consult-theme picks a theme ------------------------
 ;; Live preview while you move through the list, original restored on C-g.
 ;; Height is kept from the current frame, so this changes family only --
@@ -247,7 +271,7 @@ it at the head of `shan/font-preferences' in init.el."
   (let* ((frame (or (seq-find #'display-graphic-p (frame-list))
                     (user-error "No graphical frame to preview in")))
          (original (face-attribute 'default :family frame))
-         (families (sort (delete-dups (font-family-list frame)) #'string<)))
+         (families (shan/usable-font-families frame)))
     (consult--read
      families
      :prompt "Font: "
