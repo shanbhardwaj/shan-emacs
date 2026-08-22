@@ -17,10 +17,11 @@
 ;; has.  Height travels with the family because the two displays want
 ;; different sizes -- hardcoding either made every `git pull' conflict.
 (defvar shan/font-preferences
-  '(("Liga SFMono Nerd Font"   . 140)
-    ("CaskaydiaMono Nerd Font" . 120)
-    ("Cascadia Code"           . 120)
-    ("Menlo"                   . 140))
+  '(
+    ("CaskaydiaMono Nerd Font" . 140)
+    ("Cascadia Code"           . 140)
+    ("Menlo"                   . 140)
+    ("Liga SFMono Nerd Font"   . 140))
   "Fonts to try in order, as (FAMILY . HEIGHT).")
 
 (defun shan/apply-font (&optional frame)
