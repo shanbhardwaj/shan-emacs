@@ -11,50 +11,7 @@
 (load custom-file 'noerror)
 
 ;; --- Typography -------------------------------------------------------------
-;; ;; (set-face-attribute 'default nil :height 130 :family "Monaco" :weight 'bold)
-;; First family actually installed wins, so one config serves both machines:
-;; SF Mono is macOS-only (Apple licence) and Caskaydia is what the Linux box
-;; has.  Height travels with the family because the two displays want
-;; different sizes -- hardcoding either made every `git pull' conflict.
-(defvar shan/font-preferences
-  '(
-    ("CaskaydiaMono Nerd Font" . 140)
-    ("Cascadia Code"           . 140)
-    ("Menlo"                   . 140)
-    ("Liga SFMono Nerd Font"   . 140))
-  "Fonts to try in order, as (FAMILY . HEIGHT).")
-
-(defun shan/apply-font (&optional frame)
-  "Set the default face to the first installed family in `shan/font-preferences'.
-Runs per FRAME rather than once at startup: under the daemon, init.el is
-evaluated with no frame at all, so a bare `display-graphic-p' check is nil
-and the font is silently never applied.
-
-Called automatically for every new frame.  Call it interactively to
-re-apply after editing `shan/font-preferences'; it reports what it picked,
-or says so when none of the listed families are installed."
-  (interactive)
-  (let ((frame (or frame (selected-frame))))
-    (when (display-graphic-p frame)
-      (let ((installed (font-family-list frame)))
-        (catch 'done
-          (pcase-dolist (`(,family . ,height) shan/font-preferences)
-            (when (member family installed)
-              (set-face-attribute 'default frame
-                                  :height height :family family :weight 'regular)
-              (when (called-interactively-p 'interactive)
-                (message "Font: %s %.1fpt" family (/ height 10.0)))
-              (throw 'done family)))
-          (when (called-interactively-p 'interactive)
-            (message "None of shan/font-preferences is installed")))))))
-
-(add-hook 'after-make-frame-functions #'shan/apply-font)
-(shan/apply-font)   ; non-daemon startup, where a frame already exists
-;; extra space between lines, as a fraction of line height (0.2 = 20%).
-;; ghostel/mu4e set this buffer-locally and those values still win.
-;; (setq-default line-spacing 0.1)
-;; (set-face-attribute 'bold nil :weight 'regular)
-;; (set-face-attribute 'bold-italic nil :weight 'regular)
+;; Moved to lisp/init-ui.el (Typography section), with the rest of the UI.
 
 ;; --- Frame / window layout --------------------------------------------------
 (modify-frame-parameters nil default-frame-alist)

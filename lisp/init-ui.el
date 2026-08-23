@@ -1,9 +1,115 @@
 ;;; init-ui.el --- UI configuration -*- lexical-binding: t; -*-
 ;;; Commentary:
-;; Sections: Theme | Fonts | Mode line | Misc UI
-;; The default font is set in init.el (Typography); font *browsing* tools
-;; and old font experiments live in the Fonts section below.
+;; Sections: Typography | Theme | Fonts | Mode line | Misc UI
+;; The default font, the size commands and the fixed chrome height are in
+;; Typography; the font *picker* is in Fonts.
 ;; Theme-switching keys (H-t, s-<f12>, s-<f11>) are in init-settings.el.
+
+;;; ============================================================ Typography
+
+;; Moved here from init.el so all UI lives in one file.
+;;
+;; Two independent sizes:
+;;   - the TEXT size, `shan/font-override' or `shan/font-preferences'
+;;   - the CHROME size, `shan/ui-font-height', fixed
+;; Changing the text size must not move the mode line or header line, so the
+;; chrome height is absolute rather than the 0.85 *relative* height it used
+;; to be.  A relative height silently tracks the default face, which is why
+;; every global size change used to drag the chrome along with it.
+
+(defcustom shan/ui-font-height 120
+  "Height of the mode line and header line, in 1/10 pt.  120 = 12pt.
+Absolute on purpose: text size changes must leave the chrome alone."
+  :type 'integer
+  :group 'shan)
+
+;; First family actually installed wins, so one config serves both machines:
+;; SF Mono is macOS-only (Apple licence) and Caskaydia is what the Linux box
+;; has.  Height travels with the family because the two displays want
+;; different sizes -- hardcoding either made every `git pull' conflict.
+(defvar shan/font-preferences
+  '(("CaskaydiaMono Nerd Font" . 160)
+    ("Cascadia Code"           . 160)
+    ("Menlo"                   . 140)
+    ("Liga SFMono Nerd Font"   . 140))
+  "Fonts to try in order, as (FAMILY . HEIGHT).")
+
+(defcustom shan/font-override nil
+  "Runtime font choice as (FAMILY . HEIGHT), or nil to use the list.
+Set by `shan/consult-font' and the size commands, and saved, so a choice
+made at the keyboard survives a restart.  `shan/font-reset' clears it."
+  :type '(choice (const :tag "Use shan/font-preferences" nil)
+                 (cons string integer))
+  :group 'shan)
+
+(defun shan/font-choice (&optional frame)
+  "Return (FAMILY . HEIGHT) to use: the override, else the first installed."
+  (or shan/font-override
+      (let ((installed (font-family-list frame)))
+        (seq-find (lambda (pair) (member (car pair) installed))
+                  shan/font-preferences))))
+
+(defun shan/apply-font (&optional frame)
+  "Set the default face from `shan/font-override' or `shan/font-preferences'.
+Runs per FRAME rather than once at startup: under the daemon, init.el is
+evaluated with no frame at all, so a bare `display-graphic-p' check is nil
+and the font is silently never applied."
+  (interactive)
+  (let ((frame (or frame (selected-frame))))
+    (when (display-graphic-p frame)
+      (let ((choice (shan/font-choice frame)))
+        (if (null choice)
+            (when (called-interactively-p 'interactive)
+              (message "No font from shan/font-preferences is installed"))
+          (set-face-attribute 'default frame
+                              :family (car choice) :height (cdr choice)
+                              :weight 'regular)
+          ;; chrome stays put whatever the text does
+          (dolist (face '(mode-line mode-line-inactive header-line))
+            (set-face-attribute face frame :height shan/ui-font-height))
+          (when (called-interactively-p 'interactive)
+            (message "Font: %s %.1fpt%s" (car choice) (/ (cdr choice) 10.0)
+                     (if shan/font-override " (saved)" ""))))))))
+
+(defun shan/apply-font-all-frames (&rest _)
+  "Apply the font to every frame.  Safe on any hook: extra args ignored."
+  (dolist (f (frame-list)) (shan/apply-font f)))
+
+(defun shan/font-set (family height)
+  "Use FAMILY at HEIGHT everywhere, and remember it across restarts."
+  (customize-save-variable 'shan/font-override (cons family height))
+  (shan/apply-font-all-frames))
+
+(defun shan/font-size-adjust (delta)
+  "Change the text size by DELTA tenths of a point, everywhere, and save.
+The mode line and header line do not move: they are pinned to
+`shan/ui-font-height'."
+  (interactive "p")
+  (let* ((cur (or (shan/font-choice) (car shan/font-preferences)))
+         (new (max 60 (+ (cdr cur) delta))))
+    (shan/font-set (car cur) new)
+    (message "Font: %s %.1fpt" (car cur) (/ new 10.0))))
+
+(defun shan/font-bigger ()
+  "Increase the text size by 1pt everywhere."
+  (interactive) (shan/font-size-adjust 10))
+
+(defun shan/font-smaller ()
+  "Decrease the text size by 1pt everywhere."
+  (interactive) (shan/font-size-adjust -10))
+
+(defun shan/font-reset ()
+  "Forget the saved font choice and go back to `shan/font-preferences'."
+  (interactive)
+  (customize-save-variable 'shan/font-override nil)
+  (shan/apply-font-all-frames)
+  (message "Font reset to shan/font-preferences"))
+
+(add-hook 'after-make-frame-functions #'shan/apply-font)
+;; A theme can reset face heights; re-assert ours afterwards.
+(add-hook 'enable-theme-functions #'shan/apply-font-all-frames)
+(shan/apply-font)   ; non-daemon startup, where a frame already exists
+
 
 ;;; ============================================================ Theme
 
@@ -46,11 +152,10 @@ matters only for the moment before that, so keep it as the dark half of
         (when (and (stringp fg) (string-prefix-p "#" fg))
           (set-face-attribute 'mode-line-inactive nil
                               :foreground (doom-darken fg 0.35))))
-      ;; header-line inherits mode-line; pin it to the default font size so
-      ;; a shrunken mode-line can't misalign mu4e's column headers
-      (let ((h (face-attribute 'default :height gui)))
-        (when (numberp h)
-          (set-face-attribute 'header-line nil :height h)))))
+      ;; header-line inherits mode-line; pin it to the fixed chrome height.
+      ;; It used to copy the *default* face height, so every text size
+      ;; change dragged the header line along with it.
+      (set-face-attribute 'header-line nil :height shan/ui-font-height)))
   ;; enable-theme-functions covers auto-dark AND manual H-t theme switches
   (add-hook 'enable-theme-functions #'shan/apply-theme-fixups)
   (shan/apply-theme-fixups)
@@ -138,16 +243,12 @@ do their job, and a light-theme highlight still reads on a dark terminal.")
   :ensure t
   :commands (show-font-list show-font-select-preview show-font-tabulated))
 
-;; past font choices, kept for quick A/B:
-;; (set-face-attribute 'default nil :font "Monaco Nerd Font Mono"   :height 120)
-;; (set-face-attribute 'default nil :font "Iosevka Nerd Font Mono"  :height 160)
-;; (set-face-attribute 'default nil :font "CaskaydiaMono Nerd Font" :height 140)
-;; (set-face-attribute 'default nil :font "CommitMono Nerd Font"    :height 140)
-;; (set-face-attribute 'default nil :font "InputMonoNarrow Light"   :height 140)
 
 ;;; ============================================================ Mode line
 
-;; Smaller mode-line text without a shorter mode-line: :height 0.85 shrinks
+;; Smaller mode-line text without a shorter mode-line: a fixed height
+;; shrinks the font (0.85 was *relative* to the default face, so the mode
+;; line grew and shrank with every text size change; absolute holds still)
 ;; the font, and an invisible :box (color = the face's own background) pads
 ;; the bar back to size. Runs on every theme change so the padding color
 ;; always tracks the current theme's background.
@@ -159,7 +260,7 @@ Colours are read from a GUI frame: tty frames clear these backgrounds to
     (dolist (face '(mode-line mode-line-inactive))
       (let ((bg (or (face-background face gui t)
                     (face-background 'default gui t))))
-        (set-face-attribute face nil :height 0.85)
+        (set-face-attribute face nil :height shan/ui-font-height)
         (when (and (stringp bg) (string-prefix-p "#" bg))
           (set-face-attribute face nil
                               :box `(:line-width (1 . 4) :color ,bg)))))))
@@ -262,9 +363,9 @@ fixed-pitch but render nothing readable."
 ;; sizing stays with `shan/font-preferences' / M-x shan/apply-font.
 (defun shan/consult-font ()
   "Choose a font family with completion and live preview.
-On RET the family is applied to all frames.  On abort the previous family
-is restored.  The choice lasts for this session; to make it permanent put
-it at the head of `shan/font-preferences' in init.el."
+On RET the family is applied to all frames and saved, so it survives a
+restart.  On abort the previous family is restored.  `shan/font-reset'
+goes back to `shan/font-preferences'."
   (interactive)
   ;; require, not fboundp: consult--read is private and so carries no
   ;; autoload, while consult itself is deferred until one of its bound
@@ -288,9 +389,14 @@ it at the head of `shan/font-preferences' in init.el."
      (lambda (action candidate)
        (pcase action
          ;; preview as point moves; candidate is nil between candidates
-         ((or 'preview 'return)
-          (when candidate
-            (set-face-attribute 'default nil :family candidate)))
+         ('preview
+           (when candidate
+             (set-face-attribute 'default nil :family candidate)))
+         ;; RET: keep it, and remember it across restarts
+         ('return
+           (when candidate
+             (shan/font-set candidate (cdr (shan/font-choice frame)))
+             (message "Font: %s (saved)" candidate)))
          ;; abort: put back what was there
          ('exit
           (unless candidate
@@ -298,3 +404,16 @@ it at the head of `shan/font-preferences' in init.el."
 
 (bind-key "H-F" #'shan/consult-font)
 (define-key shan/hyper-map (kbd "F") #'shan/consult-font)
+
+;; Text size, everywhere and remembered.  Deliberately not
+;; `text-scale-increase': that is buffer-local, so it reverts in every other
+;; buffer.  These move the default face instead, which the mode line and
+;; header line no longer follow now that they are pinned.
+(bind-key "H-+" #'shan/font-bigger)
+(bind-key "H-=" #'shan/font-bigger)     ; same physical key without shift
+(bind-key "H--" #'shan/font-smaller)
+(bind-key "H-0" #'shan/font-reset)
+(define-key shan/hyper-map (kbd "+") #'shan/font-bigger)
+(define-key shan/hyper-map (kbd "=") #'shan/font-bigger)
+(define-key shan/hyper-map (kbd "-") #'shan/font-smaller)
+(define-key shan/hyper-map (kbd "0") #'shan/font-reset)

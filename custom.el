@@ -37,7 +37,8 @@
  '(package-vc-selected-packages
    '((agent-shell-dashboard :url
                             "https://github.com/wandersoncferreira/agent-shell-dashboard")))
- '(savehist-additional-variables '(kill-ring)))
+ '(savehist-additional-variables '(kill-ring))
+ '(shan/font-override nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
