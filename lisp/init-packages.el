@@ -226,3 +226,31 @@
   (setq yas-indent-line 'fixed)
   (yas-global-mode)
   (global-set-key (kbd "M-/") 'company-yasnippet))
+
+;; PDF viewing.  pdf-tools was installed by hand once -- it is in
+;; package-selected-packages -- but never configured, so .pdf still went to
+;; doc-view and opened as raw bytes.
+;;
+;; pdf-tools needs a compiled C helper, `epdfinfo', which is NOT shipped with
+;; the package.  Without it `pdf-tools-install' cannot claim .pdf and files
+;; silently fall through to doc-view.  On a new machine run
+;; `M-x pdf-tools-install' once to build it; it needs poppler (with
+;; poppler-glib), autoconf, automake and pkgconf.  Building from inside Emacs
+;; can stall on an interactive Homebrew prompt in the compilation buffer --
+;; install the dependencies from a shell first if that happens.
+(use-package pdf-tools
+  :ensure t
+  ;; Match on the file's magic bytes rather than the extension, so this stays
+  ;; deferred until a PDF is actually opened.
+  :magic ("%PDF" . pdf-view-mode)
+  :custom
+  (pdf-view-display-size 'fit-page)
+  (pdf-view-use-scaling t)          ; sharp on HiDPI
+  (pdf-view-resize-factor 1.1)
+  :config
+  ;; -noverify skips the "is the server built?" check, which is what makes
+  ;; this cheap at startup.  It registers the modes regardless; a missing
+  ;; epdfinfo then errors when a PDF is opened, which is honest.
+  (pdf-tools-install-noverify)
+  ;; line numbers and a rendered page do not mix
+  (add-hook 'pdf-view-mode-hook (lambda () (display-line-numbers-mode -1))))
