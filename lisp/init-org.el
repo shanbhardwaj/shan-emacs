@@ -15,7 +15,9 @@
          ("C-c o n" . shan/org-open-notes)
          ("C-c o i" . shan/org-open-inbox)
          ("C-c o f" . shan/org-open-file)
-         ("C-c o G" . shan/org-refresh-github-issues))
+         ("C-c o G" . shan/org-refresh-github-issues)
+         ("C-c o p" . shan/org-open-project)
+         ("C-c o w" . shan/org-agenda-for-person))
   :custom
   ;; Files and agenda
   ;; Plain ~/org, not an app's iCloud container: that path does not exist on
@@ -50,8 +52,14 @@
              ((org-agenda-overriding-header "Waiting on someone")))))))
 
   ;; Tasks
+  ;; Two sequences, deliberately.  Most of what gets captured for a project is
+  ;; an open question, and a question does not have the life of a task: it is
+  ;; raised, it waits on a person or a decision, then it is answered -- and the
+  ;; answer is sometimes worth keeping long after the item closes.  Forcing
+  ;; that through TODO/NEXT/DONE made questions read as stalled work.
   (org-todo-keywords
-   '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")))
+   '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")
+     (sequence "Q(q)" "ASKED(a)" "|" "ANSWERED(A)" "MOOT(m)")))
   (org-log-done 'time)
   (org-refile-targets '((org-agenda-files :maxlevel . 2)))
   (org-refile-use-outline-path 'file)
@@ -69,7 +77,22 @@
      ;; Point lands at %? so you type WHY you saved it -- that one line is
      ;; the difference between this and a bookmark graveyard.
      ("w" "Web link" entry (file "inbox.org")
-      "* TODO %?\n%U\n[[%:link][%:description]]\n\n%i" :empty-lines 1)))
+      "* TODO %?\n%U\n[[%:link][%:description]]\n\n%i" :empty-lines 1)
+
+     ;; Project captures.  These prompt for the project and route straight to
+     ;; the right file, so nothing accumulates a refiling debt.  %^g prompts
+     ;; for tags with completion over tags already in use, which is where the
+     ;; person goes -- :@ravi: and the like.  The project tag is supplied by
+     ;; the file's #+FILETAGS, so it never has to be typed.
+     ("q" "Question (project)" entry
+      (function (lambda () (shan/org-capture-project-target "Open questions")))
+      "* Q %^{Question} %^g\n%U\n%?" :empty-lines 1)
+     ("p" "Task (project)" entry
+      (function (lambda () (shan/org-capture-project-target "Tasks")))
+      "* TODO %^{Task} %^g\n%U\n%?" :empty-lines 1)
+     ("N" "Note (project)" entry
+      (function (lambda () (shan/org-capture-project-target "Notes")))
+      "* %^{Note} %^g\n%U\n%?" :empty-lines 1)))
 
   ;; Editing
   (org-special-ctrl-a/e t)
@@ -170,6 +193,64 @@ inbox.org with a link back instead."
                    (with-current-buffer b (revert-buffer t t t))))
                (message "GitHub issues refreshed"))
            (message "gh-issues-to-org failed; see *gh-issues*")))))))
+
+;; --- Projects ----------------------------------------------------------------
+;; Two axes, not one.  An item belongs to a project AND usually to a person --
+;; the person you need to raise it with.  A directory can only express one of
+;; those, so the project is a file (because you read by sitting down on one
+;; project) and the person is a tag (because reviews are irregular and
+;; person-shaped, and the same people work across several projects).
+;;
+;; #+FILETAGS in each project file supplies the project tag automatically, so
+;; the only tag ever typed is the person.  One item, both views, filed once.
+
+(defvar shan/org-projects '("kulcare" "commander" "finishd" "trekka")
+  "Active projects.  Each has a <name>.org in `org-directory'.
+Rituality was completed and handed over, so it has no file here; its
+history stays in github.org.")
+
+(defun shan/org-project-file (project)
+  "Return the org file for PROJECT."
+  (expand-file-name (concat project ".org") org-directory))
+
+(defun shan/org-capture-project-target (heading)
+  "Prompt for a project, then put point at the end of HEADING in its file.
+Used as a `function' capture target.  Creates HEADING if it is missing, so
+a hand-edited project file cannot break capture."
+  (let* ((project (completing-read "Project: " shan/org-projects nil t))
+         (file (shan/org-project-file project)))
+    (set-buffer (org-capture-target-buffer file))
+    (widen)
+    (goto-char (point-min))
+    (unless (re-search-forward (concat "^\\* " (regexp-quote heading) "[ \t]*$") nil t)
+      (goto-char (point-max))
+      (unless (bolp) (insert "\n"))
+      (insert "* " heading "\n")
+      (forward-line -1))
+    (end-of-line)))
+
+(defun shan/org-open-project ()
+  "Open one of `shan/org-projects'."
+  (interactive)
+  (find-file (shan/org-project-file
+              (completing-read "Project: " shan/org-projects nil t))))
+
+(defun shan/org-person-tags ()
+  "Every tag starting with @ that is already in use across the agenda files."
+  (let (tags)
+    (dolist (entry (org-global-tags-completion-table (org-agenda-files)))
+      (let ((tag (if (consp entry) (car entry) entry)))
+        (when (and (stringp tag) (string-prefix-p "@" tag))
+          (push tag tags))))
+    (sort (delete-dups tags) #'string<)))
+
+(defun shan/org-agenda-for-person ()
+  "Show every open item tagged for one person, across all projects.
+This is the review view: irregular meetings mean the useful question is
+never \"what is scheduled\" but \"what have I got for this person\"."
+  (interactive)
+  (let ((who (completing-read "Person tag: " (shan/org-person-tags) nil nil "@")))
+    (org-tags-view nil (concat who "/!"))))
 
 (defun shan/org-open-file ()
   "Pick any file in `org-directory' with completion."
