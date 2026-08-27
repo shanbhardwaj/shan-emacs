@@ -84,13 +84,18 @@
      ;; for tags with completion over tags already in use, which is where the
      ;; person goes -- :@ravi: and the like.  The project tag is supplied by
      ;; the file's #+FILETAGS, so it never has to be typed.
-     ("q" "Question (project)" entry
+     ;; Nested under p, so the letters match everywhere they are typed:
+     ;;   Emacs      C-c o c  p q
+     ;;   Mac        Leader   k p q
+     ;;   4090       Alt+Ctrl+Shift+Q   (no namespace there, so Shift = project)
+     ("p" "Project")
+     ("pq" "Question" entry
       (function (lambda () (shan/org-capture-project-target "Open questions")))
       "* Q %^{Question} %^g\n%U\n%?" :empty-lines 1)
-     ("p" "Task (project)" entry
+     ("pt" "Task" entry
       (function (lambda () (shan/org-capture-project-target "Tasks")))
       "* TODO %^{Task} %^g\n%U\n%?" :empty-lines 1)
-     ("N" "Note (project)" entry
+     ("pn" "Note" entry
       (function (lambda () (shan/org-capture-project-target "Notes")))
       "* %^{Note} %^g\n%U\n%?" :empty-lines 1)))
 
