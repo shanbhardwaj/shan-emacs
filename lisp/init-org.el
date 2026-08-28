@@ -17,7 +17,11 @@
          ("C-c o f" . shan/org-open-file)
          ("C-c o G" . shan/org-refresh-github-issues)
          ("C-c o p" . shan/org-open-project)
-         ("C-c o w" . shan/org-agenda-for-person))
+         ("C-c o w" . shan/org-agenda-for-person)
+         ("C-c o d" . shan/org-day-plan)
+         ("C-c o r" . shan/org-day-close)
+         ("C-c o t" . shan/org-today-toggle)
+         ("C-c o D" . shan/org-today-clear))
   :custom
   ;; Files and agenda
   ;; Plain ~/org, not an app's iCloud container: that path does not exist on
@@ -36,20 +40,47 @@
   ;; undated backlog, newest captures first.
   (org-agenda-custom-commands
    '(("d" "Dashboard: today + undated inbox"
-      ((agenda "" ((org-agenda-span 'day)
+      (;; What you committed to this morning, above everything else.
+       (tags "today"
+             ((org-agenda-overriding-header "Today")))
+       (agenda "" ((org-agenda-span 'day)
                    (org-deadline-warning-days 7)))
        (todo "NEXT"
              ((org-agenda-overriding-header "In progress")))
        ;; -github keeps the 50-odd issues in github.org out of here; they
        ;; get their own section below.  Without it they drown the inbox.
-       (tags-todo "-SCHEDULED={.}-DEADLINE={.}-github/!TODO"
+       ;; -learning-reading keep the Emacs curriculum and the saved links out:
+       ;; both are piles you visit deliberately, not things to see every day.
+       (tags-todo "-SCHEDULED={.}-DEADLINE={.}-github-learning-reading/!TODO"
                   ((org-agenda-overriding-header "Inbox (no date)")
                    (org-agenda-sorting-strategy '(timestamp-down))))
        (tags-todo "+github/!TODO"
                   ((org-agenda-overriding-header "GitHub (assigned to me)")
                    (org-agenda-max-entries 12)))
        (todo "WAITING"
-             ((org-agenda-overriding-header "Waiting on someone")))))))
+             ((org-agenda-overriding-header "Waiting on someone")))))
+
+     ;; Morning.  Top block is what is already committed (usually empty, or
+     ;; whatever carried over); the rest is the pool to choose from, grouped
+     ;; the way you actually think about it -- questions first, since that is
+     ;; most of what gets captured.  Press `t' on a line to commit it.
+     ("P" "Plan the day"
+      ((tags "today"
+             ((org-agenda-overriding-header "Committed")))
+       (agenda "" ((org-agenda-span 'day)
+                   (org-agenda-overriding-header "Today's calendar")))
+       (todo "Q|ASKED"
+             ((org-agenda-overriding-header "Open questions")))
+       (tags-todo "-github-learning-reading/!TODO|NEXT"
+                  ((org-agenda-overriding-header "Everything else open")
+                   (org-agenda-sorting-strategy '(priority-down timestamp-down))))))
+
+     ;; Evening.  One block: what you said you would do.  Mark what got done,
+     ;; then clear the tags with `C-c o D' so tomorrow starts empty.
+     ("R" "Close the day"
+      ((tags "today"
+             ((org-agenda-overriding-header
+               "Today's commitments -- mark done, then C-c o D to clear")))))))
 
   ;; Tasks
   ;; Two sequences, deliberately.  Most of what gets captured for a project is
@@ -198,6 +229,76 @@ inbox.org with a link back instead."
                    (with-current-buffer b (revert-buffer t t t))))
                (message "GitHub issues refreshed"))
            (message "gh-issues-to-org failed; see *gh-issues*")))))))
+
+;; --- The daily loop ----------------------------------------------------------
+;; Commitment is a TAG, not a date and not a keyword.
+;;
+;; A tag is orthogonal to state, which matters here because most of what gets
+;; captured is an open question rather than a task -- a Q and a TODO can both
+;; be today's work.  It carries no date semantics, so nothing silently becomes
+;; "overdue" and breeds the guilt that kills these systems.  And it can be
+;; wiped in one pass at the end of the day, which is what makes the loop
+;; closable rather than cumulative.
+;;
+;; SCHEDULED was the obvious alternative and is worse: it means "start on this
+;; date", so a day you do not finish turns into a growing overdue list.  NEXT
+;; keeps its real meaning -- actively in progress right now.
+;;
+;;   C-c o d   morning: what carried over, then the pool to pick from
+;;   C-c o t   commit the entry at point (or un-commit it)
+;;   C-c o r   evening: what you committed to
+;;   C-c o D   clear every tag, so tomorrow starts empty
+
+(defcustom shan/org-today-tag "today"
+  "Tag marking an entry as committed to for today."
+  :type 'string :group 'org)
+
+(defun shan/org-today-toggle ()
+  "Commit the entry at point to today, or take it back.
+Works in a file and in the agenda."
+  (interactive)
+  (if (derived-mode-p 'org-agenda-mode)
+      (let ((m (or (org-get-at-bol 'org-hd-marker)
+                   (org-get-at-bol 'org-marker))))
+        (unless m (user-error "No entry at point"))
+        (org-with-point-at m
+          (org-toggle-tag shan/org-today-tag 'toggle))
+        (org-agenda-redo t))
+    (org-toggle-tag shan/org-today-tag 'toggle)))
+
+(defun shan/org-day-plan ()
+  "Morning pass: see what carried over, then choose today's work."
+  (interactive)
+  (org-agenda nil "P"))
+
+(defun shan/org-day-close ()
+  "Evening pass: what you committed to.  Clear with `shan/org-today-clear'."
+  (interactive)
+  (org-agenda nil "R"))
+
+(defun shan/org-today-clear ()
+  "Remove the today tag from every entry that carries it.
+Only local tags are touched, never inherited ones, so a file-wide
+#+FILETAGS is never damaged.  Run at the end of the day: carrying a
+commitment over should be a deliberate act tomorrow, not the default."
+  (interactive)
+  (let ((n 0) (files 0))
+    (dolist (file (org-agenda-files))
+      (let* ((buf (find-file-noselect file))
+             (touched nil))
+        (with-current-buffer buf
+          (org-with-wide-buffer
+           (goto-char (point-min))
+           (while (re-search-forward org-heading-regexp nil t)
+             (when (member shan/org-today-tag (org-get-tags nil t))
+               (org-toggle-tag shan/org-today-tag 'off)
+               (setq touched t n (1+ n))))))
+        (when touched
+          (setq files (1+ files))
+          (with-current-buffer buf (save-buffer)))))
+    (message "Cleared %s from %d entr%s in %d file%s"
+             shan/org-today-tag n (if (= n 1) "y" "ies")
+             files (if (= files 1) "" "s"))))
 
 ;; --- Projects ----------------------------------------------------------------
 ;; Two axes, not one.  An item belongs to a project AND usually to a person --
