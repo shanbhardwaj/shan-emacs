@@ -49,23 +49,88 @@ without being filed twice.
 
 ## The daily loop
 
-Commitment is the tag `:today:`.
+Commitment is the tag `:today:`. Two short passes, one at each end of the day.
 
 | Key | When | Does |
 |---|---|---|
-| `C-c o d` | morning | Planner: what carried over, calendar, open questions, then the pool |
+| `C-c o d` | morning | Planner — see below |
 | `C-c o t` | any time | Commit the entry at point, or take it back. Works in a file and in the agenda |
 | `C-c o r` | evening | Review what was committed |
 | `C-c o D` | evening | Clear every `:today:` tag, so tomorrow starts empty |
 
-**Why a tag and not a date.** A tag sits outside the state machine, which
-matters because open questions are most of what gets captured and a `Q` and a
-`TODO` can both be today's work. `SCHEDULED` means *start on this date*, so an
-unfinished day becomes a growing overdue list — that guilt is what kills these
-systems. `NEXT` keeps meaning actively in progress.
+### The morning pass
+
+Open `C-c o d` and pick **three to five** things. Not a full triage — a
+commitment. Everything not picked stays invisible until tomorrow, which is the
+point: the value is in what gets left out.
+
+The planner shows four blocks, in this order:
+
+1. **Committed** — anything still tagged from yesterday. Usually empty. If it
+   is not, decide deliberately whether it carries again rather than letting it
+   drift.
+2. **Today's calendar** — the agenda for the day. Empty until org-gcal works.
+3. **Open questions** — `Q` and `ASKED` across every project. First because
+   open questions are most of what gets captured, so this is usually the real
+   pool.
+4. **Everything else open** — `TODO` and `NEXT`, excluding `github`,
+   `learning` and `reading`.
+
+Press `C-c o t` on a line to commit it.
+
+### During the day
+
+`C-c o a d` is the dashboard. It leads with **Today**, then calendar, in
+progress, undated inbox, GitHub, and waiting-on-someone. Capture keeps working
+as always — new things land in their project file and wait for tomorrow rather
+than interrupting today.
+
+### The evening pass
+
+`C-c o r` shows one block: what you committed to. Mark what got done. Then
+`C-c o D` wipes every tag.
+
+Deliberately **not** part of the evening: choosing tomorrow's list. Clear and
+carry only. Selection happens in the morning with fresh eyes, and an evening
+pass that also demands decisions is the one that gets skipped on a tired night.
+
+**The clear is the load-bearing step.** A loop that never empties is just a list
+that grows, which is the failure this whole design exists to avoid. Carrying
+something over should be a deliberate act tomorrow, not a default.
+
+### Why a tag and not a date
+
+A tag sits outside the state machine, which matters because open questions are
+most of what gets captured and a `Q` and a `TODO` can both be today's work.
+`SCHEDULED` means *start on this date*, so an unfinished day becomes a growing
+overdue list — that guilt is what kills these systems. `NEXT` keeps meaning
+actively in progress.
 
 `shan/org-today-clear` only removes **local** tags (`org-get-tags nil t`), never
 inherited ones, so `#+FILETAGS` is never damaged. Verified end to end.
+
+### Reviews are a query, not a calendar
+
+Meetings with the teams are irregular, so nothing recurring gets scheduled. The
+useful question is never "what is on the calendar" but "I am about to talk to
+someone — what do I have for them". That is `C-c o w`: prompts for a person tag
+and shows everything open for them across all four projects. It is the reason
+the person is a tag rather than a file.
+
+### Why the inbox became five files
+
+One inbox was holding five different kinds of thing, and mixing them meant the
+daily view showed 34 saved browser tabs every morning. Split by what each item
+actually is:
+
+- **project work** → the four project files
+- **Emacs practice** (16, with instructions in each body — a curriculum) →
+  `learning.org`, excluded from daily views
+- **saved links** (11) → `reading.org`, excluded from daily views
+- **genuine loose captures** (5) → `inbox.org` stays small on purpose
+- **GitHub issues** → generated, its own dashboard section
+
+Each file now means one thing, and the inbox means "not yet sorted" again.
 
 ## Other keys
 
