@@ -54,10 +54,19 @@
         ns-pop-up-frames nil))
 
 ;; --- Linux: same modifier layout as the Mac ---------------------------------
-;; The keyboard is shared over Deskflow, so the keys pressed are the Mac's.
-;; Deskflow forwards Command as Super and Option as Alt, which is the mirror
-;; image of the mapping above (Command = meta, left Option = super) -- so
-;; every M- binding arrived as s- over here and did nothing.  Swap them back.
+;; The reason for this swap has changed, though the swap itself has not.
+;;
+;; It was written when the Mac was the KVM server and its keyboard drove this
+;; machine over Deskflow.  The roles are reversed now: the 4090 has the
+;; keyboard and drives the Mac over lan-mouse.  The mapping still holds
+;; because the keyboard is Mac-layout -- its Command key sends LEFTMETA and
+;; its Option key sends LEFTALT -- so Command must become Meta here just as it
+;; is on the Mac, and Option becomes s-.
+;;
+;; Hyprland deliberately leaves Super alone for this: $mod is ALT there, and
+;; only Command+Space and Command+Tab are taken globally, mirroring the pair
+;; macOS reserves.  Without that, fourteen M- bindings were swallowed by the
+;; compositor before Emacs ever saw them.
 ;;
 ;; These variables live in pgtkterm.c, so they apply to graphical frames on
 ;; Wayland only; TTY frames go through kkp and are untouched.  x-meta-keysym
@@ -121,6 +130,7 @@
 (load "~/.emacs.d/lisp/init-fold.el")
 (load "~/.emacs.d/lisp/init-servers.el")
 (load "~/.emacs.d/lisp/init-org.el")
+(load "~/.emacs.d/lisp/init-speech.el")
 
 ;; --- Server -------------------------------------------------------------
 ;; normally the emacs-plus daemon serves emacsclient; if it isn't running
