@@ -28,8 +28,8 @@ Absolute on purpose: text size changes must leave the chrome alone."
 ;; has.  Height travels with the family because the two displays want
 ;; different sizes -- hardcoding either made every `git pull' conflict.
 (defvar shan/font-preferences
-  '(("CaskaydiaMono Nerd Font" . 160)
-    ("Cascadia Code"           . 160)
+  '(("Noto Sans Mono"          . 130)
+    ("CaskaydiaMono Nerd Font" . 140)
     ("Menlo"                   . 140)
     ("Liga SFMono Nerd Font"   . 140))
   "Fonts to try in order, as (FAMILY . HEIGHT).")
@@ -43,9 +43,18 @@ made at the keyboard survives a restart.  `shan/font-reset' clears it."
   :group 'shan)
 
 (defun shan/font-choice (&optional frame)
-  "Return (FAMILY . HEIGHT) to use: the override, else the first installed."
-  (or shan/font-override
-      (let ((installed (font-family-list frame)))
+  "Return (FAMILY . HEIGHT) to use: the override, else the first installed.
+The override only counts where its family is actually installed.  custom.el
+is version controlled, so a font chosen on one machine arrives on the other,
+and half of `shan/font-preferences' exists on only one of them -- Liga SFMono
+is macOS-only.  An override naming an absent family would otherwise be handed
+to `set-face-attribute', which takes it without complaint and leaves Emacs
+rendering a substitute nobody chose.  Falling through to the preference list
+is exactly what that list is for."
+  (let ((installed (font-family-list frame)))
+    (or (and shan/font-override
+             (member (car shan/font-override) installed)
+             shan/font-override)
         (seq-find (lambda (pair) (member (car pair) installed))
                   shan/font-preferences))))
 
@@ -115,7 +124,7 @@ The mode line and header line do not move: they are pinned to
 
 ;; The active theme.  Change this one line (then restart or re-eval this
 ;; file) to switch permanently; `consult-theme' (H-t) previews live.
-(defvar shan/theme 'doom-ayu-dark
+(defvar shan/theme 'doom-ir-black
   "Theme loaded at startup by `init-ui.el'.
 auto-dark switches this immediately to match the system appearance; it
 matters only for the moment before that, so keep it as the dark half of
@@ -417,3 +426,69 @@ goes back to `shan/font-preferences'."
 (define-key shan/hyper-map (kbd "=") #'shan/font-bigger)
 (define-key shan/hyper-map (kbd "-") #'shan/font-smaller)
 (define-key shan/hyper-map (kbd "0") #'shan/font-reset)
+
+;; --- Make the command everyone reaches for actually stick -------------------
+;; `M-x set-frame-font' is the obvious way to change the font, and it is the
+;; one font command here that does not survive.  It sets the frame's font
+;; directly and knows nothing about `shan/font-override', so the next theme
+;; change runs `shan/apply-font-all-frames' and puts the old font straight
+;; back.
+;;
+;; That reads as Emacs forgetting the font for no reason, because the trigger
+;; is invisible: `auto-dark-mode' switches the theme on its own when macOS
+;; moves between light and dark.  The font can therefore revert an hour later
+;; with nothing touched, which is what makes it look like a random fault
+;; rather than a consequence.
+;;
+;; Dropping the re-apply is not the fix -- it is there because themes really do
+;; reset face heights.  Record what `set-frame-font' did instead, so every road
+;; to a new font ends in the same saved place.
+(defun shan/font--remember (&rest _)
+  "Save the frame's current default face in `shan/font-override'.
+Advice for `set-frame-font', so a font set that way outlives the next
+theme change and the next restart."
+  (let* ((frame  (selected-frame))
+         (family (face-attribute 'default :family frame))
+         (height (face-attribute 'default :height frame)))
+    (when (and (stringp family) (integerp height))
+      (let ((new (cons family height)))
+        ;; Only on a real change: this runs on every `set-frame-font', and
+        ;; `customize-save-variable' writes custom.el each time it is called.
+        (unless (equal new shan/font-override)
+          (customize-save-variable 'shan/font-override new)
+          (message "Font: %s %.1fpt (saved)" family (/ height 10.0)))))))
+
+(advice-add 'set-frame-font :after #'shan/font--remember)
+
+;; --- The same commands without Hyper ----------------------------------------
+;; The H- keys above are the fast path on the Mac, where Hyper is Right
+;; Command.  On the 4090 Hyper exists only because keyd manufactures it, and
+;; not at all in a tty or over ssh.  C-c f asks for no modifier that has to be
+;; built first, so the font is reachable on either machine the same way.
+(defvar-keymap shan/font-map
+  :doc "Font: family, size, and back to the default."
+  "f" #'shan/consult-font
+  "+" #'shan/font-bigger
+  "=" #'shan/font-bigger
+  "-" #'shan/font-smaller
+  "0" #'shan/font-reset)
+
+(bind-key "C-c f" shan/font-map)
+
+;; After one size change, bare + and - keep working until you press something
+;; else, so finding a size is a few taps rather than the prefix each time.
+;; `repeat-mode' is off here and turning it on globally to get this would
+;; change how a lot of other keys behave; a transient map is local to the
+;; moment.  Same shape as the speech stop keys in init-speech.el.
+(defun shan/font--size-repeat (&rest _)
+  "Keep +, =, - and 0 live for another press after a size change."
+  (set-transient-map
+   (define-keymap
+     "+" #'shan/font-bigger
+     "=" #'shan/font-bigger
+     "-" #'shan/font-smaller
+     "0" #'shan/font-reset)
+   t))
+
+(advice-add 'shan/font-bigger  :after #'shan/font--size-repeat)
+(advice-add 'shan/font-smaller :after #'shan/font--size-repeat)
