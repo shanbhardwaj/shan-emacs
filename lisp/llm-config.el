@@ -284,6 +284,8 @@ Merges the dashboard's default source with sessions found under
   ;; Loaded from the working copy rather than a remote: this one is being
   ;; written here.  `herdr-api' is its other half and comes with it.
   :load-path "~/projects/el-herder/"
+  ;; Only where that working copy exists: the Mac has it, shan-4090 does not.
+  :if (file-directory-p (expand-file-name "~/projects/el-herder/"))
   :commands (herdr herdr-connect-to herdr-switch-to-view herdr-reload)
   :bind (("H-a" . herdr)                     ; also on C-c h a
          ("H-A" . herdr-switch-to-view))

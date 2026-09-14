@@ -28,6 +28,12 @@
       '(("Noto Sans Mono"          . 100)
         ("FiraCode Nerd Font Mono" . 100)))
 
+;; The Mac's saved font lives in the shared custom.el, and a saved choice
+;; outranks the list above, so this machine would show the Mac's 14pt text.
+;; This file loads after custom.el, so clearing the saved choice here keeps
+;; shan-4090 on its own sizes; the Mac keeps its choice.
+(setq shan/font-override nil)
+
 ;; The mode line and header line.  init-ui.el pins these to an ABSOLUTE height
 ;; on purpose, so that `shan/font-bigger' and friends do not drag the chrome
 ;; around with the text.  That is still the right behaviour, but it means the
