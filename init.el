@@ -112,6 +112,26 @@
     (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
         (normal-top-level-add-subdirs-to-load-path))))
 
+;; --- Per-machine settings ---------------------------------------------------
+;; lisp/host-<system-name>.el, loaded BEFORE the modules and only if it exists.
+;;
+;; Before, not after, on purpose: the host file `setq's variables that the
+;; modules go on to declare with `defvar'/`defcustom', and both of those leave
+;; an already-bound value alone.  So the host file wins simply by being first,
+;; and the module's own value stays as the fallback for machines with no host
+;; file.  Loading it afterwards would instead need every module to re-apply
+;; whatever changed.
+;;
+;; It also lands after custom.el (above), so a host file beats a `customize'
+;; setting for the same variable.  Worth knowing before wondering why the
+;; customize UI appears not to stick.
+;;
+;; A missing file is not an error: a new machine just gets the shared defaults.
+(let ((host-file (expand-file-name (format "lisp/host-%s.el" (system-name))
+                                   user-emacs-directory)))
+  (when (file-exists-p host-file)
+    (load host-file)))
+
 ;; --- Module loads -----------------------------------------------------------
 (load "~/.emacs.d/lisp/init-builtin.el")
 (load "~/.emacs.d/lisp/init-settings.el")

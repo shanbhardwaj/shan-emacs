@@ -19,7 +19,12 @@
 
 (defcustom shan/ui-font-height 120
   "Height of the mode line and header line, in 1/10 pt.  120 = 12pt.
-Absolute on purpose: text size changes must leave the chrome alone."
+Absolute on purpose: text size changes must leave the chrome alone.
+
+Absolute does NOT mean universal: 120 is 0.85 * 140, the 0.85 factor applied
+to the default height this file used to assume.  A machine whose text height
+differs needs its own value, or the chrome ends up out of proportion with the
+body text -- set it in lisp/host-<system-name>.el alongside the font."
   :type 'integer
   :group 'shan)
 
@@ -28,6 +33,12 @@ Absolute on purpose: text size changes must leave the chrome alone."
 ;; has.  Height travels with the family because the two displays want
 ;; different sizes -- hardcoding either made every `git pull' conflict.
 (defvar shan/font-preferences
+  ;; The shared fallback list, used by any machine with no host file.  A
+  ;; machine that needs its own sizes sets `shan/font-preferences' in
+  ;; lisp/host-<system-name>.el instead, which is loaded first and therefore
+  ;; wins over this `defvar'; shan-4090 does exactly that.  Keying the height
+  ;; off which family happens to be installed stopped distinguishing the two
+  ;; machines once both had the same fonts.
   '(("Noto Sans Mono"          . 130)
     ("CaskaydiaMono Nerd Font" . 140)
     ("Menlo"                   . 140)
@@ -124,7 +135,7 @@ The mode line and header line do not move: they are pinned to
 
 ;; The active theme.  Change this one line (then restart or re-eval this
 ;; file) to switch permanently; `consult-theme' (H-t) previews live.
-(defvar shan/theme 'doom-ir-black
+(defvar shan/theme 'doom-horizon
   "Theme loaded at startup by `init-ui.el'.
 auto-dark switches this immediately to match the system appearance; it
 matters only for the moment before that, so keep it as the dark half of
@@ -237,7 +248,7 @@ do their job, and a light-theme highlight still reads on a dark terminal.")
   :after doom-themes
   :custom
   ;; trying the ayu pair for a while; previous: (doom-horizon) (ef-summer)
-  (auto-dark-themes '((doom-ayu-dark) (doom-ayu-light)))
+  (auto-dark-themes '((doom-horizon) (doom-ayu-light)))
   (auto-dark-allow-osascript t)
   :config
   ;; face fixups re-run via enable-theme-functions (see doom-themes block)
