@@ -241,7 +241,7 @@ do their job, and a light-theme highlight still reads on a dark terminal.")
   (auto-dark-allow-osascript t)
   :config
   ;; face fixups re-run via enable-theme-functions (see doom-themes block)
-  (auto-dark-mode 1))
+  (auto-dark-mode 0))
 
 ;;; ============================================================ Fonts
 
