@@ -23,7 +23,7 @@
                            mu4e-views multiple-cursors
                            nerd-icons-completion nerd-icons-corfu
                            nerd-icons-dired no-littering ocaml-ts-mode
-                           orderless org-gcal orgit-forge
+                           orderless org-gcal orgit-forge pdf-tools
                            persistent-scratch prodigy project-x
                            rainbow-delimiters rainbow-mode rbenv robe
                            rspec-mode rubocop ruby-refactor ruby-tools
@@ -38,7 +38,7 @@
    '((agent-shell-dashboard :url
                             "https://github.com/wandersoncferreira/agent-shell-dashboard")))
  '(savehist-additional-variables '(kill-ring))
- '(shan/font-override nil))
+ '(shan/font-override '("Noto Sans Mono" . 140)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
