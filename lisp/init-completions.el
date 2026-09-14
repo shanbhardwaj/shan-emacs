@@ -41,13 +41,13 @@
 
 (use-package vertico
   :ensure t
-  :bind (("C-x M-r" . vertico-repeat)
-         :map vertico-map
-         ("M-v" . vertico-multiform-vertical)
-         ("M-g" . vertico-multiform-grid)
-         ("M-f" . vertico-multiform-flat)
-         ("M-r" . vertico-multiform-reverse)
-         ("M-u" . vertico-multiform-unobtrusive))
+  ;; `vertico-multiform-mode' already binds the display toggles on the
+  ;; shifted keys -- M-V vertical, M-G grid, M-F flat, M-R reverse,
+  ;; M-U unobtrusive, M-B buffer -- in `vertico-multiform-map'.  Repeating
+  ;; them unshifted in `vertico-map' only shadowed keys that earn their
+  ;; place: M-v is vertico's <remap> for `vertico-scroll-down' (paging the
+  ;; candidate list), M-r the minibuffer's history search, M-f forward-word.
+  :bind (("C-x M-r" . vertico-repeat))
   :init (vertico-mode 1)
   :config
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
