@@ -280,6 +280,36 @@ Merges the dashboard's default source with sessions found under
 (with-eval-after-load 'eat
   (define-key eat-semi-char-mode-map (kbd "M-o") #'other-window))
 
+(use-package herdr
+  ;; Loaded from the working copy rather than a remote: this one is being
+  ;; written here.  `herdr-api' is its other half and comes with it.
+  :load-path "~/projects/el-herder/"
+  :commands (herdr herdr-connect-to herdr-switch-to-view herdr-reload)
+  :bind (("H-a" . herdr)                     ; also on C-c h a
+         ("H-A" . herdr-switch-to-view))
+  :custom
+  ;; The desktop's socket is forwarded over ssh; :socket is left out so
+  ;; the client asks that host for its own $HOME.
+  (herdr-connections '(("shan-4090" :ssh "shan-4090")
+                       ("shan-dl-box" :ssh "shan-dl-box")))
+  ;; ghostel is already the terminal for claude-code-ide, and herdr
+  ;; follows that choice on its own.  Named here so it is visible.
+  (herdr-terminal-backend 'auto)
+  ;; What J and W do once they reach a worktree. project-x saves a window
+  ;; layout for each project root, and a linked worktree is a root of its
+  ;; own, so `layout' gives each worktree the arrangement you left in it.
+  (herdr-project-action 'find-file))
+
+;; --- herdr in magit-status ------------------------------------------------
+;; Adds a Worktrees section, with the agent at work in each one. Forge
+;; already puts issues and pull requests in the same buffer, so magit-status
+;; then answers all three questions about a repository at once.
+(use-package herdr-magit
+  :load-path "~/projects/el-herder/"
+  :after (herdr magit)
+  :config
+  (herdr-magit-mode 1))
+
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
   ;; C-c j as well as C-c C-': a terminal cannot encode C-' at all (ASCII has

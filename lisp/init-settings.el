@@ -258,6 +258,7 @@ While the panel is up, pressing the bare key runs the command."
                 ("f" . consult-project-extra-find)
                 ("b" . consult-buffer)
                 ("g" . ghostel-project)
+                ("a" . herdr)
                 ("," . shan/open-init)
                 ("h" . shan/hyper-cheatsheet)))
   (define-key shan/hyper-map (kbd (car pair)) (cdr pair)))
